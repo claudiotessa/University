@@ -1,0 +1,105 @@
+\documentclass[12pt, a4paper]{article}
+
+% -----------------------------------------------------------
+% Packages
+% -----------------------------------------------------------
+\usepackage[utf8]{inputenc}    % UTF-8 encoding
+\usepackage{geometry}          % Page geometry
+\geometry{margin=1in}          % 1-inch margins
+\usepackage{amsmath, amssymb} % Math symbols and equations
+\usepackage{graphicx}          % Include images
+\usepackage{hyperref}          % Clickable links in PDF
+\usepackage{setspace}          % Line spacing
+\usepackage{xcolor}            % Text color
+\usepackage{titlesec}          % Custom section titles
+\usepackage{enumitem}          % Custom lists
+
+% -----------------------------------------------------------
+% Document Configuration
+% -----------------------------------------------------------
+\title{My First Document in LaTeX}
+\author{Claudio Tes}
+\date{\today}
+\begin{document}
+    
+% Custom section styling
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+
+% -----------------------------------------------------------
+% Begin Document
+% -----------------------------------------------------------
+%\begin{document}
+
+% Title page
+\maketitle
+
+% Abstract
+\begin{abstract}
+	This is a brief abstract about the document. It gives an overview of what is covered.
+\end{abstract}
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------
+% Introduction
+% -----------------------------------------------------------
+\section{Introduction}
+Welcome to your first LaTeX document! This is the introduction section, where you provide context for the content that follows.
+
+\section{Mathematical Example}
+LaTeX is excellent for typesetting mathematics. Here's an example of an equation:
+\[
+	E = mc^2
+    \bigcap_i^\infty {i^2} = 3
+\]
+
+You can also number equations using the \texttt{equation} environment:
+\begin{equation}
+	a^2 + b^2 = c^2 
+\end{equation}
+
+
+% -----------------------------------------------------------
+% Figures
+% -----------------------------------------------------------
+\section{Adding Figures}
+You can include images using the \texttt{graphicx} package:
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{example-image} % Replace with your image
+	\caption{An example figure.}
+	\label{fig:example}
+\end{figure}
+
+% -----------------------------------------------------------
+% Lists
+% -----------------------------------------------------------
+\section{Lists}
+Here is an example of an itemized list:
+\begin{itemize}
+	\item First item
+	\item Second item
+	\item Third item
+\end{itemize}
+
+And an enumerated list:
+\begin{enumerate}
+	\item Step one
+	\item Step two
+	\item Step three
+\end{enumerate}
+
+% -----------------------------------------------------------
+% Conclusion
+% -----------------------------------------------------------
+\section{Conclusion}
+This is a simple document to get started with LaTeX. Explore adding more sections, tables, references, and advanced formatting!
+
+% -----------------------------------------------------------
+% End Document
+% -----------------------------------------------------------
+\end{document}
+
