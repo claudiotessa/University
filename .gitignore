@@ -1,0 +1,31 @@
+# LaTeX compilation files
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.nav
+*.snm
+*.pdfsync
+*.xdv
+
+# LaTeX editor temporary files
+*~       # Backup files (e.g., vim, emacs)
+*.swp    # Swap files (e.g., vim)
+*.bak    # Backup files
+*.tmp    # Temporary files
+
+# LaTeXmk generated files
+latexmk.log
+latexmk.pdf
+
+# Other common auxiliary files
+*.run.xml
+
