@@ -1,0 +1,127 @@
+\documentclass[12pt, a4paper]{article}
+
+% -----------------------------------------------------------
+% Packages
+% -----------------------------------------------------------
+
+\usepackage[utf8]{inputenc}    % UTF-8 encoding
+\usepackage[margin=1in]{geometry}          % Page geometry
+\geometry{margin=1in}          % 1-inch margins
+\usepackage{amsmath, amssymb} % Math symbols and equations
+\usepackage{graphicx}          % Include images
+\usepackage{hyperref}          % Clickable links in PDF
+\usepackage{setspace}          % Line spacing
+\usepackage{xcolor}            % Text color
+\usepackage{titlesec}          % Custom section titles
+\usepackage{enumitem}          % Custom lists
+
+% -----------------------------------------------------------
+% Document Configuration
+% -----------------------------------------------------------
+
+\title{Fisica}
+\author{Claudio Tessa}
+\date{\the\year}
+    
+% Custom section styling
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+
+% -----------------------------------------------------------
+% Begin Document
+% -----------------------------------------------------------
+
+\begin{document}
+\maketitle
+
+\section*{Informazioni generali}
+L'esame verrà valutato con una prova scritta ed una prova orale facoltativa. La prova scritta consisterà in alcuni esercizi da svolgere e domande di carattere teorico sugli argomenti trattati. La valutazione 30 e lode è raggiungibile solo con la prova orale (il massimo voto accessibile con la sola prova scritta è 30).
+
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------
+% Introduzione
+% -----------------------------------------------------------
+
+\section{Introduzione}
+
+La fisica studia i fenomeni naturali ricercando le leggi che li governano. La fisica "antica" era intrinsecamente legata alla filosofia e religione, e vigeva il principio di autorità. La fisica moderna nasce con Galileo: abbiamo la separazione della realtà in ciò che è oggettivo, quindi misurabile misurabile, e ciò che non lo è, che quindi è ritenuto soggettivo.\\
+I misurabili della realtà possono essere descritti mediante la matematica, e permettono la realizzazione di una (i) ipotesi sul fenomeno, di una (ii) teoria che spieghi il fenomeno stesso e di (iii) dedurre le conseguenze.\\
+Chiunque, conoscendo le condizioni di esecuzione può, avendone i mezzi e le conoscenze necessarie, essere capace di ripetere l'esperimento
+
+% -----------------------------------------------------------
+% Cinematica
+% -----------------------------------------------------------
+
+\section{Cinematica}
+La cinematica è parte della Meccanica e si occupa della descrizione spazio-temporale del moto dei corpi, assumendo che esso avvenga con continuità, indipendentemente dalle cause del moto. \\
+Ogni moto esiste solo all'interno di un sistema di riferimento, la cui scelta lo fa apparire semplice o complesso. Poichè un corpo non cambia a seconda del sistema di riferimento, la scelta di tale sistema è fondamentale per semplificare al massimo la comprensione e formulazione del fenomeno stesso
+
+\subsection{Cinematica del punto materiale (1D)}
+Sia dato un sistema di riferimento orientato $x$, e un punto materiale (un oggetto puntiforme di massa $m$). Abbiamo che:
+\begin{itemize}
+    \item \textbf{Spostamento}: $s = \Delta x = x_f - x_i$
+    \item \textbf{Velocità media}: $v_m =\frac{x_f - x_i}{t_f - t_i} = \frac{\Delta x}{\Delta t}$
+    \item \textbf{Velocità istantanea}: $v_x = \lim_{\Delta t \to 0}{\frac{\Delta x}{\Delta t}} = \frac{dx}{dt}$
+    \item \textbf{Accelerazione media}: $a_m = \frac{v_f - v_i}{t_f - t_i}= \frac{\Delta v}{\Delta t}$
+    \item \textbf{Accelerazione istantanea}: $a_x = \lim_{\Delta t \to 0}{\frac{\Delta v}{\Delta t}} = \frac{d^2x}{d^2t}$ 
+\end{itemize}
+
+\noindent
+Se l'accelerazione varia continuamente, il moto non è facile da analizzare. Lo studio dei moti si semplifica quando il moto ha alcune proprietà:
+\begin{itemize}
+    \item \textbf{Moto rettilineo uniforme}: velocità costante e accelerazione zero. \\
+        $x(t) = x_i + v_x \cdot t$\\
+        $v_x = k$, con $k \in \mathbb{R}$
+    \item \textbf{Moto con accelerazione costante (o uniformemente accelerato)}: accelerazione istantanea uguale all'accelerazione media in ogni istante. La velocità cambia linearmente durante tutto il moto.\\
+        $x(t) = x_i + v_x \cdot t + \frac{1}{2} a_x \cdot t^2$ \\
+        $v_x (t) = v_{ix} + a_x \cdot t$ \\
+        $a_x = k$, con $k \in \mathbb R$
+\end{itemize}
+
+
+% -----------------------------------------------------------
+% Figures
+% -----------------------------------------------------------
+
+\section{Adding Figures}
+You can include images using the \texttt{graphicx} package:
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{example-image} % Replace with your image
+	\caption{An example figure.}
+	\label{fig:example}
+\end{figure}
+
+% -----------------------------------------------------------
+% Lists
+% -----------------------------------------------------------
+
+\section{Lists}
+Here is an example of an itemized list:
+\begin{itemize}
+	\item First item
+	\item Second item
+	\item Third item
+\end{itemize}
+
+And an enumerated list:
+\begin{enumerate}
+	\item Step one
+	\item Step two
+	\item Step three
+\end{enumerate}
+
+% -----------------------------------------------------------
+% Conclusion
+% -----------------------------------------------------------
+
+\section{Conclusion}
+This is a simple document to get started with LaTeX. Explore adding more sections, tables, references, and advanced formatting!
+
+% -----------------------------------------------------------
+% End Document
+% -----------------------------------------------------------
+\end{document}
+
