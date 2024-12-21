@@ -4,16 +4,15 @@
 % Packages
 % -----------------------------------------------------------
 
-\usepackage[utf8]{inputenc}    % UTF-8 encoding
-\usepackage[margin=1in]{geometry}          % Page geometry
-\geometry{margin=1in}          % 1-inch margins
+\usepackage[utf8]{inputenc} % UTF-8 encoding
+\usepackage[margin=1in]{geometry} % Page geometry
 \usepackage{amsmath, amssymb} % Math symbols and equations
-\usepackage{graphicx}          % Include images
-\usepackage{hyperref}          % Clickable links in PDF
-\usepackage{setspace}          % Line spacing
-\usepackage{xcolor}            % Text color
-\usepackage{titlesec}          % Custom section titles
-\usepackage{enumitem}          % Custom lists
+\usepackage{graphicx} % Include images
+\usepackage{hyperref} % Clickable links in PDF
+\usepackage{setspace} % Line spacing
+\usepackage{xcolor} % Text color
+\usepackage{titlesec} % Custom section titles
+\usepackage{enumitem} % Custom lists
 
 % -----------------------------------------------------------
 % Document Configuration
@@ -59,66 +58,62 @@ La cinematica è parte della Meccanica e si occupa della descrizione spazio-temp
 Ogni moto esiste solo all'interno di un sistema di riferimento, la cui scelta lo fa apparire semplice o complesso. Poichè un corpo non cambia a seconda del sistema di riferimento, la scelta di tale sistema è fondamentale per semplificare al massimo la comprensione e formulazione del fenomeno stesso
 
 \subsection{Cinematica del punto materiale (1D)}
+
 Sia dato un sistema di riferimento orientato $x$, e un punto materiale (un oggetto puntiforme di massa $m$). Abbiamo che:
 \begin{itemize}
-    \item \textbf{Spostamento}: $s = \Delta x = x_f - x_i$
-    \item \textbf{Velocità media}: $v_m =\frac{x_f - x_i}{t_f - t_i} = \frac{\Delta x}{\Delta t}$
-    \item \textbf{Velocità istantanea}: $v_x = \lim_{\Delta t \to 0}{\frac{\Delta x}{\Delta t}} = \frac{dx}{dt}$
-    \item \textbf{Accelerazione media}: $a_m = \frac{v_f - v_i}{t_f - t_i}= \frac{\Delta v}{\Delta t}$
-    \item \textbf{Accelerazione istantanea}: $a_x = \lim_{\Delta t \to 0}{\frac{\Delta v}{\Delta t}} = \frac{d^2x}{d^2t}$ 
+	\item \textbf{Spostamento}: $s = \Delta x = x_f - x_i$
+	\item \textbf{Velocità media}: $v_m =\frac{x_f - x_i}{t_f - t_i} = \frac{\Delta x}{\Delta t}$
+	\item \textbf{Velocità istantanea}: $v_x = \lim_{\Delta t \to 0}{\frac{\Delta x}{\Delta t}} = \frac{dx}{dt}$
+	\item \textbf{Accelerazione media}: $a_m = \frac{v_f - v_i}{t_f - t_i}= \frac{\Delta v}{\Delta t}$
+	\item \textbf{Accelerazione istantanea}: $a_x = \lim_{\Delta t \to 0}{\frac{\Delta v}{\Delta t}} = \frac{d^2x}{d^2t}$
 \end{itemize}
 
 \noindent
 Se l'accelerazione varia continuamente, il moto non è facile da analizzare. Lo studio dei moti si semplifica quando il moto ha alcune proprietà:
 \begin{itemize}
-    \item \textbf{Moto rettilineo uniforme}: velocità costante e accelerazione zero. \\
-        $x(t) = x_i + v_x \cdot t$\\
-        $v_x = k$, con $k \in \mathbb{R}$
-    \item \textbf{Moto con accelerazione costante (o uniformemente accelerato)}: accelerazione istantanea uguale all'accelerazione media in ogni istante. La velocità cambia linearmente durante tutto il moto.\\
-        $x(t) = x_i + v_x \cdot t + \frac{1}{2} a_x \cdot t^2$ \\
-        $v_x (t) = v_{ix} + a_x \cdot t$ \\
-        $a_x = k$, con $k \in \mathbb R$
+	\item \textbf{Moto rettilineo uniforme}: velocità costante e accelerazione zero. \\
+	      $x(t) = x_i + v_x \cdot t$\\
+	      $v_x = k$, con $k \in \mathbb{R}$
+	\item \textbf{Moto con accelerazione costante (o uniformemente accelerato)}: accelerazione istantanea uguale all'accelerazione media in ogni istante. La velocità cambia linearmente durante tutto il moto.\\
+	      $x(t) = x_i + v_x \cdot t + \frac{1}{2} a_x \cdot t^2$ \\
+	      $v_x (t) = v_{ix} + a_x \cdot t$ \\
+	      $a_x = k$, con $k \in \mathbb R$
 \end{itemize}
 
+\subsection{Cinematica del punto materiale (2D)}
 
-% -----------------------------------------------------------
-% Figures
-% -----------------------------------------------------------
-
-\section{Adding Figures}
-You can include images using the \texttt{graphicx} package:
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=0.5\textwidth]{example-image} % Replace with your image
-	\caption{An example figure.}
-	\label{fig:example}
-\end{figure}
-
-% -----------------------------------------------------------
-% Lists
-% -----------------------------------------------------------
-
-\section{Lists}
-Here is an example of an itemized list:
-\begin{itemize}
-	\item First item
-	\item Second item
-	\item Third item
-\end{itemize}
-
-And an enumerated list:
-\begin{enumerate}
-	\item Step one
-	\item Step two
-	\item Step three
-\end{enumerate}
-
-% -----------------------------------------------------------
-% Conclusion
-% -----------------------------------------------------------
-
-\section{Conclusion}
-This is a simple document to get started with LaTeX. Explore adding more sections, tables, references, and advanced formatting!
+Consideriamo ora il caso generico di una particella che si muove sul piano $xy$ in funzione del tempo. La sua posizione sul piano può essere identificata con il vettore $\vec r$ avente punto di applicazione in 0.
+\\
+\\
+Lo \textbf{spostamento} da un punto A ad un punto B nell'intervallo di tempo $\Delta t = t_f - t_i$ è dato da $\Delta r = \vec r_f - \vec r_i$.
+\\
+\\
+Per semplice estensione del caso 1D, la \textbf{velocità media} sarà $\vec v_m = \frac{\Delta r}{\Delta t}$. Poichè $t$ è uno scalare, $\vec v_m$ ha la stessa direzione e verso si $\Delta r$.
+\\
+\\
+Analogamente, la velocità istantanea sarà $\vec v = \lim_{\Delta t \to 0}{\frac{\Delta \vec r}{\delta t}} = \frac{d \vec r}{dt}$.\\
+Il modulo del vettore $\vec v$ è detto \textbf{velocità}. Quando un punto materiale viaggia su una traiettoria curva in 2D, il vettore velocità varia punto per punto, anche se il suo modulo rimane costante.
+\\
+\\
+La variazione del vettore velocità nel tempo ci permette di definire l'\textbf{accelerazione media}
+\[
+	\vec a_m = \frac{\vec v_f - \vec v_i}{t_f - t_i} = \frac{\Delta \vec v}{\Delta t}
+\]
+Anche in questo caso, $\vec a_m$ avrà la stessa direzione del vettore $\Delta \vec v$.
+\\
+\\
+Quando l'accelerazione nel tempo, è utile definire l'\textbf{accelerazione istantanea}
+\[
+	\vec a = lim_{\Delta t \to 0}{\frac{\Delta \vec v}{\Delta t}} = \frac{d\vec v}{d t}
+\]
+Il vettore accelerazione è quindi la derivata del vettore velocità rispetto al tempo, nonchè la derivata seconda del vettore posizione rispetto al tempo.
+\\
+\\
+Per determinare le equazioni del \textbf{moto} in 2D, si estendono i concetti visti per 1D. Il passaggio logico è: si scompone il moto 2D in 2 moti 1D sugli assi $xy$.
+\[
+	\vec r = x\vec i + y \vec j
+\]
+Il vettore $\vec r$ si muove nel tempo, e così mutano anche le sue coordinate $x$ e $y$.Slide pag 9
 
 % -----------------------------------------------------------
 % End Document

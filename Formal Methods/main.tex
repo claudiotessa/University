@@ -1,0 +1,66 @@
+\documentclass[12pt, a4paper]{article}
+
+% -----------------------------------------------------------
+% Packages
+% -----------------------------------------------------------
+
+\usepackage[utf8]{inputenc} % UTF-8 encoding
+\usepackage[margin=1in]{geometry} % Page geometry
+\usepackage{amsmath, amssymb} % Math symbols and equations
+\usepackage{graphicx} % Include images
+\usepackage{hyperref} % Clickable links in PDF
+\usepackage{setspace} % Line spacing
+\usepackage{xcolor} % Text color
+\usepackage{titlesec} % Custom section titles
+\usepackage{enumitem} % Custom lists
+
+% -----------------------------------------------------------
+% Document Configuration
+% -----------------------------------------------------------
+
+\title{Metodi Formali}
+\author{Claudio Tessa}
+\date{\the\year}
+    
+% Custom section styling
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+
+% -----------------------------------------------------------
+% Begin Document
+% -----------------------------------------------------------
+
+\begin{document}
+\maketitle
+
+\section*{Informazioni generali}
+L'esame consiste in uno scritto e in un orale. Il giorno dell'orale verrà concordato al momento della prova scritta. La prova orale consiste nella discussione dello scritto e inoltre verranno fatte domande sugli argomenti trattati nel corso.
+
+\tableofcontents
+\newpage
+
+% -----------------------------------------------------------
+% Introduzione
+% -----------------------------------------------------------
+
+\section{Introduzione}
+
+Verranno trattati metodi e tecniche formali per specificare, disegnare e analizzare sistemi complessi. In particolare, \textbf{sistemi concorrenti e distribuiti}, costituiti da componenti che operano in modo indipendente e che interagiscono tra loro. Ci concentreremo sulle fasi di \textbf{specifica del problema} e \textbf{modellazione di una soluzione}. L'uso di metodi formali in queste fasi permette di verificare e validare il modello prima di procedere all'implementazione.
+\\
+\\
+Per fare ciò verrano introdotti:
+\begin{itemize}
+    \item Un \textbf{linguaggio logico} per specificare le proprietà di comportamento di tali sistemi
+    \item Le \textbf{reti di Petri} come strumento per modellare i sistemi concorrenti e analizzarne le proprietà    
+    \item Nozioni di base sui sistemi dinamici a tempi discreti (cenni ad automi cellulari)
+\end{itemize}
+
+\subsection{Teoria Generale delle Reti di Petri}
+
+L'obiettivo di Petri era sviluppare una teoria matematica fondata sui principi della fisica moderna (teoria della relatività e fisica quantistica), che sia una \textbf{teoria dei sistemi} in grado di descrivere il \textbf{flusso di informazione} e permetta di analizzare \textbf{sistemi con organizzazione complessa}. Una teoria generale dei sistemi che processano informazione basata su: comunicazione, sincronizzazione, flusso di informazione, etc.
+
+% -----------------------------------------------------------
+% End Document
+% -----------------------------------------------------------
+
+\end{document}
