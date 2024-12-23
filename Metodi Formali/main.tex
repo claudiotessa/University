@@ -1,0 +1,40 @@
+\documentclass[12pt, a4paper]{article}
+
+% -----------------------------------------------------------
+% Packages
+% -----------------------------------------------------------
+
+\usepackage[utf8]{inputenc} % UTF-8 encoding
+\usepackage[margin=1in]{geometry} % Page geometry
+\usepackage{amsmath, amssymb, mathtools} % Math symbols and equations
+\usepackage{graphicx} % Include images
+\usepackage{hyperref} % Clickable links in PDF
+\usepackage{setspace} % Line spacing
+\usepackage[svgnames]{xcolor} % Text color
+\usepackage{titlesec} % Custom section titles
+\usepackage{enumitem} % Custom lists
+\usepackage{tikz} % Drawings
+
+
+\title{Metodi Formali}
+\author{Claudio Tessa}
+\date{\the\year}
+    
+% Custom section styling
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+
+
+\begin{document}
+\maketitle
+
+\section*{Informazioni generali}
+L'esame consiste in uno scritto e in un orale. Il giorno dell'orale verrà concordato al momento della prova scritta. La prova orale consiste nella discussione dello scritto e inoltre verranno fatte domande sugli argomenti trattati nel corso.
+
+\tableofcontents
+\newpage
+
+\include{sections/introduzione.tex}
+\include{sections/sistemi-elementari.tex}
+
+\end{document}
