@@ -53,7 +53,7 @@ Sia $N = (B, E, F)$ una rete elementare, allora:
 		      \forall x, y \in B \cup E,
 		      \quad (\bullet x = \bullet y \ \wedge \ x \bullet = y \bullet) \implies x = y
 	      \]
-	      Esempio di rete non-semplice:
+	      \textit{Esempio di rete non-semplice}:
 	      \begin{center}
 		      \begin{tikzpicture}
 			      \node[shape = circle, draw,minimum size=1em] (B) at (1, -1){};
@@ -76,7 +76,7 @@ Sia $N = (B, E, F)$ una rete elementare, allora:
 	      \[
 		      \forall e \in E, \quad \bullet e \cap e \bullet = \emptyset
 	      \]
-	      Esempio di rete non-pura:
+	      \textit{Esempio di rete non-pura}:
 	      \begin{center}
 		      \begin{tikzpicture}
 			      \node[shape=rectangle, draw, minimum size=1em, fill=LightBlue, label=right:e] (e) at (1, -1){};
@@ -189,7 +189,7 @@ Esempio di sistema $\Sigma$ e il suo grafo dei casi $CG_\Sigma$:
 Sia $\Sigma = (B, E, F, c_{in})$ un sistema elementare, $CG_\Sigma = (C_\Sigma, U_\Sigma, A, c_{in})$ il suo grafo dei casi, $U_1, U_2 \in U_\Sigma : U_1 \cap U_2 = \emptyset$, $U_1 \neq \emptyset$, $U_2 \neq \emptyset$, e $c_1, c_2, c_3, c_4 \in C_\Sigma$, allora vale:
 \begin{center}
 	\begin{tikzpicture}
-        % Not diamond
+		% Not diamond
 		\node (c1) at (-7, 0){c1};
 		\node (c2) at (-9, -2){c2};
 		\node (c4) at (-5, -2){c4};
@@ -198,12 +198,12 @@ Sia $\Sigma = (B, E, F, c_{in})$ un sistema elementare, $CG_\Sigma = (C_\Sigma, 
 		\draw[->] (c1) edge node[left] {U1} (c2);
 		\draw[->] (c1) edge node[right] {U2} (c4);
 		\draw[->] (c2) edge node[left] {U2} (c3);
-		
-        % Middle arrow
+
+		% Middle arrow
 
 		\draw[<->, ultra thick] (-4, -2) to (-3, -2);
 
-        % Diamond
+		% Diamond
 		\node (c1) at (0, 0){c1};
 		\node (c2) at (-2, -2){c2};
 		\node (c4) at (2, -2){c4};
@@ -222,7 +222,7 @@ Sia $\Sigma = (B, E, F, c_{in})$ un sistema elementare, $CG_\Sigma = (C_\Sigma, 
 \subsection{Grafo dei casi sequienziale}
 Il grafo dei casi sequenziali di $\Sigma = (B, E, F, c_{in})$ è $SCG_\Sigma = (C_\Sigma, E, A, c_{in})$ dove:
 \[
-    A = \{ (c, e, c') | c, c' \in C_\Sigma, e \in E : c[e > c' \}
+	A = \{ (c, e, c') | c, c' \in C_\Sigma, e \in E : c[e > c' \}
 \]
 \noindent
 Per la diamond property, nei sistemi elementari il grafo dei casi e il grafo dei casi sequenziali sono \textbf{sintatticamente equivalenti} (ovvero possono essere ricavati l'uno dall'altro).
@@ -232,13 +232,13 @@ Questo implica che due sistemi elementari hanno grafi dei casi isomorfi se e sol
 Siano $A_1 = (S_1, E_1, T_1, s_{01})$ e $A_2 = (S_2, E_2, T_2, s_{02})$ sistemi di transizioni etichettati,
 $\alpha : S_1 \to S_2$ e $\beta : E_1 \to E_2$ \textbf{mappe biunivoche}, allora:
 \[
-   \langle \alpha, \beta \rangle : A_1 = (S_1, E_1, T_1, s_{01}) \to A_2 = (S_2, E_2, T_2, s_{02})
+	\langle \alpha, \beta \rangle : A_1 = (S_1, E_1, T_1, s_{01}) \to A_2 = (S_2, E_2, T_2, s_{02})
 \]
 \noindent
 è un \textbf{isomorfismo} se e solo:
 \begin{itemize}
-    \item $\alpha (s_{01}) = s_{02}$
-    \item $\forall s, s' \in S_1, \forall e \in E_1, \quad (s, e, s') \in T_1 \iff (\alpha(s), \beta(e), \alpha(s')) \in T_2$
+	\item $\alpha (s_{01}) = s_{02}$
+	\item $\forall s, s' \in S_1, \forall e \in E_1, \quad (s, e, s') \in T_1 \iff (\alpha(s), \beta(e), \alpha(s')) \in T_2$
 \end{itemize}
 
 \noindent
@@ -248,7 +248,7 @@ A questo punto possiamo definire l'equivalenza tra sistemi. Due sistemi $\Sigma_
 
 Sia $\Sigma = (B, E, F, c_{in})$ un sistema elementare, $e \in E$, $c \in C_\Sigma$. Abbiamo che la coppia $(e, c)$ è un \textbf{contatto} se e solo se:
 \[
-    \prescript{\bullet}{}{e} \subseteq c \ \wedge \ e^\bullet \cap c \neq \emptyset
+	\prescript{\bullet}{}{e} \subseteq c \ \wedge \ e^\bullet \cap c \neq \emptyset
 \]
 \noindent
 Ovvero tutte le pre-condizioni di $e$ sono vere, ma non tutte le sue post-condizioni sono false.
@@ -256,9 +256,9 @@ Ovvero tutte le pre-condizioni di $e$ sono vere, ma non tutte le sue post-condiz
 \\
 Un sistema elementare $\Sigma = (B, E, F, c_{in})$ è \textbf{senza contatti} se e solo se
 \[
-    \forall e \in E, \forall c \in C_\Sigma, 
-    \quad 
-    \prescript{\bullet}{}{e} \subseteq c \implies e^\bullet \cap c = \emptyset
+	\forall e \in E, \forall c \in C_\Sigma,
+	\quad
+	\prescript{\bullet}{}{e} \subseteq c \implies e^\bullet \cap c = \emptyset
 \]
 
 \noindent
@@ -267,5 +267,147 @@ Un sistema elementare $\Sigma = (B, E, F, c_{in})$ è \textbf{senza contatti} se
 \\
 Se abbiamo un sistema senza contatti, per verificare che un evento $e$ sia abilitato in un caso raggiungibile $c$, è sufficiente verificare che le precondizioni di $e$ siano vere:
 \[
-    c[e> \quad \iff \quad \prescript{\bullet}{}{e} \subseteq c
+	c[e> \quad \iff \quad \prescript{\bullet}{}{e} \subseteq c
 \]
+
+\subsection{Situazioni fondamentali}
+Sia $\Sigma = (B, E, F, c_{in})$ un sistema elementare, $c \in C_\Sigma$, $e_1, e_2 \in E$, abbiamo che:
+
+\begin{itemize}
+	\item $e_1$ e $e_2$ sono in \textbf{sequenza} in $c$ se e solo se
+	      \[
+		      c[e_1 >
+		      \quad \wedge \quad
+		      \neg c[e_1
+		      \quad \wedge \quad
+		      c[e_1 e_2 > (c[e_1 > c'[e_2)
+	      \]
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[shape=circle, draw, minimum size=1em] (b1) at (0, 0){};
+			      \node[shape=circle, draw, minimum size=1em] (b2) at (2, 1){};
+			      \node[shape=circle, draw, minimum size=1em] (b3) at (2, -1){};
+			      \node[shape=circle, draw, minimum size=1em] (b4) at (4, 1){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=below:e1] (e1) at (1, 0){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=below:e2] (e2) at (3, 1){};
+
+
+			      \fill (b1) circle (1mm);
+
+			      \draw[->] (b1) to (e1);
+			      \draw[->] (e1) to (b2);
+			      \draw[->] (e1) to (b3);
+			      \draw[->] (b2) to (e2);
+			      \draw[->] (e2) to (b4);
+		      \end{tikzpicture}
+	      \end{center}
+
+	\item $e_1$ e $e_2$ sono \textbf{concorrenti} in $c$ se e solo se
+	      \[
+		      c[\{ e_1, e_2 \}
+	      \]
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[shape=circle, draw, minimum size=1em] (b1) at (0, 0){};
+			      \node[shape=circle, draw, minimum size=1em] (b2) at (0, -2){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=above:e2] (e2) at (1, 0){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=below:e1] (e1) at (1, -2){};
+			      \node[shape=circle, draw, minimum size=1em] (b3) at (2, 0){};
+			      \node[shape=circle, draw, minimum size=1em] (b4) at (2, -2){};
+			      \node[shape=rectangle, draw, minimum size=1em] (e3) at (3, -1){};
+			      \node[shape=circle, draw, minimum size=1em] (b5) at (4, -1){};
+
+
+			      \fill (b1) circle (1mm);
+			      \fill (b2) circle (1mm);
+
+			      \draw[->] (b1) to (e2);
+			      \draw[->] (b2) to (e1);
+			      \draw[->] (e1) to (b4);
+			      \draw[->] (e2) to (b3);
+			      \draw[->] (b3) to (e3);
+			      \draw[->] (b4) to (e3);
+			      \draw[->] (e3) to (b5);
+		      \end{tikzpicture}
+	      \end{center}
+
+	\item $e_1$ e $e_2$ sono in \textbf{conflitto} in $c$ se e solo se
+	      \[
+		      c[e_1>
+		      \quad \wedge \quad
+		      c[e_2>
+		      \quad \wedge \quad
+		      \neg c [ \{ e_1, e_2 \} >
+	      \]
+	      ovvero sono entrambi abilitati, ma l'occorrenza di uno disabilita l'altro:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      % forward
+			      \node[shape=circle, draw, minimum size=1em] (b1) at (0, 0){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=left:e1] (e1) at (-1, -1){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=right:e2] (e2) at (1, -1){};
+			      \node[shape=circle, draw, minimum size=1em] (b2) at (-1, -2){};
+			      \node[shape=circle, draw, minimum size=1em] (b3) at (1, -2){};
+			      \fill (b1) circle (1mm);
+
+			      \draw[->] (b1) to (e1);
+			      \draw[->] (b1) to (e2);
+			      \draw[->] (e1) to (b2);
+			      \draw[->] (e2) to (b3);
+
+
+			      % backward 
+			      \node[shape=circle, draw, minimum size=1em] (b10) at (5, 0){};
+			      \node[shape=circle, draw, minimum size=1em] (b11) at (7, 0){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=left:e1] (e10) at (5, -1){};
+			      \node[shape=rectangle, draw, minimum size=1em, label=right:e2] (e11) at (7, -1){};
+			      \node[shape=circle, draw, minimum size=1em] (b12) at (6, -2){};
+			      \fill (b10) circle (1mm);
+			      \fill (b11) circle (1mm);
+
+			      \draw[->] (b10) to (e10);
+			      \draw[->] (b11) to (e11);
+			      \draw[->] (e10) to (b12);
+			      \draw[->] (e11) to (b12);
+		      \end{tikzpicture}
+	      \end{center}
+	      Inoltre, $e_1$ e $e_2$ sono in \textbf{conflitto strutturale} quando
+	      \[
+		      \prescript{\bullet}{}{e_1} \cap \prescript{\bullet}{}{e_2} \neq \emptyset
+		      \quad \vee \quad
+		      e_1^\bullet \cap e_2^\bullet \neq \emptyset
+	      \]
+
+	\item Quando c'è un "misto" di concorrenza e conflitto si verifica una \textbf{confusione}, ovvero non è possibile stabilire oggettivamente se si è risolta una confusione.
+\end{itemize}
+
+\subsection{Sottorete}
+Siano $N = (B, E, F)$ e $N_1 = (B_1, E_1, F_1)$ due reti elementari, allora
+\\
+\\
+$N_1 = (B_1, E_1, F_1)$ è \textbf{sottorete} di $N = B, E, F)$ se e solo se
+\begin{itemize}
+	\item $B_1 \subseteq B$
+	\item $E_1 \subseteq E$
+	\item $F_1 = F \cap [(B_1 \times E_1) \cup (E_1 \times B_1) ]$
+\end{itemize}
+
+\noindent
+$N_1 = (B_1, E_1, F_1)$ è la \textbf{sottorete generata} da $B_1$ se e solo se
+\begin{itemize}
+	\item $B_1 \subseteq B$
+	\item $E_1 = \prescript{\bullet}{}{B_1} \cup B_1^\bullet$
+    \item $F_1 = F \cap [(B_1 \times E_1)\cup(E_1 \times B_1)]$
+\end{itemize}
+
+\noindent
+$N_1 = (B_1, E_1, F_1)$ è la \textbf{sottorete generata} da $E_1$ se e solo se
+\begin{itemize}
+    \item $B_1 = \prescript{\bullet}{}{E_1} \cup E_1^\bullet$
+	\item $E_1 \subseteq E$
+    \item $F_1 = F \cap [(B_1 \times E_1)\cup(E_1 \times B_1)]$
+\end{itemize}
+
+\subsection{Composizione per Reti di Petri}
+Per comporre due reti in modo tale che queste interagiscano abbiamo due modi principali: composizione \textbf{sincrona} e \textbf{asincrona}. Nella composizione sincrona, le due reti hanno un evento in comune. Nella composizione asincrona invece, le due reti hanno una condizione in comune.
+\textbf{esercizi slide 3b}

@@ -1,0 +1,147 @@
+\section{Reti Posti e Transizioni}
+
+Le reti Posti e Transizioni sono un'estensione delle reti di Petri, in cui le condizioni, invece di essere solo vere o false, hanno una capacità $K$ (queste condizioni sono chiamate \textbf{pposti}).
+A questo punto, l'evento può richiedere una certa capacità per poter scattare (lo scatto si chiamac\textbf{transizione}).
+\\
+\\
+In particolare, $\Sigma = (S, T, F, K, W, M_0)$ è un \textbf{sistema Posti e Transizioni} (P/T) se e solo se
+
+\begin{itemize}
+	\item $(S, T, F)$ è una rete
+	\item $K : S \to \mathbb N^+ \cup \{ \infty \}$ è la funzione \textbf{capacità dei posti}
+
+	\item $W : F \to \mathbb N$ è la funzione \textbf{peso degli archi}
+
+	\item $M_0 : S \to \mathbb N : \forall s \in S, \quad M_0(s) \leq K(s)$ è la \textbf{marcatura iniziale}
+\end{itemize}
+
+\subsection{Regola di transizione}
+
+Sia $t \in T$ e $M : S \to \mathbb N$ una marcatura, allora abbiamo che $M[t>$ se e solo se
+\[
+	\forall s \in S, \quad
+	M(s) \geq W(s, t) \quad \wedge \quad M(s) + W(t, s) \leq K(s)
+\]
+inoltre, $M[t>M'$ se e solo se
+\[
+	M[t>
+	\quad \wedge \quad
+	\forall s \in S,
+	\quad
+	M'(s) = M(s) - W(s, t) + W(t, s)
+\]
+
+\subsection{Marcature raggiungibili}
+
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T, l'insieme delle \textbf{marcature raggiungibili} di $\Sigma$, denotato $[M_0>$, è il più piccolo insieme tale che
+\begin{itemize}
+	\item $M_0 \in [M_0>$
+	\item se $M \in [M_0> \wedge \ \exists t \in T : M[t>M'$ allora $M' \in [M_0>$
+\end{itemize}
+
+\subsection{Multiset abilitato}
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T,
+\begin{itemize}
+	\item Un \textbf{multiset} $U : T \to \mathbb N$ è \textbf{concorrentemente abilitato} in $M \in [M_0>$ ($U$ è un \textbf{passo} $M[U>$) se e solo se
+	      \[
+		      \forall s \in S,
+		      \quad
+		      \sum_{t \in T}{U(t) \cdot W(s, t)} \leq M(s)
+		      \quad \wedge \quad
+		      M(s) + \sum_{t \in T}{U(t) \cdot W(t, s) \leq K(s)}
+	      \]
+	\item Un \textbf{multiset} $U$ abilitato in $M$ può \textbf{occorrere} generando $M'$, $M[U>M'$, se e solo se
+	      \[
+		      \forall s \in S,
+		      \quad
+		      M'(s)
+		      =
+		      M(s)
+		      -
+		      \sum_{t \in T}{U(t) \cdot W(s, t)}
+		      +
+		      \sum{t \in T}{U(t) \cdot W(t, s)}
+	      \]
+	\item $U_\Sigma$ è l'\textbf{insieme dei passi} di $\Sigma$
+	      \[
+		      U_\Sigma
+		      =
+		      \{
+		      U : T \to \mathbb N \ | \ \exists M, M' \in [M_0> \ : M[U > M'
+		      \}
+	      \]
+\end{itemize}
+
+\subsection{Grafo di Raggiungibilità}
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T. $RG(\Sigma) = ([M_0>, U_\Sigma, A, M_0)$ è il \textbf{grafo di raggiungibilità} di $\Sigma$, dove
+\[
+	A
+	=
+	\{
+	(M, U, M') : M, M' \in [M_0> \ \wedge \ U \in U_\Sigma \ \wedge \ M[U>M'
+	\}
+\]
+Se U è una singola transizione si ha il \textbf{grafo di raggiungibilità sequenziale} $SRG(\Sigma)$
+\\
+\\
+\textbf{Attenzione}: in generale, la diamond property \textbf{non} è più valida! Questo a causa dei self-loop.
+
+\subsection{Contatto e Complementazione}
+
+$t$ è una situazione di \textbf{contatto} in $M$ se e solo se
+\[
+	\forall s \in S,
+	\
+	W(s, t) \leq M(s)
+	\quad \wedge \quad
+	\exists s \in S : M(s) + W(t, s) > K(s)
+\]
+Come nei sistemi elementari, anche nelle reti Posti e Transizioni è \textbf{sempre} possibile aggiungere posti per \textbf{eliminare} le situazioni di contatto senza alterare il comportamento del sistema.
+\\
+\\
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T con capacità (tale che per alcuni posti la capacità sia finita), allora si \textbf{complementano i posti a capacità finita} ottenendo il sistema P/T $\Sigma' = (S', T, F', K', W', M_0')$ tale che
+\begin{itemize}
+	\item $S'= S \cup S_1$, dove $S_1 = \{ \bar s \ | \ s \in S \ \wedge \ K(s) < \infty \}$
+	\item $F'= F \cup F_1$, dove
+	      \[
+		      F_1 = \{ (\bar s, t) \ | \ (t, s) \in F \ \wedge \ K(s) < \infty\} \cup \{ (t, \bar s) \ | \ (s, t) \in F \ \wedge \ K(s) < \infty \}
+	      \]
+	\item $\forall s' \in S', \ K'(s') = \infty$
+	\item $W'(\bar s, t) = W(t, s)$ e $W'(t, \bar s) = W(s, t), \ \forall t \in T, \forall \bar s \in S_1$\\
+	      $W'(s, t) = W(s, t)$ e $W'(t, s) = W(t, s), \ \forall t \in T, \forall s \in S$
+	\item $M'_0(s) = M_0(s), \ \forall s \in S$\\
+	      $M'_0(\bar s) = K(s) - M_0(s), \ \forall \bar s \in S_1$
+\end{itemize}
+
+\noindent
+$\Sigma'$ è senza vincoli di capacità e quindi si può dimostrare che $\Sigma'$ è \textbf{senza contatti} e che il suo grafo di raggiungibilità $RG(\Sigma')$ è \textbf{isomorfo} a $RG(\Sigma)$. Inoltre, per ogni marcatura raggiungibile $M'$ in $\Sigma'$, vale: $\forall \bar s \in S_1, \ M'(s) + M'(\bar s)= K(s)$
+\\
+\\
+Un sistema P/T $\Sigma = (S, T, F, K, W, M_0)$ è \textbf{senza contatti} se e solo se
+\[
+    \forall M \in [M_0>, \ \forall t \in T, \forall s \in S
+    \quad
+    M(s) \geq W(s, t) \implies M(s) + W(t, s) \leq K(s)
+\]
+
+Se $\Sigma = (S, T, F, K, W, M_0)$ è un sistema P/T \textbf{senza contatti}, allora $t$ è \textbf{abilitata} in $M \in [M_0>$ (cioè $M[t>$) se e solo se
+\[
+    \forall s \in S, \quad M(s) \geq W(s, t)
+\]
+\subsection{Reti marcate}
+Un sistema P/T $\Sigma = (S, T, F, K, W, M_0)$ è una \textbf{rete marcata} se e solo se
+\[
+    \forall s \in S, \ M_0(s) \in \mathbb N 
+    \ \wedge \ K(s) = \infty \ \wedge \
+    \forall t \in T, \ W(s, t) \leq 1 \ \wedge \
+    W(t, s) \leq 1
+\]
+Le reti marcate sono denotate $(S, T, F, M_0)$ in quanto $K$ e $W$ sono ridondanti.
+\\
+\\
+Una rete marcata è \textbf{sicura} (\textbf{safe}) se e solo se
+\[
+    \forall M \in [M_0>, \ \forall s \in S, \quad M(s) \leq 1
+\]
+\textbf{Nota}: in una rete marcata i loop possono essere abilitati.
+\textbf{slide lez 4}
