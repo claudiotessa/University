@@ -1,0 +1,84 @@
+\documentclass[12pt, a4paper]{article}
+
+% -----------------------------------------------------------
+% Packages
+% -----------------------------------------------------------
+
+\usepackage[utf8]{inputenc} % UTF-8 encoding
+\usepackage[margin=1in]{geometry} % Page geometry
+\usepackage{amsmath, amssymb} % Math symbols and equations
+\usepackage{graphicx} % Include images
+\usepackage{hyperref} % Clickable links in PDF
+\usepackage{setspace} % Line spacing
+\usepackage{xcolor} % Text color
+\usepackage{titlesec} % Custom section titles
+\usepackage{enumitem} % Custom lists
+
+% -----------------------------------------------------------
+% Document Configuration
+% -----------------------------------------------------------
+
+\title{Fisica - domande teoria}
+\author{Claudio Tessa}
+\date{\the\year}
+    
+% Custom section styling
+\titleformat{\section}
+  {\normalfont\large\bfseries}{\thesection}{1em}{}
+
+% -----------------------------------------------------------
+% Begin Document
+% -----------------------------------------------------------
+
+\begin{document}
+\maketitle
+
+
+\newcounter{qn} % question number
+
+% -----------------------------------------------------------
+
+\refstepcounter{qn}
+\noindent
+\textbf{\arabic{qn}. Si enunci il Principio di Relatività di Galileo. Siano $\vec r(t)$, $\vec v(t)$ e $\vec a(t)$ rispettivamente la posizione, la velocità e  l’accelerazione di un punto materiale in un sistema di riferimento inerziale $O$. Si esprimano posizione, velocità e accelerazione in un secondo sistema di riferimento $O’$ in moto traslatorio uniforme con velocità di trascinamento $\vec V_T$ rispetto al primo.}
+\\
+\\
+Il Principio di Relatività di Galileo afferma che le leggi della meccanica sono le stesse in tutti i sistemi di riferimento inerziali.
+\\
+\\
+Siano $\vec r'(t)$, $\vec v'(t)$, e $\vec a'(t)$ rispettivamente la posizione, la velocità e l'accelerazione del punto materiale rispetto a $O'$, allora
+\[
+	\vec {r'}(t) = \vec r(t) - \vec V_T t
+\]
+\[
+	\vec {v'}(t) = \frac{d \vec {r'}(t)}{dt} = \frac{d}{dt}\left( \vec r(t) - \vec V_T t\right) = \vec v(t) + \vec V_T
+\]
+\[
+	\vec {a'}(t) = \frac{d \vec{v'}(t)}{dt} = \frac{d}{dt}\left( \vec v(t) - \vec V_T \right) = \vec a(t)
+\]
+\vspace{1cm}
+
+% -----------------------------------------------------------
+
+\refstepcounter{qn}
+\noindent
+\textbf{\arabic{qn}. Si descriva la legge di trasformazione classica delle velocità tra sistemi di riferimento e si faccia un esempio
+	pratico.}
+\\
+\\
+Se un sistema di riferimento inerziale $O'$ si muove rispetto ad un altro sistema di riferimento inerziale $O$ con velocità di trascinamento $\vec V_T$, allora le velocità sono correlate da
+\[
+	\vec{v} = \vec {v'} + \vec V_T
+\]
+dove $\vec v$ è la velocità del corpo rispetto al sistema $O$, e $\vec{v'}$ è la velocità del corpo rispetto al sistema $O'$.
+\\
+\\
+Supponiamo che un treno (sistema $O'$) si muova con velocità costante $\vec V_T = 50$ km/h verso est rispetto al suolo (sistema $O$). Un passeggero all'interno del treno cammina verso la parte anteriore del treno con velocità $v' = 5$ km/h rispetto al treno. Utilizzando la formula , otteniamo che il passeggero si muove a velocità 5 km/h + 50 km/h = 55 km/h rispetto al suolo nella direzione est.
+
+
+
+% -----------------------------------------------------------
+% End Document
+% -----------------------------------------------------------
+\end{document}
+
