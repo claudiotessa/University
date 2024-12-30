@@ -1,4 +1,4 @@
-\documentclass[12pt, a4paper]{article}
+\documentclass[12pt, a4paper]{report}
 
 % -----------------------------------------------------------
 % Packages
@@ -13,18 +13,25 @@
 \usepackage{xcolor} % Text color
 \usepackage{titlesec} % Custom section titles
 \usepackage{enumitem} % Custom lists
+\usepackage[skip=1em, indent=0pt]{parskip} % New paragraph spacing and indentation 
+\usepackage{tikz} % graphs 
+\usepackage{tcolorbox} % colored boxes
+
+% custom date subtitle
+\usepackage[english]{babel}
+\usepackage{datetime2, datetime2-calc} 
+
+% fancy chapters: Sonny, Lenny, Glenn, Conny, Rejne, Bjarne, Bjornstrup
+\usepackage[Bjornstrup]{fncychap}
 
 % -----------------------------------------------------------
 % Document Configuration
 % -----------------------------------------------------------
 
-\title{Title}
+\title{\textbf{Fisica - Cheatsheet}}
 \author{Claudio Tessa}
-\date{\the\year}
-    
-% Custom section styling
-\titleformat{\section}
-  {\normalfont\large\bfseries}{\thesection}{1em}{}
+\date{\DTMmonthname{\month} \the\year} % Dynamically formatted
+
 
 % -----------------------------------------------------------
 % Begin Document
@@ -43,7 +50,7 @@ L'esame verrà valutato con una prova scritta ed una prova orale facoltativa. La
 % Introduzione
 % -----------------------------------------------------------
 
-\section{Introduzione}
+\chapter{Introduzione}
 
 La fisica studia i fenomeni naturali ricercando le leggi che li governano. La fisica "antica" era intrinsecamente legata alla filosofia e religione, e vigeva il principio di autorità. La fisica moderna nasce con Galileo: abbiamo la separazione della realtà in ciò che è oggettivo, quindi misurabile misurabile, e ciò che non lo è, che quindi è ritenuto soggettivo.\\
 I misurabili della realtà possono essere descritti mediante la matematica, e permettono la realizzazione di una (i) ipotesi sul fenomeno, di una (ii) teoria che spieghi il fenomeno stesso e di (iii) dedurre le conseguenze.\\

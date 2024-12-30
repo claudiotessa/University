@@ -119,29 +119,184 @@ $\Sigma'$ è senza vincoli di capacità e quindi si può dimostrare che $\Sigma'
 \\
 Un sistema P/T $\Sigma = (S, T, F, K, W, M_0)$ è \textbf{senza contatti} se e solo se
 \[
-    \forall M \in [M_0>, \ \forall t \in T, \forall s \in S
-    \quad
-    M(s) \geq W(s, t) \implies M(s) + W(t, s) \leq K(s)
+	\forall M \in [M_0>, \ \forall t \in T, \forall s \in S
+	\quad
+	M(s) \geq W(s, t) \implies M(s) + W(t, s) \leq K(s)
 \]
 
 Se $\Sigma = (S, T, F, K, W, M_0)$ è un sistema P/T \textbf{senza contatti}, allora $t$ è \textbf{abilitata} in $M \in [M_0>$ (cioè $M[t>$) se e solo se
 \[
-    \forall s \in S, \quad M(s) \geq W(s, t)
+	\forall s \in S, \quad M(s) \geq W(s, t)
 \]
 \subsection{Reti marcate}
 Un sistema P/T $\Sigma = (S, T, F, K, W, M_0)$ è una \textbf{rete marcata} se e solo se
 \[
-    \forall s \in S, \ M_0(s) \in \mathbb N 
-    \ \wedge \ K(s) = \infty \ \wedge \
-    \forall t \in T, \ W(s, t) \leq 1 \ \wedge \
-    W(t, s) \leq 1
+	\forall s \in S, \ M_0(s) \in \mathbb N
+	\ \wedge \ K(s) = \infty \quad \wedge \quad
+	\forall t \in T, \ W(s, t) \leq 1 \ \wedge \
+	W(t, s) \leq 1
 \]
-Le reti marcate sono denotate $(S, T, F, M_0)$ in quanto $K$ e $W$ sono ridondanti.
+Ovvero i Posti hanno capacità illimitata e gli archi hanno tutti peso 1. Le reti marcate sono denotate $(S, T, F, M_0)$ in quanto $K$ e $W$ sono ridondanti.
 \\
 \\
 Una rete marcata è \textbf{sicura} (\textbf{safe}) se e solo se
 \[
-    \forall M \in [M_0>, \ \forall s \in S, \quad M(s) \leq 1
+	\forall M \in [M_0>, \ \forall s \in S, \quad M(s) \leq 1
 \]
 \textbf{Nota}: in una rete marcata i loop possono essere abilitati.
-\textbf{slide lez 4}
+
+\subsection{Matrici Backward e Forward}
+Sia $\Sigma = (S, T, F, K W, M_0)$ un sistema P/T tale che $\forall s \in S, \ K(s) = \infty$. Allora $\Sigma$ può essere rappresentato da 2 matrici con $|S|$ righe e $|T|$ colonne:
+
+\begin{itemize}
+	\item $\underline B : S \times T \to \mathbb N$ matrice \textbf{backward}, con $\underline B_{i,j} = W(s_i, t_j)$
+	\item $\underline F : S \times T \to \mathbb N$ matrice \textbf{forward}, con $\underline F_{i, j} = W(t_j, s_i)$
+\end{itemize}
+La marcatura $M_0$ può essere rappresentata da un vettore colonna $\underline M_0$ di $|S|$ elementi.
+\\
+\\
+\textbf{Esempio:}
+\begin{multicols}{2}
+	\begin{center}
+		\begin{tikzpicture}
+			\node[shape = circle, draw, minimum size=1em, label=left:s1] (s1) at (-1, 0){};
+			\node[shape = circle, draw, minimum size=1em, label=left:s2] (s2) at (-1, -1){};
+			\node[shape = circle, draw, minimum size=1em, label=right:s3] (s3) at (1, 0){};
+
+
+			\fill (s2) circle (1mm);
+
+			\node[shape=rectangle, draw,  minimum size=1em, label=below:t1] (t1) at (0, 0){};
+			\node[shape=rectangle, draw,  minimum size=1em, label=below:t2] (t2) at (0, -1){};
+			\node[shape=rectangle, draw,  minimum size=1em, label=above:t3] (t3) at (0, 1){};
+
+
+			\draw[->] (s2) to (t2);
+			\draw[->, bend right] (t2) to (s3);
+			\draw[->, bend right] (s3) to (t3);
+			\draw[->, bend right] (t3) to (s1);
+			\draw[->] (s1) to (t1);
+			\draw[->, bend right] (t1) to (s1);
+			\draw[->] (t1) to (s3);
+		\end{tikzpicture}
+	\end{center}
+	\columnbreak
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{B} & t1 & t2 & t3 \\ \hline
+			s1         & 1  &    &    \\ \hline
+			s2         &    & 1  &    \\ \hline
+			s3         &    &    & 1  \\ \hline
+		\end{tabular}
+		\hspace{1em}
+		\begin{tabular}{|c|c|c|c|}
+			\hline
+			\textbf{F} & t1 & t2 & t3 \\ \hline
+			s1         & 1  &    & 1  \\ \hline
+			s2         &    &    &    \\ \hline
+			s3         & 1  & 2  &    \\ \hline
+		\end{tabular}
+		\\
+		\vspace{1em}
+		\begin{tabular}{|c|}
+			\hline
+			\textbf{$\mathbf{M_0}$} \\ \hline
+			\                       \\ \hline
+			1                       \\ \hline
+			2                       \\ \hline
+		\end{tabular}
+
+	\end{center}
+\end{multicols}
+
+\subsection{Regola di Scatto}
+
+Sia $M : S \to \mathbb N$ una marcatura e $t \in T$, allora
+
+\[
+	M[t> \quad \iff \quad \forall s \in S, \ M(s) \geq W(s, t) \quad \iff \quad \underline M \geq \underline B(t)
+\]
+\vspace{1em}
+\[
+	\begin{aligned}
+		M[t>M'
+		\quad & \iff \quad
+		M[t> \ \wedge \ \ \forall s \in S, \ M'(s) = M(s) - W(s, t) + W(t, s)
+		\\
+		      & \iff \quad
+		M[t> \ \wedge \ \ \bf{\underline M' = \underline M - \underline B(t) + \underline F(t)}
+	\end{aligned}
+\]
+\\
+\\
+\textbf{Esempio nel caso precedente:}
+\[
+	M_0[t_2>M
+\]
+\vspace{1em}
+\begin{center}
+	\begin{tabular}{|c|}
+		\hline
+		\textbf{$\mathbf{M}$} \\ \hline
+		\                       \\ \hline
+		\                       \\ \hline
+		4                       \\ \hline
+	\end{tabular}
+	=
+	\begin{tabular}{|c|}
+		\hline
+		$\mathbf{M_0}$ \\ \hline
+		\                       \\ \hline
+		1                       \\ \hline
+		2                       \\ \hline
+	\end{tabular}
+    $-$
+	\begin{tabular}{|c|}
+		\hline
+        $\mathbf{B_{t2}}$ \\ \hline
+		\                       \\ \hline
+		1                       \\ \hline
+		\                       \\ \hline
+	\end{tabular}
+	+
+    \begin{tabular}{|c|}
+		\hline
+        $\mathbf{F_{t2}}$ \\ \hline
+		\                       \\ \hline
+		\                       \\ \hline
+		2                       \\ \hline
+	\end{tabular}
+\end{center}
+
+\subsection{Matrice di Incidenza}
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T tale che $\forall s \in S, \ K(s) = \infty$ e sia \textbf{senza cappi}. Allora il sistema può essere rappresentato da un'unica matrice $\underline N : S \times T \to \mathbb N$.
+\\
+\\
+La matrice $\underline N$ con $|S|$ righe e $|T|$ colonne è la \textbf{matrice di incidenza} di $N = (S, T, F, K, W)$ se e solo se 
+\[
+    \underline N(i, j) = W(t_j, s_i) - W(s_i, t_j)
+\]
+\[
+    \implies \underline N = \underline F - \underline B
+\]
+
+\subsection{Equazione di Stato (Firing Lemma)}
+
+Sia $\sigma \in T^*$ una sequenza di transizioni. 
+Il \textbf{vettore di Parikh} di $\sigma$ è il vettore $\underline{c_\sigma}$ di $|T|$ elementi tale che $\underline{c_\sigma}(t_i)$ è il numero di occorrenze di $t_i$ in $\sigma$.
+
+Abbiamo quindi che
+\[
+    M_0[\sigma>M_1
+    \implies
+    \underline{M_0} + \underline N \cdot \underline{c_\sigma}  =  \underline{M_1}
+\]
+
+Quest'ultima è detta \textbf{equazione di stato}. La validità dell'equazione di stato è \textbf{condizione necessaria ma non sufficiente} affinchè una sequenza di transizioni generi una marcatura in un sistema.
+
+\subsection{Vettore Realizzabile}
+
+Un vettore $\underline c \in \mathbb N^T$ è \textbf{realizzabile} da una marcatura $M$ se c'è una sequenza di transizioni $\sigma$ tale che $M[\sigma >$, con $\underline c = \underline{c_\sigma}$ vettore di Parikh di $\sigma$.
+
+\textbf{slide lez 6}
