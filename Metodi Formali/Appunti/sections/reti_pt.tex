@@ -239,33 +239,33 @@ Sia $M : S \to \mathbb N$ una marcatura e $t \in T$, allora
 	\begin{tabular}{|c|}
 		\hline
 		\textbf{$\mathbf{M}$} \\ \hline
-		\                       \\ \hline
-		\                       \\ \hline
-		4                       \\ \hline
+		\                     \\ \hline
+		\                     \\ \hline
+		4                     \\ \hline
 	\end{tabular}
 	=
 	\begin{tabular}{|c|}
 		\hline
 		$\mathbf{M_0}$ \\ \hline
-		\                       \\ \hline
-		1                       \\ \hline
-		2                       \\ \hline
+		\              \\ \hline
+		1              \\ \hline
+		2              \\ \hline
 	\end{tabular}
-    $-$
+	$-$
 	\begin{tabular}{|c|}
 		\hline
-        $\mathbf{B_{t2}}$ \\ \hline
-		\                       \\ \hline
-		1                       \\ \hline
-		\                       \\ \hline
+		$\mathbf{B_{t2}}$ \\ \hline
+		\                 \\ \hline
+		1                 \\ \hline
+		\                 \\ \hline
 	\end{tabular}
 	+
-    \begin{tabular}{|c|}
+	\begin{tabular}{|c|}
 		\hline
-        $\mathbf{F_{t2}}$ \\ \hline
-		\                       \\ \hline
-		\                       \\ \hline
-		2                       \\ \hline
+		$\mathbf{F_{t2}}$ \\ \hline
+		\                 \\ \hline
+		\                 \\ \hline
+		2                 \\ \hline
 	\end{tabular}
 \end{center}
 
@@ -273,24 +273,24 @@ Sia $M : S \to \mathbb N$ una marcatura e $t \in T$, allora
 Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T tale che $\forall s \in S, \ K(s) = \infty$ e sia \textbf{senza cappi}. Allora il sistema può essere rappresentato da un'unica matrice $\underline N : S \times T \to \mathbb N$.
 \\
 \\
-La matrice $\underline N$ con $|S|$ righe e $|T|$ colonne è la \textbf{matrice di incidenza} di $N = (S, T, F, K, W)$ se e solo se 
+La matrice $\underline N$ con $|S|$ righe e $|T|$ colonne è la \textbf{matrice di incidenza} di $N = (S, T, F, K, W)$ se e solo se
 \[
-    \underline N(i, j) = W(t_j, s_i) - W(s_i, t_j)
+	\underline N(i, j) = W(t_j, s_i) - W(s_i, t_j)
 \]
 \[
-    \implies \underline N = \underline F - \underline B
+	\implies \underline N = \underline F - \underline B
 \]
 
 \subsection{Equazione di Stato (Firing Lemma)}
 
-Sia $\sigma \in T^*$ una sequenza di transizioni. 
+Sia $\sigma \in T^*$ una sequenza di transizioni.
 Il \textbf{vettore di Parikh} di $\sigma$ è il vettore $\underline{c_\sigma}$ di $|T|$ elementi tale che $\underline{c_\sigma}(t_i)$ è il numero di occorrenze di $t_i$ in $\sigma$.
 
 Abbiamo quindi che
 \[
-    M_0[\sigma>M_1
-    \implies
-    \underline{M_0} + \underline N \cdot \underline{c_\sigma}  =  \underline{M_1}
+	M_0[\sigma>M_1
+	\implies
+	\underline{M_0} + \underline N \cdot \underline{c_\sigma}  =  \underline{M_1}
 \]
 
 Quest'ultima è detta \textbf{equazione di stato}. La validità dell'equazione di stato è \textbf{condizione necessaria ma non sufficiente} affinchè una sequenza di transizioni generi una marcatura in un sistema.
@@ -299,4 +299,138 @@ Quest'ultima è detta \textbf{equazione di stato}. La validità dell'equazione d
 
 Un vettore $\underline c \in \mathbb N^T$ è \textbf{realizzabile} da una marcatura $M$ se c'è una sequenza di transizioni $\sigma$ tale che $M[\sigma >$, con $\underline c = \underline{c_\sigma}$ vettore di Parikh di $\sigma$.
 
-\textbf{slide lez 6}
+\subsection{Proprietà di comportamento}
+
+Sia $\Sigma = (S, T, F, K, W, M_0)$ un sistema P/T tale che $\forall s \in S, \ K(s) = \infty$. Sia $n \in \mathbb N, n>1$. Allora, si dice che $\Sigma$ è
+
+
+\begin{itemize}
+	\item \textbf{n-limitato} (n-bounded) se e solo se $\forall s \in S, \forall M \in [M_0>, \ M(s) \leq n$
+	\item \textbf{limitato} (bounded) se e solo se $\exists n \in \mathbb N : \forall M \in [M_0>, \ M(s) \leq n$
+	\item \textbf{safe} (1-safe, sicuro) se e solo se $\forall s \in S, \forall M \in [M_0>, \ M(s) \leq 1$
+	\item \textbf{terminante} se e solo se non ammette sequenze infinite
+	\item $M\in\Sigma$ è una marcatura di \textbf{deadlock} se e solo se $\forall t \in T, \ not(M[t>)$
+	\item \textbf{deadlock-free} se e solo se $\forall M \in [M_0>, \ \exists t \in T : M[t>$ (ovvero non esistono marcature di deadlock)
+	\item \textbf{1-vivo} (1-live) se e solo se $\forall t \in T, \ \exists M \in [M_0> \ : M[t>$
+	\item \textbf{vivo} (live) se e solo se $\forall t \in T, \forall M \in [M_0>, \ \exists M' \in [M> \ : M'[t>$
+	\item \textbf{reversibile} (ciclico) se e solo se $\forall M \in [M_0>, \ M_0 \in [M>$ (ovvero si può sempre ritornare ad ogni marcatura raggiungibile)
+\end{itemize}
+
+\subsection{Proprietà Strutturali}
+
+Una rete $N = (S, T, F)$ è
+\begin{itemize}
+	\item \textbf{debolmente connessa} se e solo se $\forall x, y \in S \cup T, \ (x, y) \in (F \cup F^{-1})^*$
+	\item \textbf{stressamente connessa} se e solo se $\forall x, y \in S \cup T, \ (x, y) \in F^*$
+	\item un \textbf{cammino semplice} di $N$ è una sequenza $x_1 f_1 x_2 f_2 \dots f_{n-1} x_n$ che non passa mai due volte per uno stesso nodo ($x_i \in S \cup T$ e $f_i \in F$)
+	\item un \textbf{ciclo semplice} è un cammino semplice tale che $x_1 = x_n$.
+	\item una rete è \textbf{coperta da cicli} se e solo se $\forall f \in F$, $f$ appartiene a qualche ciclo
+	\item \textbf{strutturalmente limitata} se $\forall M_0, \ (S, T, F, M_0)$ è limitato
+	\item \textbf{strutturalmente viva} se $\exists M_0 : (S, T, F, M_0)$ è viva
+	\item \textbf{ben formata (WF, well formed)} se $\exists M_0 : (N, M_0)$ è viva e limitata
+\end{itemize}
+
+Proposizioni:
+\begin{itemize}
+	\item $N$ è \textbf{strettamente connessa} $\iff$ è \textbf{debolmente connessa} e \textbf{coperta da cicli}
+	\item $N$ è \textbf{WF} $\implies$ $N$ è \textbf{coperta da cicli}
+	\item $N$ è \textbf{WF} e \textbf{debolmente connessa} $\implies$ è \textbf{strettamente connessa}
+\end{itemize}
+
+\subsection{T-invarianti: definizione}
+
+I T-invarianti indicano quante volte ogni transizione deve scattare per poter riprodurre una marcatura.
+
+Una marcatura $M \in [M_0>$ è \textbf{riproducibile} se e solo se
+\[\exists w \in T^* : M[w > M \]
+Dall'\textbf{equazione di stato},
+\[
+	M[w>M \implies \underline M + \underline N \cdot \underline{c_w} = \underline M
+\]
+Il vettore $\underline{c_w}$ quindi è soluzione del sistema
+\[ \underline N \cdot \underline x = \underline 0\]
+ed è detto \textbf{T-invariante}.
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T con matrice di incidenza $\underline N$. Allora abbiamo che
+\begin{itemize}
+	\item Un vettore $\underline J : T \to \mathbb Z$ è un \textbf{T-invariante} di $\Sigma$ se e solo se $\underline N \cdot \underline J = \underline 0$
+	\item Se $\underline{J_1}$ e $\underline{J_2}$ sono T-invarianti e $z \in \mathbb Z$, allora anche $\underline{J_1} + \underline{J_2}$ e $z \cdot \underline {J_1}$ sono T-invarianti (ovvero ogni combinazione lineare di T-invarianti è un T-invariante).
+	\item Un T-invariante $\underline J \neq \underline 0$ non negativo è \textbf{minimale} se e solo se non esiste un altro T-invariante $J'$ tale che $\underline 0 \lneq \underline J' \lneq \underline J$
+\end{itemize}
+
+\subsection{T-invarianti: rappresentazione grafica}
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T con capacità illimitata e sia \underline J un T-invariante non negativo.\\
+La \textbf{sottorete} $N_J = (S_J, T_J, F_J, W_J)$ è la \textbf{rappresentazione grafica} di $\underline J$ se e solo se $N_J$ è la sottorete di $N$ generata dalle transizioni identificate da $\underline J$:
+\begin{itemize}
+	\item $T_J = \{ t \in T \ | \ \underline J(t) \neq 0 \}$
+	\item $S_J = \prescript{\bullet}{}{T_J} \cup T_J^\bullet$
+	\item $F_J = F \cap [(S_J \times T_J)\cup(T_J \times S_J)]$
+	\item $W_J = W_{|F_J|}$
+\end{itemize}
+
+\subsection{T-invarianti: realizzabilità}
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T e sia $\underline J$ un T-invariante non negativo. Abbiamo che $\underline J$ è un T-invariante \textbf{realizzabile} se e solo se
+\[
+	\exists M \in [M_0>, \exists w \in T^* : M[w> \ \wedge \ \ \underline J = \underline{c_w}
+\]
+Notare che non tutti i T-invarianti non negativi sono realizzabili.
+
+\subsection{T-invarianti: vivezza e limitatezza}
+
+Una rete $N = (S, T, F, W)$ è \textbf{coperta da T-invarianti} se e solo se
+\[
+	\forall t \in T, \ \exists \underline J \text{ T-invariante di } N : \underline J(t) > 0
+\]
+Abbiamo che $\Sigma = (N, M_0)$ \textbf{finito}, \textbf{vivo} e \textbf{limitato} $\implies N$ \textbf{coperta da T-invarianti}.
+
+\subsection{S-invarianti: definizione}
+
+Gli S-invarianti insividuano inseiemi di posti tali che, comunque evolva il sistema, mantengano un numero di marche (eventualmente opportunamente pesate) costante.
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T senza cappi e con matrice di incidenza $\underline N$. Allora abbiamo che
+\begin{itemize}
+	\item Un vettore $\underline I : S \to \mathbb Z$ è un S-invariante di $\Sigma$ se e solo se $\underline I \cdot \underline N = \underline 0$
+	\item Se $\underline{I_1}$ e $\underline{I_2}$ sono S-invarianti e $z \in \mathbb Z$, allora anche $\underline{I_1} + \underline{I_2}$ e $z \cdot \underline {I_1}$ sono S-invarianti (ovvero ogni combinazione lineare di S-invarianti è un S-invariante).
+	\item Un S-invariante $\underline I \neq \underline 0$ non negativo è \textbf{minimale} se e solo se non esiste un altro S-invariante $I'$ tale che $\underline 0 \lneq \underline I' \lneq \underline I$
+\end{itemize}
+
+\subsection{S-invarianti: teorema principale (conservazione delle marche}
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T senza cappi e con matrice di incidenza $\underline N$. Abbiamo che
+
+\textbf{Teorema 1.}
+\[
+    \forall M \in [M_0>, \ \forall \underline I : \underline I \text{ S-invariante}, \quad \underline I \cdot \underline M = \underline I \cdot \underline{M_0}
+\]
+
+\textbf{Teorema 2.}
+
+Sia $\Sigma$ 1-vivo e sia $\underline I : S \to \mathbb Z$ tale che $\forall M \in [M_0>, \ \underline I \cdot \underline M = \underline I \cdot \underline{M_0}$, allora
+\[
+    \underline I \cdot \underline N = \underline 0 \quad \text{ ($\underline I$ è un S-invariante)}    
+\]
+
+\subsection{S-invarianti: rappresentazione grafica}
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T, e $\underline I$ un S-invariante.\\
+La \textbf{rappresentazione grafica} di $\underline I$ è la \textbf{sottorete} $N_I = (S_I, T_I, F_I, W_I)$ generata dai posti identificati da $\underline I$, cioè tale che
+\begin{itemize}
+    \item $S_I = \{ s \in S \ | \ \underline I(s) \neq 0 \}$
+    \item $T_I = \prescript{\bullet}{}{S_I} \cup S_I^\bullet$
+    \item $F \cap [(S_I \times T_I)\cup(T_I\times S_I)]$
+    \item $W_I = W_{|F_I|}$
+\end{itemize}
+
+\subsection{S-invarianti: vivezza e limitatezza}
+
+Sia $\Sigma = (S, T, F, W, M_0)$ un sistema P/T, e $N=(S, T, F, W)$ una rete. Allora
+\begin{itemize}
+    \item $N$ è \textbf{coperta da S-invarianti} se e solo se 
+        \[
+            \forall s \in S, \ \exists \text{ un S-invariante positivo $\underline I$ con } \underline I(s) > 0
+        \]
+    \item $N$ \textbf{coperta da S-invarianti} $\implies \Sigma$ \textbf{limitato}
+    \item $\Sigma$ vivo $\implies \underline I \cdot \underline{M_0} > 0$ (ovvero ogni S-invariante $\underline I$ non negativo deve essere marcato in $M_0$
+\end{itemize}
