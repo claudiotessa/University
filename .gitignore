@@ -15,6 +15,7 @@
 *.snm
 *.pdfsync
 *.xdv
+*.synctex(busy)
 
 # LaTeX editor temporary files
 *~       # Backup files (e.g., vim, emacs)
