@@ -149,3 +149,20 @@ A = \begin{bmatrix}
 $$
 
 ---
+
+# 2  Iterative methods for large and sparse linear systems
+
+Let's consider the following linear system of equations
+$$A \mathbf{x} = \mathbf{b}$$
+where:
+
+- $A \in \mathbb{R}^{n \times n}$
+- $\mathbf{b} \in \mathbb{R}^{n}$
+- $\mathbf{x} \in \mathbb{R}^{n}$
+- $\det(A) \neq 0$
+
+In general, direct methods (i.e., methods based on a "manipulation" of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. Therefore, we use iterative methods.
+
+We introduce a sequence $\mathbf{x}^{(k)}$ of vectors determined by a recursive relation that identifies the method.
+
+In order to initialize the iterative process, it is necessar
