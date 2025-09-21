@@ -1,0 +1,13 @@
+{
+  "showInlineTitle": false,
+  "showUnsupportedFiles": true,
+  "vimMode": true,
+  "showLineNumber": false,
+  "pdfExportSettings": {
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  },
+  "attachmentFolderPath": "./attachments"
+}

@@ -1,0 +1,11 @@
+{
+  "accentColor": "",
+  "showViewHeader": false,
+  "theme": "obsidian",
+  "nativeMenus": false,
+  "enabledCssSnippets": [
+    "personal",
+    "align-images"
+  ],
+  "showRibbon": false
+}
