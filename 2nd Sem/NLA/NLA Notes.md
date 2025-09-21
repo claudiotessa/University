@@ -175,5 +175,9 @@ Since the convergence is only guaranteed after an infinite number of iterations,
 
 Note that, even in exact arithmetic, an iterative method will inevitably be affected by a **numerical error**.
 
-## The Jacobi method
+## 2.1  The Jacobi method
 
+Formally, the solution $x_{i}$ for each $i$ is given by
+$$
+x_{i} = \frac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}}{a_{ii}}
+$$
