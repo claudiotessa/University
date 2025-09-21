@@ -85,10 +85,25 @@ A = \begin{bmatrix}
 0 & 0 & 10 & 11 & 0 \\
 0 & 0 & 0 & 0 & 12
 \end{bmatrix} 
-& &
+
+& & & 
+
 \begin{matrix}
-\texttt{dsdfsi}
-\end{matrix} 
+\texttt{AA} \quad \boxed{\begin{matrix}
+12 & 9 & 7 & 5 & 1 & 2 & 11 & 3 & 6 & 4 & 8 & 10
+\end{matrix}}  \\
+
+\texttt{JR} \quad \boxed{\begin{matrix}
+5 & 3 & 3 & 2 & 1 & 1 & 4 & 2 & 3 & 2 & 3 & 4
+\end{matrix}}   \\
+
+\texttt{JC} \quad \boxed{\begin{matrix}
+5 & 5 & 3 & 4 & 1 & 4 & 4 & 1 & 1 & 2 & 4 & 3
+\end{matrix}}  
+\end{matrix}  \\
+fl\begin{flalign}
+
+\end{flalign}
 
 \end{matrix}
 $$
