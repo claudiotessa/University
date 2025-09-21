@@ -68,5 +68,27 @@ Many matrices arising from real applications are sparse. If we need to store $A$
 
 The data structure consists of three arrays of length $\mathrm{nnz(A)}$:
 
-- 
+- `AA`: all the values of the nonzero elements of $A$ in any order
+- `JR`: integer array containing their row indices
+- `JC` integer array containing their column indices
 
+---
+
+***Example***
+
+$$
+\begin{matrix}
+A = \begin{bmatrix}
+1 & 0 & 0 & 2 & 0 \\
+3 & 4 & 0 & 5 & 0 \\
+6 & 0 & 7 & 8 & 9 \\
+0 & 0 & 10 & 11 & 0 \\
+0 & 0 & 0 & 0 & 12
+\end{bmatrix} 
+& &
+\begin{matrix}
+\texttt{dsdfsi}
+\end{matrix} 
+
+\end{matrix}
+$$
