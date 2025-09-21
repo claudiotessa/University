@@ -88,7 +88,7 @@ A = \begin{bmatrix}
 
 & & & 
 
-\begin{matrix}
+\begin{array}{l}
 \texttt{AA} \quad \boxed{\begin{matrix}
 12 & 9 & 7 & 5 & 1 & 2 & 11 & 3 & 6 & 4 & 8 & 10
 \end{matrix}}  \\
@@ -100,10 +100,13 @@ A = \begin{bmatrix}
 \texttt{JC} \quad \boxed{\begin{matrix}
 5 & 5 & 3 & 4 & 1 & 4 & 4 & 1 & 1 & 2 & 4 & 3
 \end{matrix}}  
-\end{matrix}  \\
-fl\begin{flalign}
-
-\end{flalign}
+\end{array}  
 
 \end{matrix}
 $$
+
+---
+
+### 1.2.2  Coordinate Compressed Sparse Row format (CSR)
+
+If the elements of $A$ are listed by row, the array `JC` might be replaced by an array that points to the beginning of each row
