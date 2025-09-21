@@ -161,8 +161,19 @@ where:
 - $\mathbf{x} \in \mathbb{R}^{n}$
 - $\det(A) \neq 0$
 
-In general, direct methods (i.e., methods based on a "manipulation" of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. Therefore, we use iterative methods.
+In general, direct methods (i.e., methods based on a *manipulation* of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. Therefore, we use iterative methods.
 
-We introduce a sequence $\mathbf{x}^{(k)}$ of vectors determined by a recursive relation that identifies the method.
+We introduce a sequence $\mathbf{x}^{(k)}$ of vectors determined by a recursive relation that identifies the method. In order to initialize the iterative process, it is necessary to provide an initial vector $\mathbf{x}^{(0)}$. 
 
-In order to initialize the iterative process, it is necessar
+For the method to make sense, it must satisfy the **convergence property**
+$$
+\lim_{ k \to +\infty } \mathbf{x}^{(k)} = \mathbf{x} 
+$$
+Convergence must not depend on the choice of $\mathbf{x}^{(0)}$.
+
+Since the convergence is only guaranteed after an infinite number of iterations, from a practical point of view we will have to stop the iterative process after a finite number of iterations, when we believe we have arrived *sufficiently close* to the solution. For this, we use specific **stopping criteria**.
+
+Note that, even in exact arithmetic, an iterative method will inevitably be affected by a **numerical error**.
+
+## The Jacobi method
+
