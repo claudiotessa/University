@@ -201,4 +201,7 @@ At iteration $(k + 1)$, let's consider the computation of $x_{i}^{(k+1)}$. We ob
 $$
 x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j<i}a_{i j} x_{j}^{(k+1)} - \sum_{j > i}a_{ij} x_{j}^{(k)}}{a_{ii}}
 $$
-The computational costs are comparable to those of the Jacobi method. However, unlike the Jacobi, GS is not fully paral 
+The computational costs are comparable to those of the Jacobi method. However, unlike the Jacobi, GS is not fully parallelizable.
+
+==pag15==
+
