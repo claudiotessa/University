@@ -189,4 +189,12 @@ Obviously we cannot use it because we do not know $x_{j}$ for $j \neq i$. We can
 $$
 x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j\neq i} a_{ij} x_{j}^{(k)}}{a_{ii}} \qquad \forall i = 1, \dots, n
 $$
-In general, each iteration costs $\sim n^{2}$ operations, so the Jacobi method is competitive if the number of iterations is less that $n$.
+In general, each iteration costs $\sim n^{2}$ operations, so the Jacobi method is competitive if the number of iterations is less that $n$. If $A$ is a sparse matrix, then the cost is only $\sim n$ per iteration.
+
+It should be noted that the solutions $x_{i}^{(k+1)}$ can be computed fully in parallel, which is very competitive for large scale systems.
+
+## 2.2  The Gauss Seidel method
+
+Let's start from Jacobi's method: $x_{i}^{(k+1)} = \dfrac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}^{(k)}}{a_{ii}}$
+
+At iteration $(k + 1)$, let's consider the computatio
