@@ -197,4 +197,8 @@ It should be noted that the solutions $x_{i}^{(k+1)}$ can be computed fully in p
 
 Let's start from Jacobi's method: $x_{i}^{(k+1)} = \dfrac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}^{(k)}}{a_{ii}}$
 
-At iteration $(k + 1)$, let's consider the computatio
+At iteration $(k + 1)$, let's consider the computation of $x_{i}^{(k+1)}$. We observe that, for $j < i$ (for $i > 2$), $x_{j}^{(k + 1)}$ is known (we have already calculated it). We can therefore think of using the quantities at step $(k + 1)$ if $j < i$ and (as in the Jacobi method) those at the previous step $k$ if $j > i$.
+$$
+x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j<i}a_{i j} x_{j}^{(k+1)} - \sum_{j > i}a_{ij} x_{j}^{(k)}}{a_{ii}}
+$$
+The computational costs are comparable to those of the Jacobi method. However, unlike the Jacobi, GS is not fully paral 
