@@ -54,5 +54,19 @@ $$A\mathbf{x} = \mathbf{b}$$
 
 ## 1.2  Sparse matrices
 
-A sparse matrix is a matrix in which most elements are zero. Roughly speaking, given $A \in \mathbb{R}^{n\times n}$, the number of non-zero entries of $A$ i
+A sparse matrix is a matrix in which most elements are zero. Roughly speaking, given $A \in \mathbb{R}^{n\times n}$, the number of non-zero entries of $A$, called $\mathrm{nnz}(A)$, is $O(n)$.
+
+Many matrices arising from real applications are sparse. If we need to store $A$, we can exploit the sparse structure using different **storage schemes**:
+
+
+| Name             | Easy insertion | Fast $A \mathbf{x}$ |
+| ---------------- | -------------- | ------------------- |
+| Coordinate (COO) | Yes            | No                  |
+| CSR              | No             | Yes                 |
+
+### 1.2.1  Coordinate format (COO)
+
+The data structure consists of three arrays of length $\mathrm{nnz(A)}$:
+
+- 
 
