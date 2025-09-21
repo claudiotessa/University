@@ -43,3 +43,9 @@ A = QR
 $$
 - $Q$ is an orthogonal
 - $R$ is upper triangular
+
+***Linear System Solution***:
+$$A\mathbf{x} = \mathbf{b}$$
+1. Factor $A = QR$ (expensive, $O(n^{3})$)
+2. Multiply $\mathbf{c} = Q^{T}\mathbf{b}$ ($O(n^{2})$)
+3. Solve $R\mathbf{x} = \mathbf{c}$ (lower triangular)
