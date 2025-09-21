@@ -31,4 +31,15 @@ where $L$ is lower triangular (with positive entries on the diagonal).
 
 ***Linear system solution***:
 $$A \mathbf{x} = \mathbf{b}$$
-1
+1. Factor $A = L^{T} L$ (expensive, $O(N^{3})$)
+2. Solve $L^{T}\mathbf{y} = \mathbf{b}$ (lower triangular system, $O(n^{2})$)
+3. Solve $L \mathbf{x} = \mathbf{y}$ (upper triangular system, $O(n^{2})$)
+
+## 1.3  QR decomposition
+
+If $A \in \mathbb{R}^{n \times n}$ is nonsingular (invertible), then
+$$
+A = QR
+$$
+- $Q$ is an orthogonal
+- $R$ is upper triangular
