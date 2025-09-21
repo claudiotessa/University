@@ -161,7 +161,7 @@ where:
 - $\mathbf{x} \in \mathbb{R}^{n}$
 - $\det(A) \neq 0$
 
-In general, direct methods (i.e., methods based on a *manipulation* of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. Therefore, we use iterative methods.
+In general, direct methods (i.e., methods based on a *manipulation* of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. The average cost of direct methods scales as $n^{3}$. Therefore, we use iterative methods.
 
 We introduce a sequence $\mathbf{x}^{(k)}$ of vectors determined by a recursive relation that identifies the method. In order to initialize the iterative process, it is necessary to provide an initial vector $\mathbf{x}^{(0)}$. 
 
@@ -177,8 +177,10 @@ Note that, even in exact arithmetic, an iterative method will inevitably be affe
 
 ## 2.1  The Jacobi method
 
-Starting from
-
+Starting from the $i$-th line of the linear system:
+$$
+\sum_{j = 1}^{n} a_{ij} x_{j} = b_{i} \quad \to \quad a_{i 1} x_{1} + a_{i 2} x_{2} + \dots + a_{i n} x_{n} = b_{i}
+$$
 Formally, the solution $x_{i}$ for each $i$ is given by
 $$
 x_{i} = \frac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}}{a_{ii}}
@@ -187,3 +189,4 @@ Obviously we cannot use it because we do not know $x_{j}$ for $j \neq i$. We can
 $$
 x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j\neq i} a_{ij} x_{j}^{(k)}}{a_{ii}} \qquad \forall i = 1, \dots, n
 $$
+In general, each iteration costs $\sim n^{2}$ operations, so the Jacobi method is competitive if the number of iterations is less that $n$.
