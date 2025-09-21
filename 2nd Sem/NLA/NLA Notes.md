@@ -68,7 +68,7 @@ Many matrices arising from real applications are sparse. If we need to store $A$
 
 The data structure consists of three arrays of length $\mathrm{nnz(A)}$:
 
-- `AA`: all the values of the nonzero elements of $A$ in any order
+- `AA`: all the values of the nonzero elements of $A$ *in any order*
 - `JR`: integer array containing their row indices
 - `JC` integer array containing their column indices
 
@@ -109,4 +109,8 @@ $$
 
 ### 1.2.2  Coordinate Compressed Sparse Row format (CSR)
 
-If the elements of $A$ are listed by row, the array `JC` might be replaced by an array that points to the beginning of each row
+If the elements of $A$ are listed by row, the array `JC` might be replaced by an array that points to the beginning of each row.
+
+- `AA`: all the values of the nonzero elements of $A$, *stored row by row* from $1, \dots, n$
+- `JA`: contains the column indices
+- `IA`: contains the pointers to the beginning of each row in the arrays `AA` and `JA`. Thus $IA(i)$ contains the position in the arrays `AA` and `JA` where the $i$-th row starts. The length of `IA` is $n + 1$
