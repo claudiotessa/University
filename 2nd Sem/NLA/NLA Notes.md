@@ -114,3 +114,38 @@ If the elements of $A$ are listed by row, the array `JC` might be replaced by an
 - `AA`: all the values of the nonzero elements of $A$, *stored row by row* from $1, \dots, n$
 - `JA`: contains the column indices
 - `IA`: contains the pointers to the beginning of each row in the arrays `AA` and `JA`. Thus $IA(i)$ contains the position in the arrays `AA` and `JA` where the $i$-th row starts. The length of `IA` is $n + 1$
+
+---
+
+***Example***
+
+$$
+\begin{matrix}
+A = \begin{bmatrix}
+1 & 0 & 0 & 2 & 0 \\
+3 & 4 & 0 & 5 & 0 \\
+6 & 0 & 7 & 8 & 9 \\
+0 & 0 & 10 & 11 & 0 \\
+0 & 0 & 0 & 0 & 12
+\end{bmatrix} 
+
+& & & 
+
+\begin{array}{l}
+\texttt{AA} \quad \boxed{\begin{matrix}
+1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12
+\end{matrix}}  \\
+
+\texttt{JA} \quad \boxed{\begin{matrix}
+1 & 4 & 1 & 2 & 4 & 1 & 3 & 4 & 5 & 3 & 4 & 5
+\end{matrix}}   \\
+
+\texttt{IA} \quad \boxed{\begin{matrix}
+1 & 3 & 6 & 10 & 12 & 13
+\end{matrix}}  
+\end{array}  
+
+\end{matrix}
+$$
+
+---
