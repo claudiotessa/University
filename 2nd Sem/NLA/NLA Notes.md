@@ -229,10 +229,33 @@ A consistent iterative method with iteration matrix $B$ converges **if and only 
 Let
 $$
 A = \begin{bmatrix}
-\ddots & & -
+\ddots & & -F \\
+& D & \\
+-E & & \ddots
 \end{bmatrix}
 $$
 
 - $D$: diagonal part of $A$
 - $-E$: lower triangular part of $A$
 - $-F$: upper triangular part of $A$
+
+The Jacobi method can be rewritten as
+$$
+D \mathbf{x}^{(k+1)} = (E+F)\mathbf{x}^{(k)} + \mathbf{b}
+$$
+its iteration matrix is given by
+$$
+B_{J} = D^{-1}(E+F) = F^{-1}(D - A) = I - D^{-1}A
+$$
+
+For the Gauss-Seidel method we have
+$$
+(D - E)\mathbf{x}^{(k+1)} = F \mathbf{x}^{(k)} + \mathbf{b}
+$$
+The iteration matrix is given by
+$$
+B_{GS} = (D - E)^{-1}F
+$$
+
+Both methods are consistent.
+If $A$ is strictly diagonally dominant by rows, then J and GS converge.
