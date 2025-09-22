@@ -258,4 +258,11 @@ B_{GS} = (D - E)^{-1}F
 $$
 
 Both methods are consistent.
-If $A$ is strictly diagonally dominant by rows, then J and GS converge.
+
+- If $A$ is strictly diagonally dominant by rows/columns, then J and GS converge.
+- If $A$ is SPD then the GS method is convergent
+- If $A$ is tridiagonal, it can be shown that $\rho^{2}(B_{J}) = \rho(B_{GS})$. Therefore both methods converge or fail to converge at the same time. If they converge, GS is faster than J.
+
+## 2.4  Stopping criteria
+
+A practical test is needed to determine when to stop the iteration.
