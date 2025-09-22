@@ -203,5 +203,13 @@ x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j<i}a_{i j} x_{j}^{(k+1)} - \sum_{j > i}a_{i
 $$
 The computational costs are comparable to those of the Jacobi method. However, unlike the Jacobi, GS is not fully parallelizable.
 
-==pag15==
+## 2.3  Linear iterative methods
+
+In general, we consider linear iterative methods of the following form:
+$$
+\mathbf{x}^{(k + 1)} = B \mathbf{x}^{(k)} + \mathbf{f} \qquad k \geq 0
+$$
+where $B \in \mathbb{R}^{n \times n}$, $\mathbf{f} \in \mathbb{R}^{n}$
+
+$B$ is called iteration matrix. Its choice (together with $\mathbf{f}$) uniquely identify the method
 

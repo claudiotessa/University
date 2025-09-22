@@ -91,66 +91,18 @@
         "type": "tabs",
         "children": [
           {
-            "id": "f61e83c6612b3494",
-            "type": "leaf",
-            "state": {
-              "type": "backlink",
-              "state": {
-                "file": "2nd Sem/NLA/NLA Notes.md",
-                "collapseAll": false,
-                "extraContext": false,
-                "sortOrder": "alphabetical",
-                "showSearch": false,
-                "searchQuery": "",
-                "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-coming-in",
-              "title": "Backlinks for NLA Notes"
-            }
-          },
-          {
-            "id": "a6299df8cc77806d",
-            "type": "leaf",
-            "state": {
-              "type": "outgoing-link",
-              "state": {
-                "file": "Welcome.md",
-                "linksCollapsed": false,
-                "unlinkedCollapsed": true
-              },
-              "icon": "links-going-out",
-              "title": "Outgoing links from Welcome"
-            }
-          },
-          {
-            "id": "dd0e8b790164bb38",
-            "type": "leaf",
-            "state": {
-              "type": "tag",
-              "state": {
-                "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-tags",
-              "title": "Tags"
-            }
-          },
-          {
             "id": "ad91e41e24b48dc5",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "Welcome.md",
+                "file": "2nd Sem/NLA/NLA Notes.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Welcome"
+              "title": "Outline of NLA Notes"
             }
           }
         ]
