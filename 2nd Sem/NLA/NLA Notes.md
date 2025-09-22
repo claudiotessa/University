@@ -214,6 +214,25 @@ where $B \in \mathbb{R}^{n \times n}$, $\mathbf{f} \in \mathbb{R}^{n}$
 $B$ is called iteration matrix. Its choice, together with $\mathbf{f}$, uniquely identify the method. So how to choose $B$ and $\mathbf{f}$?
 
 1. **Consistency** - If $\mathbf{x}^{(k)}$ is the exact solution $\mathbf{x}$, then $\mathbf{x}^{(k+1)}$ is again equal to $\mathbf{x}$ $$\mathbf{x} = B\mathbf{x} + \mathbf{f} \quad \implies \quad \mathbf{f} = (I - B) \mathbf{x} = (I - B)A^{-1} \mathbf{b}$$The former identity gives a relationship between $B$ and $\mathbf{f}$ as a function of the data.
-2. **Convergence** - Let's introduce the error at step $(k+1)$: $\mathbf{e}^{(k+1)} = \mathbf{x} - \mathbf{x}^{(k+1)}$ and a suitable vector norm $\lVert \cdot \rVert$ (for example, the Euclidian norm). Then we have:$$ \begin{align} \lVert \mathbf{e}^{(k+1)} \rVert &= \lVert \mathbf{x} - \mathbf{x}^{(k+1)} \rVert = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - \mathbf{f} \rVert   = \qquad \textcolor{red}{\gets \text{consistency}} \\[1em] &= \lVert \mathbf{x} - B \mathbf{x}^{(k)} - (I - B)\mathbf{x} \rVert = \lVert B \mathbf{e}^{(k)} \rVert \\[1em] &\leq \lVert B \rVert \lVert \mathbf{e}^{(k)} \rVert \end{align}$$By recursion we obtain $$\begin{align} \lVert  \mathbf{e}^{(k-1)} \rVert &\leq \lVert B \rVert \ \lVert B \rVert \ \lVert e^{(k+1)} \rVert \\[1em] &\leq \lVert B \rVert \ \lVert B \rVert \ \lVert B \rVert  \ \lVert \mathbf{e}^{(k-2)} \rVert \leq \dots \leq \lVert B \rVert ^{k+1} \lVert \mathbf{e}^{(0)} \rVert \end{align}$$ $$\implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert \leq \left(\lim_{ k \to \infty } \lVert B \rVert ^{k+1} \right) \lVert \mathbf{e}^{(0)} \rVert $$If $\displaystyle \lVert B \rVert < 1 \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert = 0$. Therefore, $\lVert B \rVert < 1$ is a **sufficient condition for convergence**.
+2. **Convergence** - Let's introduce the error at step $(k+1)$: $\mathbf{e}^{(k+1)} = \mathbf{x} - \mathbf{x}^{(k+1)}$ and a suitable vector norm $\lVert \cdot \rVert$ (for example, the Euclidian norm). Then we have:$$ \begin{align} \lVert \mathbf{e}^{(k+1)} \rVert &= \lVert \mathbf{x} - \mathbf{x}^{(k+1)} \rVert = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - \mathbf{f} \rVert   = \qquad \gets \text{consistency} \\[1em] &= \lVert \mathbf{x} - B \mathbf{x}^{(k)} - (I - B)\mathbf{x} \rVert = \lVert B \mathbf{e}^{(k)} \rVert \\[1em] &\leq \lVert B \rVert \lVert \mathbf{e}^{(k)} \rVert \end{align}$$By recursion we obtain $$\begin{align} \lVert  \mathbf{e}^{(k-1)} \rVert &\leq \lVert B \rVert \ \lVert B \rVert \ \lVert e^{(k+1)} \rVert \\[1em] &\leq \lVert B \rVert \ \lVert B \rVert \ \lVert B \rVert  \ \lVert \mathbf{e}^{(k-2)} \rVert \leq \dots \leq \lVert B \rVert ^{k+1} \lVert \mathbf{e}^{(0)} \rVert \end{align}$$ $$\implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert \leq \left(\lim_{ k \to \infty } \lVert B \rVert ^{k+1} \right) \lVert \mathbf{e}^{(0)} \rVert $$If $\displaystyle \lVert B \rVert < 1 \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert = 0$. Therefore, $\lVert B \rVert < 1$ is a **sufficient condition for convergence**.
    
-   We define $\rho(B) = \max_{j} \lvert \lambda_{j}(B) \rvert$, where $\lambda_{j}(B)$ are the eigenvalues of $B$. $\rho(B)$ is called **spectral radius** of $B$. Remember that if $B$ is SPD, then $\rho(B) = \lVert B \rVert$.
+### 2.3.1  Necessary and sufficient condition for convergence
+
+We define $\rho(B) = \max_{j} \lvert \lambda_{j}(B) \rvert$, where $\lambda_{j}(B)$ are the eigenvalues of $B$. $\rho(B)$ is called **spectral radius** of $B$. Remember that if $B$ is SPD, then $\rho(B) = \lVert B \rVert$.
+
+***Theorem***
+
+A consistent iterative method with iteration matrix $B$ converges **if and only if** $\rho(B) < 1$.
+
+### 2.3.2  Convergence of Jacobi (J) and Gauss-Seidel (GS) methods
+
+Let
+$$
+A = \begin{bmatrix}
+\ddots & & -
+\end{bmatrix}
+$$
+
+- $D$: diagonal part of $A$
+- $-E$: lower triangular part of $A$
+- $-F$: upper triangular part of $A$
