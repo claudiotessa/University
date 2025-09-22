@@ -265,4 +265,6 @@ Both methods are consistent.
 
 ## 2.4  Stopping criteria
 
-A practical test is needed to determine when to stop the iteration. The idea is to terminate the iterations
+A practical test is needed to determine when to stop the iteration. The idea is to terminate the iterations when $\dfrac{\lVert \mathbf{x} - \mathbf{x}^{k} \rVert}{\lVert \mathbf{x}^{k} \rVert} \leq \varepsilon$, where $\varepsilon$ is a user-defined tolerance. Unfortunately, the error is not known. We can use two criterion:
+
+1. **Residual-based stopping criterion**$$\frac{\lVert \mathbf{x} - \mathbf{x}^{(k)} \rVert }{\lVert \mathbf{x} \rVert } \leq K(A) \frac{\lVert \mathbf{r}^{(k)} \rVert }{\lVert \mathbf{b} \rVert } \quad \implies \quad \boxed{\frac{\left\lVert  \mathbf{r}^{k} \right\rVert }{\lVert \mathbf{b} \rVert } \leq \varepsilon} $$
