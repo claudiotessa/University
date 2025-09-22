@@ -179,7 +179,7 @@ Note that, even in exact arithmetic, an iterative method will inevitably be affe
 
 Starting from the $i$-th line of the linear system:
 $$
-\sum_{j = 1}^{n} a_{ij} x_{j} = b_{i} \quad \to \quad a_{i 1} x_{1} + a_{i 2} x_{2} + \dots + a_{i n} x_{n} = b_{i}
+\sum_{j = 1}^{n} a_{ij} x_{j} = b_{i} \quad \implies \quad a_{i 1} x_{1} + a_{i 2} x_{2} + \dots + a_{i n} x_{n} = b_{i}
 $$
 Formally, the solution $x_{i}$ for each $i$ is given by
 $$
@@ -211,5 +211,8 @@ $$
 $$
 where $B \in \mathbb{R}^{n \times n}$, $\mathbf{f} \in \mathbb{R}^{n}$
 
-$B$ is called iteration matrix. Its choice (together with $\mathbf{f}$) uniquely identify the method
+$B$ is called iteration matrix. Its choice, together with $\mathbf{f}$, uniquely identify the method. So how to choose $B$ and $\mathbf{f}$?
+
+1. **Consistency** - If $\mathbf{x}^{(k)}$ is the exact solution $\mathbf{x}$, then $\mathbf{x}^{(k+1)}$ is again equal to $\mathbf{x}$ $$\mathbf{x} = B\mathbf{x} + \mathbf{f} \quad \implies \quad \mathbf{f} = (I - B) \mathbf{x} = (I - B)A^{-1} \mathbf{b}$$The former identity gives a relationship between $B$ and $\mathbf{f}$ as a function of the data.
+2. **Convergence** - Let's introduce
 
