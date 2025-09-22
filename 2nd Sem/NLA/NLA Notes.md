@@ -265,4 +265,4 @@ Both methods are consistent.
 
 ## 2.4  Stopping criteria
 
-A practical test is needed to determine when to stop the iteration.
+A practical test is needed to determine when to stop the iteration. The idea is to terminate the iterations
