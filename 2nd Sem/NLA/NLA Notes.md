@@ -269,3 +269,6 @@ A practical test is needed to determine when to stop the iteration. The idea is 
 
 1. **Residual-based stopping criterion**.$$\frac{\lVert \mathbf{x} - \mathbf{x}^{(k)} \rVert }{\lVert \mathbf{x} \rVert } \leq K(A) \frac{\lVert \mathbf{r}^{(k)} \rVert }{\lVert \mathbf{b} \rVert } \quad \implies \quad \boxed{\frac{\left\lVert  \mathbf{r}^{k} \right\rVert }{\lVert \mathbf{b} \rVert } \leq \varepsilon} $$This is a good stopping criterion whenever $K(A)$ is "small".
 2. **Distance between consecutive iterates**. Define the relative residual $\boldsymbol{\delta}^{(k)} = \mathbf{x}^{(k+1)} - \mathbf{x}^{(k)}$ $$\boxed{\lVert \boldsymbol{\delta}^{(k)} \rVert \leq \varepsilon} $$It can be shown that the relation between the true error and $\boldsymbol{\delta}^{(k)}$ is$$\lVert \mathbf{e}^{(k)} \rVert \leq \frac{1}{1 - \rho(B)} \lVert \boldsymbol{\delta}^{(k)} \rVert $$This is a good stopping criterion only if $\rho(B) \ll 1$.
+
+## 2.5  The stationary Richardson method
+
