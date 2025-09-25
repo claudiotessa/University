@@ -321,4 +321,7 @@ To have $K(P^{-1}A) \ll K(A)$ we need that the linear system in $P$ must be "eas
 
 ## 2.7  The gradient method
 
-Let $A \in \mathbb{R}^{n}$
+Let $A \in \mathbb{R}^{n}$ be SPD. In this case, solving the linear system $A \mathbf{x} = \mathbf{b}$ is equivalent to minimizing the quadratic function $\Phi : \mathbb{R}^{n} \to \mathbb{R}$
+$$
+\Phi(\mathbf{y}) = \frac{1}{2} \mathbf{y}^{T} A \mathbf{y} - \mathbf{y}^{T}\mathbf{b}
+$$
