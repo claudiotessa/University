@@ -315,4 +315,10 @@ We obtain the same results as in the non preconditioned case, provided we replac
 - Convergence: $\qquad0 < \alpha < \dfrac{2}{\lambda_{max}(P^{-1} A)}$
 - Optimal values: $\qquad \alpha_{opt} = \dfrac{2}{\lambda_{min}(P^{-1} A) + \lambda_{max}(P^{-1} A)} \qquad \qquad \rho_{opt} = \dfrac{K(P^{-1}A) - 1}{K(P^{-1} A) + 1}$
 
-Therefore, if
+Therefore, if $K(P^{-1} A) \ll K(A)$, we obtain a higher convergence rate with respect to the unpreconditioned case.
+
+To have $K(P^{-1}A) \ll K(A)$ we need that the linear system in $P$ must be "easily solvable". To this aim, $P$ should have a special structure (e.g., diagonal, triangular, ...).
+
+## 2.7  The gradient method
+
+Let $A \in \mathbb{R}^{n}$
