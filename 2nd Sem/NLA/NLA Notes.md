@@ -289,6 +289,13 @@ Let $A$ be symmetric and positive definite matrix (*spd*), then the stationary R
 $$
 0 < \alpha < \frac{2}{\lambda_{max}(A)}
 $$
-with the optimal parameter $\alpha$:
+with the optimal parameter $\alpha_{opt}$:
 $$\alpha_{opt} = \frac{2}{\lambda_{min}(A) + \lambda_{max}(A)}$$
-	
+and optimal spectral radius $\rho_{opt}$ (maximum convergence speed):
+$$
+\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}
+$$
+
+## 2.6  Preconditioning techniques
+
+The optimal value $\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}$ expresses the maximum
