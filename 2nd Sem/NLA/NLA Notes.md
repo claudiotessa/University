@@ -272,5 +272,21 @@ A practical test is needed to determine when to stop the iteration. The idea is 
 
 ## 2.5  The stationary Richardson method
 
-Given $\mathbf{x}^{(0)}$, $\alpha \in \mathbb{R}$
+Given $\mathbf{x}^{(0)}$, $\alpha \in \mathbb{R}$:
+$$
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha \underbrace{(\mathbf{b} - A \mathbf{x}^{(k)})}_{\text{residual }\mathbf{r}^{(k)}}
+$$
+The idea is to update the numerical solution by adding a quantity proportional to the residual (e.g., if the residual is large, the solution at step $k$ should be corrected a lot).
+
+The stationary Richardson method is characterized by
+$$
+B_{\alpha} = I - \alpha A \qquad \qquad \mathbf{f} = \alpha \mathbf{b}
+$$
+
+### 2.5.1  Convergence of the stationary Richardson method
+
+Let $A$ be symmetric and positive definite matrix (*spd*), then the stationary Richardson method is convergent if and only if 
+$$
+0 < \alpha < \frac{2}{}
+$$
 
