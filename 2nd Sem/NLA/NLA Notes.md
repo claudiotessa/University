@@ -285,7 +285,7 @@ $$
 
 ### 2.5.1  Convergence of the stationary Richardson method
 
-Let $A$ be symmetric and positive definite matrix (*spd*), then the stationary Richardson method is convergent if and only if 
+Let $A$ be symmetric and positive definite matrix (SPD), then the stationary Richardson method is convergent if and only if 
 $$
 0 < \alpha < \frac{2}{\lambda_{max}(A)}
 $$
@@ -298,4 +298,12 @@ $$
 
 ## 2.6  Preconditioning techniques
 
-The optimal value $\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}$ expresses the maximum
+The optimal value $\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}$ expresses the maximum convergence speed that can be attained with the stationary Richardson method. 
+
+Badly conditioned matrices ($K(A) \gg 1$) are characterized by a very low convergence rate. To improve the speed of convergence, we introduce a SPD matrix $P^{-1}$ (called *preconditioner*). Then, solving $A \mathbf{x} = \mathbf{b}$ is equivalent to the following preconditioned system:
+$$
+P^{-\frac{1}{2}} A \underbrace{P^{-\frac{1}{2}} \mathbf{z}}_{\mathbf{x}} =  P^{-\frac{1}{2}} \mathbf{b}
+$$
+where $\mathbf{x} = P^{-\frac{1}{2}} \mathbf{z}$.
+
+Suppose that $P^{-1}$ has real and positive eigenvalues. We apply the stationary Richardson method to $P^{-1} A$
