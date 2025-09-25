@@ -287,6 +287,8 @@ $$
 
 Let $A$ be symmetric and positive definite matrix (*spd*), then the stationary Richardson method is convergent if and only if 
 $$
-0 < \alpha < \frac{2}{}
+0 < \alpha < \frac{2}{\lambda_{max}(A)}
 $$
-
+with the optimal parameter $\alpha$:
+$$\alpha_{opt} = \frac{2}{\lambda_{min}(A) + \lambda_{max}(A)}$$
+	
