@@ -306,4 +306,13 @@ P^{-\frac{1}{2}} A \underbrace{P^{-\frac{1}{2}} \mathbf{z}}_{\mathbf{x}} =  P^{-
 $$
 where $\mathbf{x} = P^{-\frac{1}{2}} \mathbf{z}$.
 
-Suppose that $P^{-1}$ has real and positive eigenvalues. We apply the stationary Richardson method to $P^{-1} A$
+Suppose that $P^{-1}$ has real and positive eigenvalues. We apply the stationary Richardson method to $P^{-1} A$, i.e.,
+$$
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha P^{-1}\left( \mathbf{b} - A \mathbf{x}^{(k)} \right) = \mathbf{x}^{(k)} + \alpha P^{-1} \mathbf{r}^{(k)} 
+$$
+We obtain the same results as in the non preconditioned case, provided we replace $A$ with $P^{-1}A$:
+
+- Convergence: $\qquad0 < \alpha < \dfrac{2}{\lambda_{max}(P^{-1} A)}$
+- Optimal values: $\qquad \alpha_{opt} = \dfrac{2}{\lambda_{min}(P^{-1} A) + \lambda_{max}(P^{-1} A)} \qquad \qquad \rho_{opt} = \dfrac{K(P^{-1}A) - 1}{K(P^{-1} A) + 1}$
+
+Therefore, if
