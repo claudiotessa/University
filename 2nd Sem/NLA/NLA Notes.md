@@ -272,3 +272,5 @@ A practical test is needed to determine when to stop the iteration. The idea is 
 
 ## 2.5  The stationary Richardson method
 
+Given $\mathbf{x}^{(0)}$, $\alpha \in \mathbb{R}$
+
