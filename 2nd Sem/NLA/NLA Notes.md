@@ -325,4 +325,12 @@ Let $A \in \mathbb{R}^{n}$ be SPD. In this case, solving the linear system $A \m
 $$
 \Phi(\mathbf{y}) = \frac{1}{2} \mathbf{y}^{T} A \mathbf{y} - \mathbf{y}^{T}\mathbf{b}
 $$
-As $A$ is positive definite, the hyperplane given by $\mathbf{z} = \Phi(\mathbf{y})$ defines a paraboloid in $\mathbb{R}^{n+1}$ and global minimum in $\mathbf{x}$. Since $\nabla \Phi(\mathbf{y}) = A\mathbf{y} = \mathbf{b}$ we have that the minimu
+As $A$ is positive definite, the hyperplane given by $\mathbf{z} = \Phi(\mathbf{y})$ defines a paraboloid in $\mathbb{R}^{n+1}$ and global minimum in $\mathbf{x}$. Since $\nabla \Phi(\mathbf{y}) = A\mathbf{y} - \mathbf{b}$ we have that the minimum ($\nabla \Phi(\mathbf{x}) = \mathbf{0}$) coincides with the solution of $A \mathbf{x} - \mathbf{b}$.
+
+$$
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha_{k} \nabla \Phi(\mathbf{x}^{(k)})
+$$
+where $\alpha_{k}$ is a parameter. The optimal parameter $\alpha_{k}$ is
+$$
+\alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{(\mathbf{r}^{(k)})^{T} A \mathbf{r}^{(k)}}
+$$
