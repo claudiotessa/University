@@ -359,5 +359,16 @@ We can also use preconditioning on the CG method.
 
 For linear iterative methods (with $P = I, \ \alpha_{k} = 1 \ \forall k$), we have:
 $$
-\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \mathbf{r}
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \mathbf{r}^{(k)} \qquad k \geq 1 \qquad \qquad \text{(1)}
 $$
+The following recursive relation for the residuals holds
+$$
+\mathbf{r}^{(k+1)} = \mathbf{r}^{(k)} - A \mathbf{r}^{(k)} \qquad k \geq 1
+$$
+From the above identity, it follows by induction that
+$$
+\mathbf{r}^{(k)} = p_{k-1} (A) \mathbf{r}^{(0)} \in \mathrm{span} \ \{\mathbf{r}^{(0)}, \ A \mathbf{r}^{(0)}, \ \dots, \ A^{k-1} \mathbf{r}^{(0)} \}
+$$
+where $p_{r}(\mathscr z) = (1 - \mathscr z)^{r}$ is a polynomial of exact degree $r$.
+
+From $\text{(1)}$
