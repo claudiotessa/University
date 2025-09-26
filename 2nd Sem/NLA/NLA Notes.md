@@ -349,10 +349,15 @@ $$
 \text{conjugate} \\ \text{directions}
 \end{matrix}
 $$
-
-***Theorem***
-
 In exact arithmetic, the CG method converges to the exact solution in at most $n$ iterations. At each iteration $k$, the error $\mathbf{e}^{(k)} = \mathbf{x} - \mathbf{x}^{(k)}$ can be bounded by
 $$
 \left\lVert \mathbf{e}^{(k)} \right\rVert_{A} \leq \frac{2c^{k}}{1 + c^{2k}} \left\lVert \mathbf{e}^{(0)} \right\rVert _{A} \qquad \text{with} \qquad c = \frac{\sqrt{ K(A) } - 1}{\sqrt{ K(A) } + 1}
+$$
+We can also use preconditioning on the CG method.
+
+## 2.9  Krylov-space methods
+
+For linear iterative methods (with $P = I, \ \alpha_{k} = 1 \ \forall k$), we have:
+$$
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \mathbf{r}
 $$
