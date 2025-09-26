@@ -354,5 +354,5 @@ $$
 
 In exact arithmetic, the CG method converges to the exact solution in at most $n$ iterations. At each iteration $k$, the error $\mathbf{e}^{(k)} = \mathbf{x} - \mathbf{x}^{(k)}$ can be bounded by
 $$
-\left\lVert  \mathbf{e}^{(k)}  \right\rVert_{A} \leq 
+\left\lVert \mathbf{e}^{(k)} \right\rVert_{A} \leq \frac{2c^{k}}{1 + c^{2k}} \left\lVert \mathbf{e}^{(0)} \right\rVert _{A} \qquad \text{with} \qquad c = \frac{\sqrt{ K(A) } - 1}{\sqrt{ K(A) } + 1}
 $$
