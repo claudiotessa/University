@@ -343,4 +343,16 @@ Therefore, the gradient method can be interpreted as a Richardson method with dy
 
 ## 2.8  The conjugate gradient method
 
-We introduce a new updating direction $\mathbf{d}^{(k+1)}$ in such a way that it is $A$-conjugate to all the previous directions $\mathbf{d}^{(j)}, \ j \leq k$ (i.e., orthogonal with respect to the scalar product induced by $A$).
+We introduce a new updating direction $\mathbf{d}^{(k+1)}$ in such a way that it is $A$-conjugate to all the previous directions $\mathbf{d}^{(j)}, \ j \leq k$ (i.e., orthogonal with respect to the scalar product induced by $A$)
+$$
+\left( \mathbf{d}^{(k+1)}, \mathbf{d}^{(j)} \right)_{A} = \left( \mathbf{d}^{(k+1)}, A \mathbf{d}^{(j)} \right) = 0 \qquad \qquad \forall j \leq k \quad \begin{matrix}
+\text{conjugate} \\ \text{directions}
+\end{matrix}
+$$
+
+***Theorem***
+
+In exact arithmetic, the CG method converges to the exact solution in at most $n$ iterations. At each iteration $k$, the error $\mathbf{e}^{(k)} = \mathbf{x} - \mathbf{x}^{(k)}$ can be bounded by
+$$
+\left\lVert  \mathbf{e}^{(k)}  \right\rVert_{A} \leq 
+$$
