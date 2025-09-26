@@ -332,5 +332,15 @@ $$
 $$
 where $\alpha_{k}$ is a parameter. The optimal parameter $\alpha_{k}$ is
 $$
-\alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{(\mathbf{r}^{(k)})^{T} A \mathbf{r}^{(k)}}
+\alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{\left( \mathbf{r}^{(k)} \right)^{T} A \mathbf{r}^{(k)}}
 $$
+
+Note that $\nabla \Phi(\mathbf{y}) = A \mathbf{y} - \mathbf{b} = - \mathbf{r}$, we obtain
+$$
+-\nabla\Phi(\mathbf{x}^{(k)}) = \mathbf{b} - A \mathbf{x}^{(k)} = \mathbf{r}^{(k)}
+$$
+Therefore, the gradient method can be interpreted as a Richardson method with dynamic parameter $\alpha_{k}$.
+
+## 2.8  The conjugate gradient method
+
+We introduce a new updating direction $\mathbf{d}^{(k+1)}$ in such a way that it is $A$-conjugate to all the previous directions $\mathbf{d}^{(j)}, \ j \leq k$ (i.e., orthogonal with respect to the scalar product induced by $A$).
