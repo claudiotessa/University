@@ -382,3 +382,14 @@ $$
 \mathscr K_{k}(A, \mathbf{y}) := \mathrm{span} \ (\mathbf{y}, \ A \mathbf{y}, \ \dots, \ A^{k-1} \mathbf{y})
 $$
 Clearly, it holds
+$$
+\mathscr K_{1}(A, \mathbf{y}) \subseteq \mathcal K_{2} (A, \mathbf{y}) \subseteq \dots
+$$
+
+We can choose the $k$-th approximate solution $\mathbf{x}^{(k)} \in \mathbf{x}^{(0)} + \mathcal K_{k}(A, \mathbf{r}^{(0)})$. In particular
+$$
+\mathbf{x}^{(k)} = \mathbf{x}^{(0)} + p_{k-1}(A) \mathbf{r}^{(0)}
+$$
+with a polynomial $p_{k-1}(A)$ of exact degree $k-1$.
+
+When applied to large real-world problems, Kyrlov space solvers often converge very slowly
