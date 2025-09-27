@@ -392,4 +392,8 @@ $$
 $$
 with a polynomial $p_{k-1}(A)$ of exact degree $k-1$.
 
-When applied to large real-world problems, Kyrlov space solvers often converge very slowly
+When applied to large real-world problems, Kyrlov space solvers often converge very slowly, if at all. In practice, they are therefore nearly always used with preconditioning:
+$$
+A \mathbf{x} = \mathbf{b} \qquad \iff \qquad P^{-1} A \mathbb{P}^{-1}\mathbf{x} = P^{-1} \mathbf{b} \qquad \iff \qquad \hat{A}\hat{\mathbf{z}} = \hat{\mathbf{b}}, \quad \hat{P} \hat{\mathbf{z}} = \mathbf{x}
+$$
+Applying a preconditioned Kyrlov space solver means applying the method to $\hat{A} \hat{\mathbf{z}} = \hat{b}$.
