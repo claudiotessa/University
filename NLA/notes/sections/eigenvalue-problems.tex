@@ -1,0 +1,42 @@
+\section{Solving large-scale eigenvalue problems}
+
+\begin{tcolorbox}[
+        title=Eigenvalue problem
+    ]
+    Given a matrix $A \in \mathbb{C}^{n \times n}$, find $(\lambda, \mathbf{v}) \in \mathbb{C} \times \mathbb{C}^n \setminus \{ \mathbf 0 \}$ such that
+    $$
+        A \mathbf{v} = \lambda \mathbf{v}
+    $$
+    where $\lambda$ is an eigenvalue of $A$,
+    and $\mathbf v$ (non-zero) is the corresponding eigenvector.
+\end{tcolorbox}
+
+The set of all the eigenvalues of a matrix $A$ is calle the \textbf{spectrum} of $A$.
+
+The maximum modulus of all the eigenvalues is called the \textbf{spectral radius} of $A$:
+$\rho(A) = \max \{ |\lambda| : \lambda \in \lambda(A) \}$.
+
+The problem $A \mathbf v = \lambda \mathbf v$ is equivalent to $(A - \lambda I) \mathbf v = 0$.
+$\det (A - \lambda I) = 0$ is a polynomial of degree $n$ in $\lambda$:
+it is called the \textbf{characteristic polynomial} of $A$ and its roots are the eigenvalues of $A$.
+
+\subsection{Similarity transformations}
+
+We first need to identify what types of transformations preserve eigenvalues,
+and for what types of matrices the eigenvalues are easily determined.
+
+\begin{tcolorbox}[title=Definition]
+    The matrix $B$ is similar to the matrix $A$ if there exists a nonsingulat matrix $T$ such taht $B = T^{-1} A T$.
+\end{tcolorbox}
+
+With the above definition, it is trivial to show that
+$$
+    B \mathbf y = \lambda \mathbf y
+    \implies
+    T^{-1} A T \mathbf y = \lambda \mathbf y
+    \implies
+    A(T \mathbf y) = \lambda (T \mathbf y)
+$$
+so that $A$ and $B$ have the same eigenvalues,
+and if $\mathbf y$ is an eigenvector of $B$,
+then $\mathbf v = T\mathbf y$ is an eigenvector of $A$.
