@@ -11,15 +11,10 @@
             "id": "17e5162d471e8f27",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "2nd Sem/NLA/NLA Notes.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "NLA Notes"
+              "title": "New tab"
             }
           }
         ]
@@ -79,8 +74,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "7756265b84483003",
