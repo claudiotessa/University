@@ -1,0 +1,76 @@
+\section{Overdetermined linear systems and SVD}
+
+An overdetermined linear system is a set of linear equations where you have more equations than unknowns.
+\begin{tcolorbox}[title=The mathematical problem]
+	Given $A \in \mathbb R^{m \times n}$, $m \geq n$, and $\mathbf b \in \mathbb R^m$ find $\mathbf x \in \mathbb R^n$ such that
+	$$A \mathbf x = \mathbf b$$
+\end{tcolorbox}
+
+Note that generally the above problem has no solution (in the classical sense) unless the right side $\mathbf b$ is an element of $\mathrm{range}(A)$.
+We need a "new" concept of solution. The basic approach is to look for an $\mathbf x$ that makes $A \mathbf x$ "close" to $\mathbf b$.
+
+\subsection{Solution in the least-squares sense}
+
+Given $A \in \mathbb R^{m\times n}$, $m \geq n$, we say that $\mathbf x^* \in \mathbb R^n$ is a solution of the linear system $A \mathbf x = \mathbf b$ in the least-squares sense if
+$$
+	\Phi(\mathbf x^*) = \min_{\mathbf y \in \mathbb R^n}{\Phi(\mathbf y)}
+$$
+where
+$$
+	\Phi(\mathbf y) = \lVert A \mathbf y - \mathbf b \rVert_2^2
+$$
+The problem thus consists of minimizing the Euclidean norm of the residual.
+
+The solution $\mathbf x^*$ can be found by imposing the condition that the gradient of the function $\Phi(\cdot)$ must be equal to zero at $\mathbf x^*$.
+
+From the definition we have
+\begin{align}
+	\Phi(\mathbf y) & = (A \mathbf y - \mathbf b)^T (A \mathbf y - \mathbf b)                          \\
+	                & = \mathbf y^T A^T A\mathbf y - 2 \mathbf y^T A \mathbf b + \mathbf b^T \mathbf b
+\end{align}
+Therefore:
+$$
+	\nabla \Phi(\mathbf y) = 2 A^T \mathbf y - 2 A^T \mathbf b
+$$
+from which it follows that $\mathbf x^*$ must be the solution of the square system of normal equations
+$$
+	A^T A \mathbf x^* = A^T \mathbf b
+$$
+However, instead of considering the system of normal equations, we can use the QR factorization:
+
+\begin{tcolorbox}[title=Theorem]
+	Let $A \in \mathbb R^{m \times n}$, with $m \geq n$ be a full rank matrix.
+	Then the unique solution in the least-square sense $\mathbf x^*$ of $A \mathbf x^* = \mathbf b$ is given by $\mathbf x^* = \hat R^{-1} \hat Q^T \mathbf b$, where $\hat R \in \mathbb R^{n \times n}$ and $\hat Q \in \mathbb R^{m \times n}$ are the matrices of the reduced QR factorization of $A$.
+	Moreover, the minimum of $\Phi(\cdot)$ is given by $\Phi(\mathbf x^*) = \displaystyle\sum_{i = n+1}^{m} [(Q^T \mathbf b)_i]^2$
+\end{tcolorbox}
+
+\subsection{Singular value decomposition (SVD)}
+
+Any matrix can be reduced in diagonal form by a suitable pre and post-multiplication by unitary matrices.
+
+\begin{tcolorbox}[title = Theorem]
+	Let $A \in \mathbb R^{m \times n}$. There exists two \textbf{orthogonal} matrices $U \in \mathbb R^{m \times m}$ and $V \in \mathbb R^{n \times n}$ such that
+	$$
+		U^T A V = \Sigma = \mathrm{diag} (\sigma_1, \dots, \sigma_p) \in \mathbb R^{m \times n}
+	$$
+	with $p = \min_(m, n)$ and $\sigma_1 \geq \dots \geq \sigma_p \geq 0$.
+	The previous formula is called \textbf{Singular value decomposition} (\textbf{SVD}) of $A$, and the numbers $\sigma_i$ are called singular values of $A$.
+\end{tcolorbox}
+
+\subsubsection{Generalized inverse of $A$}
+
+Suppose that $A \in \mathbb R^{m \times n}$ has rank equal to $r$ and that is admits a SVD of the type $U^T A V = \Sigma$. The matrix
+$$ A^\dag = V \Sigma^\dag U^T$$
+is called the \textbf{generalized inverse of $A$}, with $\Sigma^\dag = \mathrm{diag} \left\{ \dfrac 1 \sigma_1, \dots, \dfrac 1 \sigma_p, 0, \dots, 0 \right\}$
+
+If $n = m = \mathrm{rank} (A)$, then $A^\dag = A^{-1}$.
+
+Going back to our problem, that is find $\mathbf x^* \in \mathbb R^n$ \textbf{with minimal Euclidian} norm such that $\lVert A \mathbf x^* - \mathbf b \rVert_2^2 \leq \min_{\mathbf x \in \mathbb R^n} \lVert A \mathbf x - \mathbf b \rVert_2^2$, we have the following:
+
+\begin{tcolorbox}[title = Theorem]
+	Let $A \in \mathbb R^{m \times n}$ with SVD given by $A = U \Sigma V^T$. Then the unique solution to the previous problem is
+	$$
+		\mathbf x^* = A^\dag \mathbf b
+	$$
+	where $A^\dag$ is the pseudo-inverse of $A$.
+\end{tcolorbox}

@@ -1,0 +1,193 @@
+\section{Multigrid methods}
+
+A multigrid (MG) method is an iterative algorithm of the form
+$$
+	\mathbf x^{(k + 1)} = MG\left(\mathbf x^{(k)}\right), \quad k \geq 0
+$$
+for solving the sparse linear systems of equations stemming from the numerical discretization of differential equations. MG methods are based on a hierarchy of levels (associated with a hierarchy of discretizations)
+
+The main idea of multigrid is to accelerate the convergence of a basic iterative method by a gloval correction of the fine grid solution approximation accomplpished by solving a coarse problem. This coarse-level problem should be "similar" to the fine grid problem.
+
+\subsection{A simple 1D example}
+
+One-dimensional boundary value problem describing the displacement $u(x)$ of a uniform rod subject to an external load $f(x)$ and fixed at the extrema.
+
+$$ -u''(x) = f(x), \quad x \in (0, 1)$$
+$$u(0) = 0, \quad u(1) = 0$$
+$$\text{Grid-size:} h = \frac 1 {n+1}, \quad n \geq 1$$
+$$\text{Grid:} x_j = jn, \quad j = 0, \dots, n+1$$
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.5]{images/1d-example-1.jpg}
+	\includegraphics[scale=0.5]{images/1d-example-2.jpg}
+\end{figure}
+
+\subsection{approximation with the finite element method}
+
+Let $u_j$ be the approximate solution of $u(x_j), j = 1, \dots, n$ on a uniform grid of mesh size $h$ ($u_0$ and $u_{n+1}$ are known). Then,
+$$
+	-u_{j-1} + 2 u_j - u_{j+1} = h f(x_j), \quad j = 1, \dots, n
+$$
+$$
+	u_0 = 0 \qquad u_{n+1} = 0
+$$
+
+\subsection{Matrix form}
+
+Define $\mathbf x_h = (u_1, u_2, \dots, u_n)^T$ and $\mathbf b_h = (b_1, b_2, \dots, b_n)^T$. The (sparse) linear system of equations is
+$$
+	A_h \mathbf x_h = \mathbf b_h
+$$
+where
+$$
+	\begin{bmatrix}
+		2  & -1    & \dots & \dots & 0  \\
+		-1 & 2     & -1    & \dots & 0  \\
+		0  & \dots & \dots & \dots & -1 \\
+		0  & \dots & \dots & -1    & 2
+	\end{bmatrix}
+	\begin{bmatrix}
+		u_1 \\ u_2 \\ \vdots \\ u_n
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		b_1 \\ b_2 \\ \vdots \\ b_n
+	\end{bmatrix}
+$$
+
+\subsection{Weighted Jacobi iteration}
+
+We consider the weighted Jacobi iteration applied to the one-dimensional model problem.
+Recalling that $B_\omega = (1 - \omega)I + \omega B_J$, where $B_J$ is the iteration matrix of the Jacobi method, we have
+$$
+	B_\omega = I - \frac \omega 2
+	\begin{bmatrix}
+		2  & -1    & \dots & \dots & 0 \\
+		-1 & 2     & -1    & \dots & 0 \\
+		0  & \dots & \dots & \dots & 0 \\
+		0  & \dots & \dots & -1    & 2
+	\end{bmatrix}
+$$
+Therefore, teh eigenvalues of $B_J$ satisfy $\lambda(B_\omega) = 1 - \frac \omega 2 \lambda(A_h)$
+
+\subsection{On the eigenpairs of the matrix $A_h$}
+
+The eigenvalues of $A_h$ are
+$$
+	\lambda_j(A_h) = 4 \sin^2 \left( \frac{j \pi}{2(n+1)} \right) \quad j = 1, \dots, n
+$$
+and therefore
+$$
+	\lambda_j(B_\omega) = 1 - \frac \omega 2 4 \sin^2 \left( \frac{j \pi}{2(n+1)} \right) \quad j = 1, \dots n
+$$
+The corresponding eigenvector $\mathbf w_j(A_h)$ of $A_h$ (and of $B_\omega$) has components
+$$
+	(\mathbf w_j (A))_i = \sin \left( \frac{i j \pi}{n+1} \right)
+$$
+Note that if $0 < \omega \leq 1$, then $|\lambda_j(B_\omega)| < 1 \quad \forall j$ and the weighted Jacobi iteration converges.
+
+\subsection{Effect of $k$ iterations of weighted Jacobi}
+
+Let $\mathbf x^{(0)}$ be an initial guess, we have $\mathbf e^{(0)} = \mathbf x - \mathbf x^{(0)} = \mathbf x^{(0)}$, we represent $\mathbf e^{(0)}$ using the eigenvectors of $A_h$ in the form
+$$
+	\mathbf e^{(0)} = \sum_{j = 1}^{n}{c_j \mathbf w_j}
+$$
+for suitable coefficients $c_j, j = 1, \dots, j$.
+
+It can be shown that after $k$ steps of the iteration, the error is given by
+$$
+	\mathbf e^{(k)}
+	=
+	B_\omega^k \mathbf e^{(0)}
+	=
+	\sum_{j = 1}^n c_j B_\omega^k \mathbf w_k
+	=
+	\sum_{j = 1}^n c_j \lambda_j^k (B_\omega) \mathbf w_k
+$$
+That is, after $k$ iterations, the $j$-th mode of the initial error has been reduced by a factor of $\lambda_j^k(B_\omega)$.
+
+\subsection{Coarse grids}
+
+In passing from the fine grid to the coarse grid, a mode becomes more oscillatory. This is true provided that $1 \leq j < n/2$.
+
+The important point is that smooth modes on a fine grid look less smooth on a coarse grid. This suggests that when relaxation begins to stall, signaling the predominance of smooth error modes, it is a good idea to move to a coarser grid, where the smooth error modes appear more oscillatory and relaxation will be more effective. So how do we move to a coarser gris and relax on the more oscillatory error modes?
+
+Relaxation on the original equation $A_h \mathbf x_h = \mathbf b_h$ with an arbitrary initial guess $\mathbf x^{(0)}$ is equivalent to relaxing on the residual equation $A_h \mathbf e_h = \mathbf r_h^{(k)}$ with the specific initial guess $\mathbf e_h^{(0)} = \mathbf 0$.
+
+Recall that $\mathbf r_h^{(k)} = \mathbf b_h - A_h \mathbf x_h^{(k)}$, $\mathbf e^{(k)} = \mathbf x_h - \mathbf x_h^{(k)}$. This connection between the original and the residual equations motivates the use of the residual equations motivates the use of the residual equation.
+
+\subsection{Correction scheme $\mathbf x_h^{(k)} \to \mathbf x_h^{(k+1)}$}
+
+The idea is to use the residual equation to relax on the error:
+\begin{enumerate}
+	\item Relax $\nu_1$ times on $A_h \mathbf x_h = \mathbf b_h$ to obtain an approximation $\mathbf x_h^{(k + \nu_1)}$
+	\item Compute the residual $\mathbf r_h^{(k + \nu_1)} = \mathbf b_h - A_h \mathbf x_h^{(k + \nu_1)}$
+	\item Move the residual $\mathbf r_h^{(k + \nu_1)}$ from $\mathscr T_h$ to $\mathscr T_{2h}$ to obtain $\mathbf r_{2h}^{(k + \nu_1)}$
+	\item Solve the residual equations $A_{2h}\mathbf e_{2h} = \mathbf r_{2h}^{(k + \nu_1)}$ on $\mathscr T_{2h}$
+	\item Move the error $\mathbf e_{2h}$ from $\mathscr T_{2h}$ to $\mathscr T_h$ to obtain $\mathbf e_h$
+	\item Correct the approximation obtained on $\mathscr T_h$ with the error estimate obtained on $\mathscr T_{2h}$, i.e., $\mathbf x_h^{(k+1)} = \mathbf x_h^{(k + \nu_1)} + \mathbf e_h$
+\end{enumerate}
+
+\subsection{Restriction operator (fine-to-coarse, 1D)}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.5]{images/restriction-operator.jpg}
+\end{figure}
+
+The second class of intergrid transfer operations incolves moving vectors from a fine grid to a coarse grid. They are generally called \textbf{restriction} operators and are denoted by
+$$I_h^{2h}, \quad I_h^{2h} : \mathscr T_h \to \mathscr T_{2h}$$
+The most obvious restriction operator is injection, defined by $I_h^{2h} \mathbf w_h = \mathbf w_{2h}$
+
+\subsection{Interpolation operator (coarse-to-fine, 1D)}
+
+Mapping $I_{2h}^h : \mathscr T_{2h} \to \mathscr T_h$, i.e., $I_{2h}^h \mathbf v_{2h} = \mathbf v_h$ where
+$$
+	\mathbf v_{h, i} = \begin{cases}
+		\mathbf v_{2h, i}                                 & \text{if the node $i$ is common node of both $\mathscr T_h$ and $\mathscr T_{2h}$} \\[1em]
+		\dfrac{\mathbf v_{2h, i}^+ + \mathbf v_{2h,i}^-}2 & \text{if the node $i$ in $\mathscr T_h$ is not a node in $\mathscr T_{2h}$}
+	\end{cases}
+$$
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.5]{images/interpolation-operator-1.jpg}
+\end{figure}
+
+$I_{2h}^h : \mathscr T_{2h} \to \mathscr T_h$ is a linear operator from $\mathbb R^n \to \mathbb R^m$
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.5]{images/interpolation-operator-2.jpg}
+\end{figure}
+
+$$
+	I_{2h}^h \mathbf v_{2h} = \begin{bmatrix}
+		1   &     &     \\
+		1/2 & 1/2 &     \\
+		    & 1   &     \\
+		    & 1/2 & 1/2 \\
+		    &     & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_1^{2h} \\ v_2^{2h} \\ v_3^{2h}
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		v_1^{2h}                  \\
+		(v_1^{2h} + v_2^{2h}) / 2 \\
+		v_2^{2h}                  \\
+		(v_2^{2h} + v_3^{2h}) / 2 \\
+		v_3^{2h}
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		v_1^h \\ v_2^h \\ v_3^h \\ v_4^h \\ v_5^h
+	\end{bmatrix}
+$$
+
+\begin{itemize}
+	\item If the exact error of $\mathscr T_h$ is \textbf{smooth}, an interpolant of the coarse-grid error $\mathbf e_{2h}$ should give a good representation of the exact error.
+	\item If the exact error of $\mathscr T_h$ is \textbf{oscillatory}, an interpolant of the coarse-grid error $\mathbf e_{2h}$ may give a poor representation of the exact error.
+\end{itemize}

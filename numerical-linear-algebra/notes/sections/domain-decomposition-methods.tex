@@ -1,0 +1,270 @@
+\section{Domain decomposition methods}
+
+\subsection{Alternating Schwarz method}
+
+Consider an elliptic partial differential equation of the  form:
+$$
+	Lu = f \quad \text{in } \Omega = \Omega_1 \cup \Omega_2
+$$
+with boundary condition $u = g$ on $\partial \Omega$
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.2\textwidth]{images/alternating-schwarz.jpg}
+\end{figure}
+
+Given $u^{(0)}$,
+\begin{enumerate}
+	\item On $\Omega_1$, solve
+	      $
+		      \begin{cases}
+			      Lu_1^{\left(k + \frac 1 2 \right)} = f       & \text{in } \Omega_1                             \\
+			      u_1^{\left(k + \frac 1 2 \right)} = g        & \text{in } \partial \Omega_1 \setminus \Gamma_1 \\
+			      u_1^{\left(k + \frac 1 2\right)} = u_2^{(k)} & \text{in } \Gamma_1
+		      \end{cases}
+	      $
+	\item On $\Omega_2$, solve
+	      $
+		      \begin{cases}
+			      Lu_2^{(k + 1)} = f                               & \text{in } \Omega_2                             \\
+			      u_2^{(k + 1)} = g                                & \text{in } \partial \Omega_2 \setminus \Gamma_2 \\
+			      u_2^{(k+1)} = u_1^{\left( k + \frac 1 2 \right)} & \text{in } \Gamma_2
+		      \end{cases}
+	      $
+	\item Define $u^{(k + 1)} = \begin{cases}
+			      u_1^{\left(k + \frac 1 2 \right)} & \text{in } \Omega \setminus \Omega_2 \\
+			      u_2^{(k+1)}                       & \text{in } \Omega_2
+		      \end{cases}$
+\end{enumerate}
+
+Alternating iterations continue until convergence to the solution $u$ on the entire domain $\Omega$.
+
+\subsection{Discretized Schwarz methods}
+
+Discretization yields a $n \times n$ symmetric positive definite linear algebraic system of the form $A \mathbf x = \mathbf b$.
+
+For $i = 1, 2$, let $S_i$ be the set of $n_i$ indices of grid points in the interior of $\Omega_i$, where $n_i = |S_i|$. Because subdomains overlap, $S_1 \cap S_2 \neq \emptyset$ and $n_1 + n_2 > n$.
+
+For $i = 1, 2$, let $R_i$ be $n_i \times n$ the Boolean restriction matrix such that for any vector $\mathbf v \in \mathbb R^n$, $\mathbf v_i = R_i \mathbf v \in \mathbb R^{n_i}$ contains precisely those components of $\mathbf v$ corresponding to indices in $S_i$ (i.e., those components associated to nodes in $\Omega_i$).
+
+Conversely, let $R^T \in \mathbb R^{n \times n_i}$ be the extension matrix that expands the vector $\mathbf v_i \in \mathbb R^{n_i}$ into a vector $\mathbf v = R_i^T \mathbf v_i \in \mathbb R^n$, whose components correspond to indices in $S_i$ and are the same as those of $\mathbf v_i$. The remaining components are all zero.
+
+The principal submatrices $A_i \in \mathbb R^{n_i \times n_i}, i = 1, 2$ of $A$ correpsonding to two subdomains are given by
+$$
+	A_1 = R_1 A R_1^T \qquad A_2 = R_2 A R_2^T
+$$
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.15\textwidth]{images/discretized-schwarz.jpg}
+\end{figure}
+
+For discretized problem, the alternating Schwarz iteration takes the following form
+\begin{align*}
+	 & \mathbf x^{\left(k + \frac 1 2 \right)} = \mathbf x^{(k)} + R_1^T A_1^{-1} R_1 \left(\mathbf b - A \mathbf x^{(k)}\right)                             \\
+	 & \mathbf x^{(k + 1)} = \mathbf x^{\left(k + \frac 1 2 \right)} + R_2^T A_2^{-1} R_2 \left(\mathbf b - A \mathbf x^{\left(k + \frac 1 2 \right)}\right)
+\end{align*}
+This method is called \textbf{multiplicative Schwarz method}.
+
+Overall, the error $\mathbf e^{(k)} = \mathbf x - \mathbf x^{(k)}$ updated as $\mathbf e^{(k+1)} = B_{MS} \mathbf e^{(k)}$, where
+$$
+	B_{MS} = (I - R_2^T A_2^{-1} R_2 A)(I - R_1^T A_1^{-1} R_1 A)
+$$
+
+As of yet, we have no parallelism, since the two subproblems must be solved sequentially for each iteration. But instead of Gauss-Seidel, we can use the block Jacobi approach, whose subproblems can be solved simultaneously. This method is called \textbf{Additive Schwarz method}.
+
+Overall, the error $\mathbf e^{(k)} = \mathbf x - \mathbf x^{(k)}$ updated as $\mathbf e^{(k + 1)} = B_{AS} \mathbf e^{(k)}$, where
+$$
+	B_{AS} = (R_2^T A_2^{-1} R_2 + R_1^T A_1^{-1} R_1) A
+$$
+
+With either Gaauss-Seidel or Jacobi version, it can be shown that iteration converges at a rate independent of mesh size, provided overlap area between subdomains is sufficiently large.
+
+\subsection{Additive Schwarz preconditioner}
+
+Consider the additive Schwarz method
+$$
+	\mathbf x^{(k+1)} = \mathbf x^{(k)} + P_{ad}^{-1} \mathbf r^{(k)} \quad k \geq 0
+$$
+with $P^{-1}_{ad} = (R_1^T A_1^{-1} R_1 + R_2^T A_2^{-1} R_2)$
+
+Remember that the symmetry of the preconditioner means that it can be used also in conjunction with PCG, with preconditioner $P_{ad}$ to accelerate convergence
+$$
+	\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k P^{-1}_{ad} \mathbf p^{(k)} \quad k \geq 0
+$$
+
+\subsection{Symmetrized multiplicative Schwarz preconditioner}
+the multiplicative Schwarz iteration matrix is not symmetric, but can be made symmetric by additional step with $A_1^{-1}$ each iteration.
+
+The multiplicative Schwarz iteration matrix is not symmetric, but can be made symmetric by additional step with $A_1^{-1}$ each iteration:
+\begin{align*}
+	 & \mathbf x^{\left( k + \frac 1 3 \right)} = \mathbf x^{(k)} + R_1^T A_1^{-1} R_1 (\mathbf b - A \mathbf x^{(k)})                                                            \\
+	 & \mathbf x^{\left( k + \frac 2 3 \right)} = \mathbf x^{\left(k + \frac 1 3 \right)} + R_2^T A_2^{-1} R_2 \left(\mathbf b - A \mathbf x^{\left(k + \frac 1 3 \right)}\right) \\
+	 & \mathbf x^{(k+1)} = \mathbf x^{\left(k + \frac 2 3 \right)} + R_1^T A_1^{-1} R_1 \left(\mathbf b - A \mathbf x^{\left(k + \frac 2 3 \right)} \right)
+\end{align*}
+which yields to a symmetric preconditioner that can be used in conjunction with PCG to accelerate convergence
+$$
+	\mathbf x^{(k + 1)} = \mathbf x^{(k)} + \alpha_k P^{-1}_{mus} \mathbf r^{(k)} \quad k \geq 0
+$$
+
+\subsection{Many overlapping subdomains}
+
+To achieve a higher degree of parallelism with the Schwarz method, we can apply the two-domain algorithm recursively or use many subdomains. If there are $p$ overlapping subdomains, then define matrices $R_i$ and $A_i$ as before, $i = 1, \dots, p$.
+
+The additive Schwarz preconditioner then takes the form
+$$
+	P^{-1}_{ad} = \sum_{i = 1, \dots, p} R_i^T A_i^{-1} R_i
+$$
+
+The resulting generalization of block-Jacobi iteration is highly parallel, but not algorithmically scalable because the convergence rate degreades as $p$ grows. The convergence rate can be restored by using a coarse grid correction to provide global coupling.
+
+The additive Schwarz preconditioner then takes the form
+$$
+	P_{ad} = \sum_{i = 0, \dots, p} R_i^T A_i^{-1} R_i
+$$
+
+Multiplicative Schwarz iteration for $p$ domains is defined analogously. As with classical Gauss-Seidel vs Jacobi, multiplicative Schwarz has a faster convergence rate than corresponging additive Schwarz (though it still requires coarse grid correction to remain scalable).
+
+Unfortunatly, multiplicative Schwarz appears to provide no parallelism, as $p$ subproblems per iteration must be solved sequentially. As with glassical Gauss-Seidel, parallelism can be introduced by \textbf{coloring} subdomains to identify independent subproblems that can be solved simultaneously.
+
+\subsection{Coloring techniques}
+
+The multiplicative Schwarz preconditioner is inherently serial. We must use a subdomain coloring mechanism in order to identify a set of subdomains that can be processed concurrently. This may limit the degree of parallelism if there is a low number of subdomains per color.
+
+In general, the multiplicative Schwarz method converges faster than teh additive Schwarz method, while the latter can result in better parallel speedup.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/coloring-techniques-1.jpg}
+	\includegraphics[width=0.25\textwidth]{images/coloring-techniques-2.jpg}
+\end{figure}
+
+\subsection{Non-overlapping subdomains}
+
+We now consider adjacent subdomains whose only points in common are along their mutual boundary $\Gamma$.
+We partition indices of unknowns in the corresponding discrete linear system into three sets:
+\begin{itemize}
+	\item $S_1$ corresponding to interior nodes in $\Omega_1$
+	\item $S_2$ corresponding to interior nodes in $\Omega_2$
+	\item $S_\Gamma$ corresponding to interface nodes in $\Gamma$
+\end{itemize}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/non-overlapping-subdomains-1.jpg}
+	\includegraphics[width=0.25\textwidth]{images/non-overlapping-subdomains-2.jpg}
+	\includegraphics[width=0.25\textwidth]{images/non-overlapping-subdomains-3.jpg}
+\end{figure}
+
+Partitioning matrix and right-hand-side vector accordingly, we obtain a symmetric block linear system
+$$
+	\begin{bmatrix}
+		A_{11}         & 0              & A_{1\Gamma}       \\
+		0              & A_{22}         & A_{2 \Gamma}      \\
+		A_{1 \Gamma}^T & A_{2 \Gamma}^T & A_{\Gamma \Gamma}
+	\end{bmatrix}
+	\begin{bmatrix}
+		\mathbf x_1 \\ \mathbf x_2 \\ \mathbf x_\Gamma
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		\mathbf b_1 \\ \mathbf b_2 \\ \mathbf b_\Gamma
+	\end{bmatrix}
+$$
+Zero blocks result from assumption that nodes in $\Omega_1$ are not directly connected to nodes in $\Omega_2$, but ony through interface nodes in $\Omega_2$, but only through interface nodes in $\Gamma$.
+
+\subsection{The Shur complement system}
+
+\begin{tcolorbox}[title=Definition: Shur complement]
+	Consider the block LU factorization of matrix $A$
+	$$
+		\begin{bmatrix}
+			A_{11}        & 0              & A_{1\Gamma}       \\
+			0             & A_{22}         & A_{2\Gamma}       \\
+			A_{1\Gamma}^T & A_{2 \Gamma}^T & A_{\Gamma \Gamma}
+		\end{bmatrix}
+		=
+		\begin{bmatrix}
+			I              & 0           & 0 \\
+			0              & I           & 0 \\
+			A_{1 \Gamma}^T & A_{11}^{-1} & I
+		\end{bmatrix}
+		\begin{bmatrix}
+			A_{11} & 0      & A_{1 \Gamma} \\
+			0      & A_{22} & A_{2 \Gamma} \\
+			0      & 0      & S
+		\end{bmatrix}
+	$$
+	where $S$ is the \textbf{Shur complement}
+	$$
+		S = A_{\Gamma \Gamma} - A_{1 \Gamma}^T A_{11}^{-1} A_{1 \Gamma} - A_{2 \Gamma}^T A_{22}^{-1} A_{2\Gamma}
+	$$
+\end{tcolorbox}
+
+We can now determine interface unknowns $\mathbf u_\Gamma$ by solving the system
+$$
+	S \mathbf x_\Gamma = \tilde{\mathbf b}_\Gamma
+$$
+where
+$$
+	\tilde{\mathbf b}_\Gamma = \mathbf b_\Gamma - A_{1 \Gamma}^T A_{11}^{-1} \mathbf b_1 - A_{2 \Gamma}^T A_{22}^{-1} \mathbf b_2
+$$
+
+The remaining unknowns (which can be computed simultaneously) are then given by
+\begin{align*}
+	 & \mathbf x_1 = A_{11}^{-1} (\mathbf b_1 - A_{1 \Gamma} \mathbf x_\Gamma) \\
+	 & \mathbf x_2 = A_{22}^{-1} (\mathbf b_2 - A_{2 \Gamma} \mathbf x_\Gamma)
+\end{align*}
+
+The Shur complement matrix $S$ is expensive to compute and is generally dense even if $A$ is sparse. If the Schur complement system $S \mathbf x_\Gamma = \tilde{\mathbf b}_\Gamma$ is solved iteratively, tehn $S$ doesn't need to be formed explicitly.
+
+Matrix-vector multiplication by $S$ requires teh solution in each subdomain, implicitly involving $A_{11}^{-1}$ and $A_{22}^{-1}$, which can be done in parallel. The condition number of $S$ is generally better than that of $A$, typically $O(h^{-1})$ instead of $O(h^{-1})$ for mesh size $h$.
+In practice, suitable interface preconditioners are still needed to accelertate convergence.
+
+\subsection{Many non-overlapping subdomains}
+
+To impropve parallelism with the Schur method, we can use many subdomains.
+
+If there are $p$ non-overlapping subdomains, let $I$ be the set of indices of interior nodes of subdomains and, as before, let $\Gamma$ be the set of indices of interface nodes. Then the discrete linear system has the following block form
+$$
+	\begin{bmatrix}
+		A_{II}         & A_{I \Gamma}      \\
+		A_{II\Gamma}^T & A_{\Gamma \Gamma}
+	\end{bmatrix}
+	\begin{bmatrix}
+		\mathbf x_I \\
+		\mathbf x_\Gamma
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		\mathbf b_I \\
+		\mathbf b_\Gamma
+	\end{bmatrix}
+$$
+The matrix $A_{II}$ is block diagonal and has the following structure
+$$
+	A_{11} =
+	\begin{bmatrix}
+		A_{11} & 0      & \dots  & 0      \\
+		0      & A_{22} & \dots  & 0      \\
+		0      & \vdots & \ddots & 0      \\
+		0      & \dots  & 0      & A_{pp}
+	\end{bmatrix}
+$$
+As before, block LU factorization of matrix $A$ yields a system
+$$
+S \mathbf x_\Gamma = \tilde{\mathbf b}_\Gamma
+$$
+where the Schur complement matrix $S$ is given by
+$$
+S = A_{\Gamma \Gamma} - A_{I \Gamma}^T A_{II}^{-1} A_{I \Gamma}
+$$
+and $\tilde{\mathbf b}_\Gamma = \mathbf b_\Gamma - A_{I\Gamma}^T A_{II}^{-1} \mathbf b_I$
+
+This system can be solved again iteratively without forming $S$ explicitly. Suitable interface preconditioners can be used to accelerate convergence.
+
+Interioi unknowns are then given by
+$$
+\mathbf x_I = A_{II}^{-1} (\mathbf b_I - A_{I \Gamma} \mathbf x_\Gamma)
+$$
+All the occurrences of $A_{II}^{-1}$ can be performed on all subdomains in parallel because $A_{II}$ is block diagonal.

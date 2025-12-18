@@ -1,0 +1,172 @@
+\section{Quantum states}
+
+\subsection{Kets}
+
+Quantum states are identified by vectors in \textbf{complex} vector spaces. We denote vectors with \textbf{kets}, so for example the elements of a complex vector space $\mathcal H$ are written as
+$$
+	\ket v \in \mathcal H
+$$
+
+The defining property of a vector space is that linear combinations of vectors also belong to the vector space:
+$$
+	\forall \ket u, \ket v \in \mathcal H, \ \forall \alpha, \beta \in \mathbb C, \qquad \alpha \ket u + \beta \ket v \in \mathcal H
+$$
+Since $\mathcal H$ is a complex vector space, the coefficients $\alpha$ and $\beta$ are complex numbers.
+
+\begin{tcolorbox}[title = Superposition principle]
+	The vector space structure automatically implements the \textbf{\mbox{superposition principle}}, which states that any linear combination of quantum states with complex coefficients defines a new, valid quantum state of the system.
+\end{tcolorbox}
+
+\subsection{Scalar product}
+
+The scalar product (or inner product) is a function that takes two vectors $\ket u$ and $\ket v$, and returns a complex number, denoted by $\braket{u}{v}$:
+\begin{align*}
+	\mathcal H \times \mathcal H & \to \mathbb C         \\
+	\ket u, \ket v               & \mapsto \braket{u}{v}
+\end{align*}
+It satisfies the following properties:
+\begin{enumerate}
+	\item Complex conjugation
+	      $$
+		      \forall \ket u, \ket v \in \mathcal H, \qquad \braket{u}{v} = \braket{v}{u}^*
+	      $$
+	\item Linearity
+	      $$
+		      \forall \ket u, \ket v, \ket w \in \mathcal H, \text{ and } \forall \alpha, \beta \in \mathbb C,
+		      \qquad
+		      \bra u
+		      \Bigl[ \alpha \ket v + \beta \ket{w} \Bigr]
+		      = \alpha \braket{u}{v} + \beta \braket{u}{w}
+	      $$
+\end{enumerate}
+Vector spaces equipped with a scalar product are called \textbf{Hilbert spaces}.
+
+\subsection{Bras}
+
+Consider a linear \textbf{functional} $\Phi$, a function defined  on $\mathcal H$ that associates with each vector a complex number:
+\begin{align*}
+	\Phi : \mathcal H & \to \mathbb{C}       \\
+	\ket v            & \mapsto \Phi(\ket v)
+\end{align*}
+For a given vector $\ket u$, the scalar product associates a complex number with any vector $\ket v$ through the corrispondece
+$$
+	\ket v \mapsto \Phi_{\ket u}(\ket v) = \braket{u}{v}
+$$
+We use the \textbf{bra} notation $\bra u$ to denote the functional $\Phi(u)$. The notation $\braket{u}{v}$ can also be seen as the application of the functional $\bra u$ to the vector $\ket v$.
+
+\subsection{Norm}
+
+The norm of a vector $\ket v$ will be given by the scalar product of the given vector with itself, $\lVert v \rVert^2 = \braket v$. Quantum states are always associated with vectors with unit norm, $\braket v = 1$.
+
+Note that the norm is a positive real number.
+
+\subsection{Discrete systems}
+
+A \textbf{discrete system} is one where the measurable properties can only take on specific, distinct values rather than a continuous range. A general quantum state in a discrete system can be expressed as
+$$
+	\ket u = \sum_j \alpha_j \ket {o_j}, \quad j \in \mathbb N
+$$
+where $\alpha_j \in \mathbb C$ and $\ket o_j$ are \textit{eigenstates} (or basis states).
+
+An \textbf{eigenstate} is a state with a defined value for a physical quantity. In particular, the states $\ket {o_j}$ must respect the \textbf{normalization conditions} (i.e., they are orthogonal and of norm 1):
+$$
+	\braket{o_i}{o_j} = \delta_{ij} = \begin{cases}
+		1 & \text{if } i = j    \\
+		0 & \text{if } i \neq j
+	\end{cases}
+$$
+
+To calculate the probability of a measurement outcome, i.e., the probability of finding the system in a specific eigenstate $\ket{o_j}$, we can use the \textbf{Born rule}:
+$$
+	P(o_j) = \frac{\lvert \alpha_j \rvert^2}{\braket u}
+$$
+
+We can define the inner product between two kets $\ket u = \sum_j \alpha_j \ket{o_j}$ and $\ket v = \sum_i \beta_i \ket{o_i}$ as
+$$
+	\begin{WithArrows}
+		\braket{u}{v} &= \displaystyle \sum_{ji} \alpha_j^* \beta_i \delta_{ji} \Arrow{using the definition of $\delta_{ji}$} \\
+		&= \displaystyle \sum_j \alpha_j^* \beta_j
+	\end{WithArrows}
+$$
+
+\subsection{Continuous systems}
+
+A \textbf{continuous system} describes physical properties that can take on a continuous range ov values. While in the discrete case we had an index $j \in \mathbb N$, here we have a continuous "index" $\xi \in \mathbb R$, and the coefficients $\alpha_j$ are now a function of $\xi$. We can express a general quantum state in a continuous system as
+$$
+	\ket u = \int \alpha(\xi) \ket{o(\xi)} d\xi, \quad \xi \in \mathbb R
+$$
+In the continuous case, the \textbf{normalization condition} for the continuous eigenstates is
+$$
+	\braket{o(\xi)}{o(\eta)} = \delta(\xi - \eta)
+$$
+where $\delta$ is the \textbf{Dirac Delta function}. In particular, $\Delta(\xi - \eta)$ is zero everywhere except for an infinitely sharp "spike" when $\xi = \eta$.
+
+In the continuous case, the probability of finding the system exactly in a particular state is mathematically zero. Instead of considering probabilities, we use \textbf{probability density}. In particular,
+$$
+	pdf(o(\xi)) = f(\xi) = \frac{\lvert \alpha(\xi) \rvert^2}{\braket u}
+$$
+and of course the total area under the curve must be equal to 1:
+$$
+	\int_{-\infty}^{+\infty} f(\xi) d\xi = 1
+$$
+
+We can define the inner product between two kets $\ket u = \int \alpha(\xi) \ket{o(\xi)} d\xi$ and $\ket v = \int \beta(\eta) \ket{o(\eta)} d\eta$ analogously to the discrete case, obtaining at the end
+$$
+	\braket{u}{v} = \int \alpha^* (\xi) \beta(xi) d\xi
+$$
+
+\subsection{Wave function DA VEDERE}
+
+The state of a system is described by the \textbf{wave function}, i.e., a complex function, for example $\psi(x)$ in the one-dimensional case. All the information about the state of the system in encoded in the wave function. Mathematically, the wave function is simply the collection of "weights" (amplitudes) for every possible coordinate in your system.
+
+\subsection{Operators}
+
+An \textbf{operator} is a function that acts on a vector and returns a vector
+\begin{align*}
+	\hat O : \mathcal H & \to \mathcal H                 \\
+	\ket v              & \mapsto \ket w = \hat O \ket v
+\end{align*}
+where both $\ket v, \ket w \in \mathcal H$. Note that the operator produces a \textit{new} state vector.
+
+We will deal with \textbf{linear operators}, which satisfies
+$$
+	\hat O \left(\alpha \ket u + \beta \ket v \right) = \alpha \hat O \ket u + \beta \hat O \ket v
+$$
+where $\alpha$ and $\beta$ are complex numbers.
+
+Note that the order in which operators are applied is important, e.g.,
+$$
+	\hat O_1 \hat O_2 \ket v = \hat O_1 \left( \hat O_2 \ket v \right)
+$$
+
+Generally, an operator transforms a state vector into a completely new one. However, there are special states where the operator acts only as a scaling factor. Such states are called \textit{eigenstates} and the scaling factor is called \textit{eigenvalue}. We can find eigenstates and eigenvalues with the \textbf{eigenvalue equation}
+$$
+	\hat O \ket{o_k} = o_k \ket{o_k}
+$$
+where
+\begin{itemize}
+	\item $\ket{o_k}$ is the eigenstate;
+	\item $o_k$ is the eigenvalue associated with the eigenstate, i.e., the actual number you would measure during an experiment.
+\end{itemize}
+Eigenstates are all the solutions to an eigenvalue equation.
+
+The mathematical form of an operator changes depending on whether the system is discrete or continuous:
+\begin{itemize}
+	\item \textbf{Discrete}: $\hat O \triangleq \displaystyle \sum_j o_j \ket{o_j} \bra{o_j}$
+	\item \textbf{Continuous}: $\hat O \triangleq \displaystyle \int_{-\infty}^{+\infty} o(\xi) \ket{o(\xi)} \bra{o(\xi)} d \xi$
+\end{itemize}
+
+Operators representing physical observables must be \textbf{hermitian} (or \textbf{self-adjoint}), i.e. such that
+$$
+	\forall \ket u, \ket v \in \mathcal H, \qquad \braket{u}{\hat O v} = \braket{\hat O u}{v}
+$$
+\colorbox{yellow}{proof that $\hat O$ is hermitian}
+
+\subsection{Expectation value}
+
+The \textbf{expectation value} is obtained by repeating the observations of a quantum state and calculating the theoretical average.
+
+Consider the ket $\ket u = \sum_j \alpha_j \ket{o_j}$. Then, the expected value \colorbox{yellow}{da finire vedere meglio notazione usata a lezione}
+$$
+	\langle o \rangle =
+$$

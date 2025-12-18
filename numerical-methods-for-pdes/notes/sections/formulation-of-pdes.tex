@@ -1,0 +1,238 @@
+\section{Formulation of partial differential equations}
+
+\subsection{From the strong formulation to the weak formulation}
+
+Here we will focus on the mathematical formulation of elliptic PDEs, in 1D or multidimensional domains (2D or 3D), with particular emphasis on the \textit{weak formulation}.
+
+Let us consider an elliptic PDE defined in a domain $\Omega \subset \mathbb R^d$, for $d = 1, 2, 3$. We can express such PDE as
+$$
+	\mathcal L u = f \qquad \text{in } \Omega
+$$
+where $\mathcal L$ is a suitable differential operator, and appropriate boundary conditions are set on the boundary $\partial \Omega$ of the domain $\Omega$.
+We say that this is the \textit{strong formulation} of the PDE, and $u$ is its \textit{strong solution} if $u$ satisfies the equation in every point $\mathbf x \in \Omega$ and every partial derivative appearing in $\mathcal L u$ is well-defined.
+
+However, the strong formulation cannot represent many physically feasible solutions. We need to transition to a \textit{weak formulation} by follwing two steps:
+\begin{enumerate}
+	\item Multiply both sides by a suitable test function $v$:
+	      $$
+		      (\mathcal L u) v = fv
+	      $$
+	\item Integrate in $\Omega$ applying integration by parts:
+	      $$
+		      \int_\Omega (\mathcal L u) v \ d \Omega = \int_\Omega fv \ d\Omega
+	      $$
+\end{enumerate}
+
+\subsubsection{Example: Poisson problem in 1D}
+
+Let us consider again the Poisson problem with homogeneous Dirichlet boundary conditions: find $u : \Omega \subset \mathbb R \to \mathbb R$ such that
+$$
+	\begin{cases}
+		-u''(x) = f(x) & \qquad x \in \Omega = (a, b) \\
+		u(a) = u(b) = 0
+	\end{cases}
+$$
+let us now introduce a function $v \in C^1(0, 1)$ such that $v(0) = v(1) = 0$. We say that $v \in C_0^1(0, 1)$ and we call this function a \textit{test function}. We multiply the differential problem by $v$ and we integrate over $(0, 1)$, for which
+$$
+	\int_0^1 -u''(x) v(x) dx = \int_0^1 f(x) v(x) dx
+$$
+must hold for every test function $v \in C_0^1(0, 1)$. By \textit{partial integration} of the left hand side for a general domain $\Omega = (a, b) \subset \mathbb R$, we have
+\begin{align*}
+	\int_a^b -u'' \ v \ dx
+	 & =
+	\int_a^b -(u'v)' \ dx + \int_a^b u' \ v' \ dx
+	=
+	[-u' \ v]_{x = a}^b + \int_a^b u' \ v' \ dx \\
+	 & =
+	[u'(b)v(b) - u'(a)v(a)] +  \int_a^b u' \ v' \ dx
+\end{align*}
+As $\Omega = (a, b) = (0, 1)$ and $v(0) = v(1) = 0$, we have in this case that
+$$
+	\int_0^1 -u'' \ v \ dx = \int_0^1 u' \ v' \ dx
+$$
+This yields the \textit{weak formulation} of the problem:
+$$
+	\text{find } u \quad : \quad
+	\int_0^1 u' \ v' \ dx = \int_0^1 f \ v \ dx \qquad
+	\text{for all } v \in C_0^1(0, 1)
+$$
+
+Note how in the weak formultation of the problem, second derivatives of $u$ do not appear. Therefore, it is no longer required that $u \in C^2(0, 1)$. Instead, $u'$ and $v'$ do appear, but under the integral: it is therefore not necessary that $u'$ and $v'$ are continuous functions.
+
+\subsubsection{Example: Poisson problem in 2D}
+
+Let us consider again the Poisson problem with homogeneous Dirichlet boundary conditions: find $u : \Omega \subset \mathbb R^d \to \mathbb R$ such that
+$$
+	\begin{cases}
+		-\Delta u = f & \text{in } \Omega          \\
+		u = 0         & \text{on } \partial \Omega
+	\end{cases}
+$$
+where $d = 2, 3$, the domain $\Omega \subset \mathbb R^d$ is endowed with boundary $\partial \Omega$. We indicate by $\mathbf n$ the outward directed, unit vector normal to the boundary $\partial \Omega$.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.35\textwidth]{images/omega-domain.jpg}
+\end{figure}
+
+We write the weak formulation of this problem. First, we introcuce the test function $v \in C_0^1(\Omega)$, i.e. such that $\nabla v$ is a continuous vector-valued function in $\Omega$ and $v = 0$ on $\partial \Omega$. Then, we multiply the PDE by $v$ and we integrate, thus obraining:
+$$
+	\int_\Omega - \Delta u(\mathbf x) v(\mathbf x) d \mathbf x
+	=
+	\int_\Omega f(\mathbf x) v(\mathbf x) d \mathbf x
+$$
+\textit{Partial integration} of the left hand side yields the following formula:
+\begin{align*}
+	\int_\Omega -\Delta u \ v \ d \mathbf x
+	 & = \int_\Omega - \nabla \cdot (v \nabla u) d \mathbf x
+	+
+	\int_\Omega \nabla u \cdot \nabla v \ d \mathbf x                                                                           \\
+	 & = \oint_{\partial \Omega} - v \nabla u \cdot \mathbf n \ d \mathbf x + \int_\Omega \nabla u \cdot \nabla v \ d \mathbf x
+\end{align*}
+The term $\nabla u \cdot \mathbf n$ on the boundary $\partial \Omega$ is often indicated as $\dfrac{\partial u}{\partial n}$.
+
+By recalling that $v = 0$ on $\partial \Omega$, we obtain the weak formulation of the Poisson problem:
+$$
+	\text{find } u \quad : \quad
+	\int_\Omega \nabla u \cdot \nabla v \ d \mathbf x
+	=
+	\int_\Omega f \ v \ d \mathbf x
+	\qquad
+	\text{for all } v \in C_0^1(\Omega)
+$$
+However, we still have to identify the function space to which the weak solution $u$ belongs.
+
+\subsubsection{Example}
+
+$$
+	\begin{cases}
+		\mathcal Lu
+		=
+		-\mathrm{div} \left(\mu \nabla u \right)
+		+ \mathbf b \cdot \nabla u
+		+ \sigma u = f                   & \text{in } \Omega   \\
+		u = 0                            & \text{on } \Gamma_D \\
+		\mu \nabla u \cdot \mathbf n = g & \text{on } \Gamma_N
+	\end{cases}
+$$
+where:
+\begin{itemize}
+	\item $f \in L^2(\Omega)$ is given, $\mathcal L$ is the 2nd order differential operator, and $u$ is the unknown
+	\item $\partial \Omega = \Gamma_D \cup \Gamma_N, \ \Gamma_D \cap \Gamma_N \neq \emptyset$
+	\item $\mu \in L^\infty (\Omega), \ \mu(\mathbf x) \geq \mu_0 > 0$
+	\item $\mathbf b \in (L^\infty(\Omega))^d$
+	\item $\sigma \in L^2(\Omega)$
+	\item $g \in L^2(\Gamma_N)$
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.3\textwidth]{images/omega-domain-2.jpg}
+\end{figure}
+
+$\mathrm{div}(\cdot)$ is the divergence operator, defined below.
+\begin{altbox}[title = Definition: divergence operator]
+	$$
+		\mathrm{div}(\mathbf v) = \nabla \cdot \mathbf v = \sum_{i = 1}^d \frac{\partial v_i}{\partial x_i}, \qquad \mathbf v = (v_1, \dots, v_d)^T
+	$$
+\end{altbox}
+
+To obtain the weak formulation, we multiply by the test function $v$ and integrate in $\Omega$:
+
+\begin{equation}
+	\label{eq:weak1}
+	\int_\Omega -\mathrm{div}(\mu \nabla u) v \ d\Omega + \int_\Omega (\mathbf b \cdot \nabla u) v + \int_\Omega \sigma u v = \int_\Omega fv
+\end{equation}
+
+we can now apply integration by part to the first integral using Green's formula.
+\begin{altbox}[title = Green's formula]
+	$$
+		\int_\Omega \mathbf q \cdot \nabla \varphi
+		=
+		-\int_\Omega \mathrm{div}(\mathbf q) \cdot \varphi
+		+ \int_{\partial \Omega} (\mathbf q \cdot \mathbf n) \varphi
+	$$
+	where $\mathbf n$ is the \textit{normal} to the boundary surface $\partial \Omega$ at every specific point.
+\end{altbox}
+
+With this formula we obtain that
+$$
+	\int_\Omega - \underbrace{\mathrm{div}\left( \mu \nabla u \right)}_{ \nabla \varphi} \cdot \underbrace{v}_{\mathbf q}
+	=
+	\int_\Omega \mu \nabla u \cdot \nabla v
+	-
+	\int_{\partial \Omega} \left( \mu \nabla u \cdot \mathbf n \right) v
+$$
+We can split the boundary integral into two parts $\Gamma_D$ and $\Gamma_N$:
+$$
+	\int_{\partial \Omega} \left(\mu \nabla u \cdot \mathbf n \right) v
+	=
+	\underbrace{\cancelto{0}{\int_{\Gamma_D} \left(\mu \nabla u \cdot \mathbf n \right) v}}_{0 \text{ if } v|_{\Gamma_D} = 0}
+	+ \int_{\Gamma_N} \underbrace{\left(\mu \nabla u \cdot \mathbf n \right)}_{g} v
+$$
+
+Substituting these into the starting equation \eqref{eq:weak1} and rearanging terms we get:
+$$
+	\underbrace{\int_\Omega \mu \nabla u \cdot \nabla v + \int_\Omega \mathbf b \cdot \nabla u v + \int_\Omega \sigma u v}_{a(u, v)}
+	=
+	\underbrace{\int_\Omega f v + \int_{\Gamma_N} g v}_{F(v)}
+$$
+Therefore the problem becomes
+\begin{tcolorbox}
+	\centering
+	Find $u \in V : a(u, v) = F(v), \ \forall v \in V$ \\
+	where $V = \{ v \in H^1(\Omega), \ v|_{\Gamma_D} = 0\} $
+\end{tcolorbox}
+
+\subsection{Lax-Milgram lemma}
+
+The \textbf{Lax-Milgram lemma} is the fundamental theorem that guarantees the solution you are looking for in the weak formulation actually exists and is unique.
+
+\begin{tcolorbox}[title = Lax-Milgram lemma]
+	Assume that
+	\begin{enumerate}[label=(\roman*)]
+		\item $V$ Hilbert space with norm $\lVert \cdot \rVert$ and inner product $(\cdot, \cdot)$
+		\item $F \in V' : \lvert F(v) \rvert \leq \lVert F \rVert_{V'} \lVert V \rVert, \ \forall v \in V$
+		\item $a$ continuous: $\exists M > 0 : \lvert a(u, v) \rvert \leq M \lVert u \rVert \lVert v \rVert, \ \forall u, v \in V$
+		\item $a$ coercive: $\exists \alpha > 0 : a (v, v) \geq \alpha \lVert v \rVert^2, \ \forall v \in V$
+	\end{enumerate}
+	Then, there exists a unique solution $u$
+\end{tcolorbox}
+
+Remark that $V'$ is the \textit{dual space} of $V$. It is the set of all linear and continuous functionals that map elements from $V$ into a real number $\mathbb R$, with norm $\displaystyle \lVert F \rVert_{V'} = \sup_{v \in V \setminus \{0\}} \frac{F(v)}{\lVert v \rVert_V}$
+
+Moreover, $\displaystyle \lVert u \rVert \leq \frac{\lVert F \rVert_{V'}}{\alpha}$. $\alpha$ is called \textit{coercivity constant}.
+
+\subsubsection{Proving the assumptions of the Lax-Milgram lemma}
+
+Consider the following elliptic problem in 1D
+$$
+	\begin{cases}
+		\mathcal L u
+		=
+		- \left(\mu u' \right)'
+		+ bu'
+		+ \sigma u = f & \qquad \bar a < x < \bar b \\
+		u(\bar a) = 0                               \\
+		\mu u'(\bar b) = \gamma v(\bar b)
+	\end{cases}
+$$
+
+To prove if the assumptions of the Lax-Milgram lemma hold, let us first consider the weak formulation of the problem:
+\begin{align*}
+	 & V = \{ v \in H^1(\bar a, \bar b) : v(\bar a) = 0 \}                                \\
+	 & a(u, v) = \int_{\bar a}^{\bar b} \left(\mu u'v' + b u' v + \sigma u v \right) \ dx \\
+	 & F(v) = \int_{\bar a}^{\bar b} f v \ dx + \gamma v(\bar b)
+\end{align*}
+
+\begin{enumerate}[label=(\roman*)]
+	\item $V$ is a Hilbert space
+
+	      \textbf{Proof}: Since $H^1(\bar a, \bar b)$ is a Hilbert space, and $V$ is a subspace of $H^1(\bar a, \bar b)$, $V$ is a Hilbert space (there are other conditions required but we take this for granted). Furthermore,
+	      \begin{align*}
+		       & \lVert v \rVert = \sqrt{ \lVert v \rVert^2_{L^2(\bar a, \bar b)} + \lVert v' \rVert^2_{L^2(\bar a, \bar b)} }              \\
+		       & ||| v |||  = \sqrt{ \lVert v' \rVert^2_{L^2(\bar a, \bar ba)} } = \lVert v' \rVert_{L^2(\bar a, \bar b)} = \lvert v \rvert
+	      \end{align*}
+	\item
+
+\end{enumerate}

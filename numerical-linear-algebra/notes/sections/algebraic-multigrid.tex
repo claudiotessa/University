@@ -1,0 +1,74 @@
+\section{Algebraic multigrid methods}
+
+Algebraic multigrid (AMG) is based on MG principles but uses matrix coefficients instead of geometric information.
+
+Classical AMG is based on the observation that the algebraic smooth error varies slowly in the direction of the matrix's relatively large (negative) coefficients.
+This gives us an algebraic way to track smooth errors (however, we still need to define "large").
+
+\begin{tcolorbox}[title = Definition: strong connection]
+	Given a threshold $\theta \in (0, 1)$, we say that $i$ is \textbf{strongly connected} with $j$ if
+	$$-a_{i,j} \geq \theta \max_{k \neq i}(-a_{i,k})$$
+	Let us denote with $S_i$ the set of vertices that $i$ is strongly connected to by
+	$$S_i = \{ j \in N_i : i \text{ strongly connects to } j \}$$
+	where $N_i = \{ j \neq i : a_{i, j} \neq 0 \}$. This gives us a strength matrix $S$, with $S_i$ as its $i$-th row.
+\end{tcolorbox}
+
+\subsection{Standard coarsening}
+
+Since algebraic smooth error varies slowly in the direction of strong connections, we should essentially \text{coarsen in the direction of strong connections}.
+
+This results in a C/F-splitting such that F-vertices strongly connect to neighbouring C-vertices, and then the idea is to represent the values of a smooth vector at F-vertices as a linear combination of the values at C-vertices.
+
+Given a strength matrix $S$, a general coarsening procedure consists of two steps.
+
+\begin{algorithm}
+	\caption{General coarsening algorithm}
+	\begin{algorithmic}[1]
+		\State Choose an independent set of C-vertices based on the graph of $S$.
+		\State Choose additional C-vertices in order to sarisfy the interpolation requirements.
+	\end{algorithmic}
+\end{algorithm}
+
+For standard coarsening, the strength matrix $S$ is constructed based on $A$ directly, and the general coarsening algorithm is applied.
+
+In step \texttt{1} of the algorithm, the independent set can be chosen in the following way:
+
+\begin{enumerate}
+	\item Start with a first vertex $i$ to become a C-vertex
+	\item Then, all vertices $j$ which $i$ strongly connect to become F-vertices.
+	\item Next, another vertex from undecided vertices becomes a C-vertex, and all vertices which are strongly connected to it become F-vertices.
+	\item This procedure is repeated until all vertices become C or F-vertices.
+\end{enumerate}
+
+Remark: this procedure highly depends on the order of the vertices. To obtain a relatively uniform distribution of C/F vertices, a suitable measure of importance is introduced (C-AMG)
+
+\subsection{Direct interpolation}
+
+Let $\mathbf e = (e_1, e_2, \dots, e_i, \dots)$ be the error. A simple characterization of algebraic smooth error is $A\mathbf e \approx 0$. In other words,
+\begin{equation}
+	\label{eq:interpolation}
+	a_{i, i} e + \sum_{j \in N_i}{a_{i, j} e_j \approx 0} \quad i \in F
+\end{equation}
+The idea is that we want to choose proper $w_{i,j}$ such that for any algebraic smooth errors
+$$
+	e_i \approx \sum_{j \in C} w_{i, j} e_j \quad j \in F
+$$
+For $i \in F$, we define:
+\begin{itemize}
+	\item $C_i = C \cap N_i$ : C-points strongly connected to $i$
+	\item $C_i^S = C \cap S_i$
+	\item $F_i^S$ : F-points strongly connected to $i$ ($F_i = F \cap N_i$
+	\item $N_i^W = \dfrac {N_i} {C_i \cup F_i^S}$ : all points weakly connected to $i$
+\end{itemize}
+We can then rewrite \eqref{eq:interpolation} as follows (replace $\approx$ with $=$):
+$$
+	a_{i,i} e_i + \alpha \sum_{j \in C_i^S} a_{i, j} e_j = 0
+	\qquad
+	\alpha = \dfrac{\sum_{j \in N} a_{i, j}}{\sum_{j \in C_i^S} a_{i, j}}
+$$
+Therefore, the formula of direct interpolation is
+$$
+	w_{i,j} = \alpha \frac{a_{i,j}}{a_{i,i}}, \quad i \in F, j \in C_i^S,
+	\qquad
+	\alpha = \frac{ \sum_{j \in N_i} a_{i,j} }{ \sum_{j \in C_i^S} a_{i,j} }
+$$

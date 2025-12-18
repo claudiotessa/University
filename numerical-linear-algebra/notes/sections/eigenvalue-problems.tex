@@ -1,0 +1,371 @@
+\section{Solving large-scale eigenvalue problems}
+
+\begin{tcolorbox}[
+		title=Eigenvalue problem
+	]
+	Given a matrix $A \in \mathbb{C}^{n \times n}$, find $(\lambda, \mathbf{v}) \in \mathbb{C} \times \mathbb{C}^n \setminus \{ \mathbf 0 \}$ such that
+	$$
+		A \mathbf{v} = \lambda \mathbf{v}
+	$$
+	where $\lambda$ is an eigenvalue of $A$,
+	and $\mathbf v$ (non-zero) is the corresponding eigenvector.
+\end{tcolorbox}
+
+The set of all the eigenvalues of a matrix $A$ is calle the \textbf{spectrum} of $A$.
+
+The maximum modulus of all the eigenvalues is called the \textbf{spectral radius} of $A$:
+$\rho(A) = \max \{ |\lambda| : \lambda \in \lambda(A) \}$.
+
+The problem $A \mathbf v = \lambda \mathbf v$ is equivalent to $(A - \lambda I) \mathbf v = 0$.
+$\det (A - \lambda I) = 0$ is a polynomial of degree $n$ in $\lambda$:
+it is called the \textbf{characteristic polynomial} of $A$ and its roots are the eigenvalues of $A$.
+
+\subsection{Similarity transformations}
+
+We first need to identify what types of transformations preserve eigenvalues,
+and for what types of matrices the eigenvalues are easily determined.
+
+\begin{tcolorbox}[title=Definition]
+	The matrix $B$ is similar to the matrix $A$ if there exists a nonsingulat matrix $T$ such taht $B = T^{-1} A T$.
+\end{tcolorbox}
+
+With the above definition, it is trivial to show that
+$$
+	B \mathbf y = \lambda \mathbf y
+	\implies
+	T^{-1} A T \mathbf y = \lambda \mathbf y
+	\implies
+	A(T \mathbf y) = \lambda (T \mathbf y)
+$$
+so that $A$ and $B$ have the same eigenvalues,
+and if $\mathbf y$ is an eigenvector of $B$,
+then $\mathbf v = T\mathbf y$ is an eigenvector of $A$.
+
+Similarity transformations preserve eigenvalues but do not preserve eigenvectors.
+
+\subsection{The power method}
+
+The power method is the simplest method for computing a single eigenvalue and eigenvector of a matrix.
+
+Assume that the matrix $A$ has a unique eigenvalue
+$\lambda_1$ of maximum modulus,
+i.e., $|\lambda_1| > |\lambda_2| \geq |\lambda_3| \geq \dots \geq |\lambda_n|$,
+with corresponding eigenvector $\mathbf v_1$.
+
+Starting from a given nonzero vector $\mathbf x^{(0)}$ such that $\lVert \mathbf x^{(0)} \rVert = 1$,
+let's consider the following iteration scheme, for $k >= 0$:
+\begin{align*}
+	 & \mathbf y^{(k + 1)} \gets A \mathbf x^{(k)}                                         \\
+	 & \mathbf x^{(k+1)} \gets \frac{\mathbf y^{(k + 1)}}{\lVert \mathbf y^{(k+1)} \rVert} \\
+	 & \nu^{(k+1)} \gets [\mathbf x^{(k+1)}]^H A \mathbf x^{(k+1)}
+\end{align*}
+
+It can be shown that the above iteration scheme converges to a
+multiple of $\mathbf v_1$, the eigenvector corresponding to the dominant eigenvalue $\lambda_1$.
+
+The convergence rate of the power method depends on the ratio $|\lambda_2| / |\lambda_1|$,
+where $\lambda_2$ is the eigenvalue having the second largest modulus. The smaller $|\lambda_2| / |\lambda_1|$,
+the faster the convergence is.
+
+\subsubsection{Deflation methods}
+
+Suppose that an eigenvalue $\lambda_1$ and corresponding eigenvector
+$\mathbf v_1$ for a matrix $A$ have been computed.
+We can compute additional eigenvalues $\lambda_2, \dots, \lambda_n$ of $A$ by a process called \textbf{deflation},
+which removes the known eigenvalue.
+
+The \textit{idea} is to construct a new matrix $B$ with eigenvalues $\lambda_2, \dots, \lambda_n$
+that deflates the matrix $A$, removing $\lambda_1$.
+Then $\lambda_2$ can be obtained by the power method.
+
+Let $S$ be any nonsingular matrix such that
+\begin{itemize}
+	\item $S \mathbf v_1 = \alpha \mathbf e_1$
+	\item $S$ is a scalar multiple of the first column $\mathbf e_1$ of the identity matrix $I$.
+\end{itemize}
+Then the similarity transformation determined by $S$ transforms $A$ into the from
+$$
+	SAS^{-1} = \begin{pmatrix}
+		\lambda_1 & \mathbf b^T \\ 0 & B
+	\end{pmatrix}
+$$
+We use $B$ to compute the next eigenvalue $\lambda_2$ and eigenvector $\mathbf z_2$.
+Given $\mathbf z_2$ eigenvector of $B$, we want to compute the second eigenvector
+$\mathbf v_2$ of the matrix $A$.
+We just need to add an element to the vector $\mathbf z_2$ (that consists of $n-1$ elements),
+that is
+$$
+	\mathbf v_2 = S^{-1} \begin{pmatrix}
+		\alpha &  & \mathbf z_2
+	\end{pmatrix}
+	\qquad
+	\alpha = \frac{\mathbf b^H \mathbf z_2}{\lambda_1 - \lambda_2}
+$$
+The process can be repeated to find the additional eigenvalues and eigenvectors.
+
+\subsubsection{Inverse power method}
+
+For some applications,
+the smallest eigenvalue of a matrix is required rather than the largest.
+We use the fact that the eigenvalues of $A^{-1}$ are the reciprocals
+of those of $A$ (hence the smallest eigenvalue of $A$
+is the reciprocal of the largest eigenvalue of $A^{-1}$)
+
+Starting form a given nonzero vector $\mathbf q^{(0)}$ such that
+$\lVert \mathbf q^{(0)} \rVert = 1$, let's consider the following iteration scheme,
+for $k \geq 0$:
+
+\begin{align*}
+	 & \text{Solve } A \mathbf z^{(k + 1)} =\mathbf q^{(k)}                                  \\
+	 & \mathbf q^{(k + 1)} \gets \frac{\mathbf z^{(k+1)}}{\lVert \mathbf z^{(k + 1)}} \rVert \\
+	 & \sigma^{(k+1)} \gets [\mathbf q^{k+1}]^H A \mathbf q^{(k+1)}
+\end{align*}
+
+\subsubsection{Inverse power method with shift}
+
+We want to approximate the eigenvalue $\lambda$ of $A$ which is the closest
+to a given number $\mu \notin \sigma(A)$.
+We introduce $M_\mu = A - \mu I$ and observe that the eigenvalue $\lambda$ of $A$
+which is closest to $\mu$ is the minimum eigenvalue of $M_\mu$.
+
+Starting from a given nonzero vector $\mathbf q^{(0)}$ such that $\lVert \mathbf q^{(0)} \rVert = 1$,
+let's consider the following iteration scheme, for $k \geq 0$:
+\begin{align*}
+	 & \text{Solve } M_\mu \mathbf z^{(k+1)} = \mathbf q^{(k)}                           \\
+	 & \mathbf q^{(k+1)} \gets \frac{\mathbf z^{(k+1)}}{\lVert \mathbf z^{(k+1)} \rVert} \\
+	 & \nu^{(k+1)} \gets [\mathbf q^{(k+1)}]^H A \mathbf q^{(k+1)}
+\end{align*}
+
+\subsection{QR factorization}
+
+\subsubsection{Projectors and complementary projectors}
+
+A projector is a square matrix $P \in \mathbb{R}^{n \times n}$ that satisfies $P^2 = P$:
+
+\begin{itemize}
+	\item If $\mathbf w \in \mathrm{range} (P)$, then $P \mathbf w = \mathbf w$.
+	      Indeed, since $\mathbf w \in \mathrm{range}(P)$,
+	      then $\mathbf w = P \mathbf z$,
+	      for some $\mathbf z$. Therefore:
+	      $$
+		      P \mathbf w = P (P \mathbf z) = P^2 \mathbf z = P \mathbf z = \mathbf w
+	      $$
+	\item The matrix $I -P$ is the complementary projector to $P$.
+	\item $I - P$ projects on the nullspace of $P$:
+	      if $P \mathbf w = 0$, then $(I - P) \mathbf w = \mathbf w$,
+	      so $\mathrm{null}(P) \subseteq \mathrm{range}(I - P)$.
+	      But for any $\mathbf w$, $(I - P) \mathbf w = \mathbf w - P \mathbf w \in \mathrm{null}(P)$,
+	      so $\mathrm{range}(I - P) \subseteq \mathrm{null}(P)$.
+	      Therefore,
+	      $$ \mathrm{range}(I - P) = \mathrm{null}(P) $$
+	      and
+	      $$ \mathrm{null}(I - P) = \mathrm{range}(P) $$
+	\item A projector $P$ is \textit{orthogonal} if $P = P^2 = P^T$.
+\end{itemize}
+
+\subsubsection{The reduced QR factorization}
+
+Find orthonormal vectors $[\mathbf q_1, \mathbf q_2, \dots, \mathbf q_n]$
+that span the successive spaces spanned by the columns of
+$A = [\mathbf a_1, \mathbf a_2, \dots, \mathbf a_n]$:
+$$
+	\langle \mathbf a_1 \rangle
+	\subseteq
+	\langle \mathbf a_1, \mathbf a_2 \rangle \dots
+	\subseteq
+	\langle \mathbf a_1 \mathbf a_2, \dots, \mathbf a_n \rangle
+$$
+This means that (for full rank $A$):
+$$
+	\langle \mathbf a_1, \mathbf a_2, \dots \mathbf a_j \rangle
+	=
+	\langle \mathbf q_1, \mathbf q_2, \dots, \mathbf q_j \rangle
+	\qquad
+	\forall j = 1, \dots, n
+$$
+In matrix form, this becomes:
+$$
+	\begin{bmatrix}
+		\begin{array}{c|c|c|c}
+			\mathbf{a}_1 & \mathbf{a}_2 & \cdots & \mathbf{a}_n
+		\end{array}
+	\end{bmatrix}
+	=
+	\begin{bmatrix}
+		\begin{array}{c|c|c|c}
+			\mathbf{q}_1 & \mathbf{q}_2 & \cdots & \mathbf{q}_n
+		\end{array}
+	\end{bmatrix}
+	\begin{bmatrix}
+		r_{11} & r_{12} & \dots  & r_{1n} \\
+		0      & r_{22} & \dots  & \vdots \\
+		0      & 0      & \ddots & r_{nn}
+	\end{bmatrix}
+$$
+that is
+$$
+	A = \hat Q \hat R
+$$
+This is called the \textit{reduced QR factorization}.
+In particular, the reduced QR factorization of $A$ is the factorization $A = \hat Q \hat R$, where
+
+\begin{itemize}
+	\item $Q$ is $m \times n$
+	\item $R$ is $n \times n$ upper-triangular
+\end{itemize}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/reduced-qr-factorization.png}
+\end{figure}
+
+\subsubsection{The full QR factorization}
+
+Let $A$ be an $m \times n$ matrix.
+The \textit{full QR factorization} of $A$ is the factorization $A = QR$, where
+\begin{itemize}
+	\item $Q$ is $m \times n$ orthogonal ($QQ^T = I$)
+	\item $R$ is $m \times n$ upper-trapezial
+\end{itemize}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.5\textwidth]{./images/full-qr-factorization.png}
+\end{figure}
+
+\subsubsection{Gram-Schmidt orthogonalization}
+
+Given $\mathbf a_1, \mathbf a_2, \dots, \mathbf a_n$ the columns of $A$,
+find new $\mathbf q_j$ (the $j$-th column of $\hat Q$) orthogonal to
+$\mathbf q_1, \dots, \mathbf q_{j-1}$
+by subtracting components along previous vectors:
+$$
+	\mathbf w_j
+	=
+	\mathbf a_j - \sum_{k=1}^{j-1}{(\bar{\mathbf q}_k^T \mathbf a_j) \mathbf q_k}
+$$
+and then normalize to get $\mathbf q_j = \dfrac{\mathbf w_j}{\lVert \mathbf w_j \rVert}$
+
+We then obtain a reduced QR factorization $A = \hat Q \hat R$ with
+$$
+	r_{ij} = \bar{\mathbf{q}}_i^T \mathbf a_j, \quad i \neq j,
+	\qquad \quad \text{and} \qquad \quad
+	r_{jj} = \lVert \mathbf a_j - \sum_{i = 1}^{j - 1}{r_{ij}\mathbf q_i} \rVert
+$$
+
+\subsection{The QR algorithm}
+
+\subsubsection{Schur decomposition}
+
+If $A \in \mathbb{C}^{n \times n}$,
+then there is a unitary matrix $U \in \mathbb{C}^{n \times n}$ such that
+$U^H A U = T$ is upper triangular. The diagonal elements of $T$ are the eigenvalues of $A$.
+
+$U = [\mathbf u_1, \mathbf u_2, ..., \mathbf u_n]$ are called \textbf{Schur vectors}
+(They are in general \textit{not} eigenvectors).
+
+The $k$-th column of $U^H AU = T$ reads:
+$$
+	A \mathbf u_k
+	=
+	\lambda_k \mathbf u_k + \sum_{i = 1}^{k - 1} t_{ik} \mathbf u_i
+	\qquad \implies \qquad
+	A \mathbf \mathbf u_k \in \mathrm{span} \{ \mathbf u_1, \dots, \mathbf u_k \} \quad \forall k
+$$
+
+\begin{itemize}
+	\item The first Schur vector $\mathbf u_1$ is an eigenvector of $A$
+	\item The first $k$ Schur vectors $\mathbf u_1, \dots, \mathbf u_k$ for an invariant subspace for $A$
+	\item The Schur decomposition is not unique
+\end{itemize}
+
+\subsubsection{Basic QR algorithm}
+
+Let $A \in \mathbb C^{n \times n}$. The QR algorithm computes an upper triangular matrix $T$ and a unitary matrix $U$ such that $A = U T U^H$ is the Schur decomposition of $A$.
+
+\begin{algorithm}
+	\begin{algorithmic}[1]
+		\State Set $A^{(0)} = A, U^{(0)} = I$
+		\While{stopping criteria}
+		\State $A^{(k - 1)} = Q^{(k)} R^{(k)}$ \Comment{QR factorization of $A^{(k-1)}$}
+		\State $A^{(k)} = R^{(k)} Q^{(k)}$
+		\State $U^{(k)} = U^{(k - 1)} Q^{(k)}$ \Comment{Update transformation matrix}
+		\EndWhile
+		\State \Return $T = A^{(k)}, U = U^{(k)}$
+	\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Convergence}
+
+Let's assume that all the eigenvalues are isolated, i.e.,
+$|\lambda_1| > |\lambda_2| > \dots > |\lambda_n|$.
+Then, the elements of $A^{(k)}$ below the diagonal converge to zero, i.e.,
+$$
+	\lim_{k \to \infty} a_{ij}^{(k)} = 0 \quad \forall i > j
+$$
+
+Moreover, it can be shown that
+$$
+	a_{ij}^{(k)} = O \left( \left| \frac{\lambda_i}{\lambda_j} \right|^k \right)
+	\quad i > j
+$$
+
+The basic QR algorithm can be used to compute eigenvalues, but it is computationally expensive ($O(n^3)$ operations per iteration). It can have very slow convergence if the eigenvalues of $A$ are close.
+
+To improve the situation, we can reduce the matrix $A$ to a similar matrix taht is upper Hessenberg, which reduces the cost to $O(n^2)$ operations per iteration.
+
+\subsubsection{Hessenberg QR-method}
+
+A matrix $H \in \mathbb C^{n \times n}$ is called a Hessenberg matrix if its elements below the lower off-diagonal are zero:
+$$
+	h_{ij} = 0, \quad i > j + 1
+$$
+
+To improve the QR-method we make use of an algorithm consisting of two phases:
+\begin{itemize}
+	\item \textbf{Phase 1} - Compute a Hessenberg matrix $H$ and an orthogonal matrix $U$ such that $A = U H U^H$. Such a reduction can be done with a finite number of operations.
+	\item \textbf{Phase 2} - Apply the basic QR-method to the matrix $H$.
+\end{itemize}
+
+\subsection{The Lanczos algorithm}
+
+The Lanczos algorithm can be used to efficiently find the extremal eigenvalues (maximum and minimum)) of a symmetric matrix $A$ of size $n \times n$.
+
+It is based on computing the following decomposition of $A$:
+$$
+	A = QTQ^T
+$$
+where $Q$ is an orthonormal basis of vectors $\mathbf q_1, \dots, \mathbf q_n$ and $T$ is tri-diagonal:
+$$
+	Q = [ \mathbf q_1, \mathbf q_2, \dots, \mathbf q_n ]
+	\quad
+	T = \begin{bmatrix}
+		\alpha_1 & \beta_1  & 0       & \dots       & 0           \\
+		\beta_1  & \alpha_2 & \beta_2 & \dots       & 0           \\
+		0        & \ddots   & \ddots  & \vdots      & 0           \\
+		0        & \ddots   & \ddots  & \vdots      & \beta_{n-1} \\
+		0        & \dots    & 0       & \beta_{n-1} & \alpha_n
+	\end{bmatrix}
+$$
+The decomposition always exists and is unique provided that $\mathbf q_1$ has been specified.
+
+We know that $T = Q^TAQ$ which gives
+$$
+	\alpha_k = \mathbf q_k^T A \mathbf q_k, \qquad
+	\beta_k = \mathbf q_{k+1}^T A \mathbf q_k
+$$
+the full decomposition is obtained by imposing $AQ = QT$:
+$$
+	[A \mathbf q_1, A \mathbf q_2, \dots, A \mathbf q_n]
+	=
+	[\alpha_1, \mathbf q_1 + \beta_1 \mathbf q_2,
+	\beta_1 \mathbf q_1 + \alpha_2 \mathbf q_2 + \beta_2 \mathbf q_3,
+	\dots,
+	\beta_{n-1} \mathbf q_{n-1} + \alpha_n \mathbf q_n]
+$$
+
+At every iteration $k$, the algorithm generates intermediate matrices $Q_k$ and $T_k$ that satisfy $T_k = Q_k^T A Q_k$.
+
+Remarks: $\mathbf q_1$ is set randomly; the orthonormal vectors $\mathbf q_k$ are called Lanczos vectors.
+
+

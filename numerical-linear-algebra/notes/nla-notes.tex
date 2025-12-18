@@ -1,0 +1,40 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage{tcolorbox}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Page setup
+\geometry{a4paper, margin=1in}
+
+% Title
+\title{NUMERICAL LINEAR ALGEBRA}
+\author{Claudio Tessa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+\input{sections/introduction.tex}
+\newpage
+\input{sections/iterative-methods.tex}
+\input{sections/eigenvalue-problems.tex}
+\input{sections/overdetermined-systems.tex}
+\input{sections/multigrid-methods.tex}
+\input{sections/algebraic-multigrid.tex}
+\input{sections/domain-decomposition-methods.tex}
+
+% Start writing your notes here
+
+\end{document}

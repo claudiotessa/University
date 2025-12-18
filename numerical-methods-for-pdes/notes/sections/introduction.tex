@@ -1,0 +1,172 @@
+\section{Introduction}
+
+\textit{Partial differential equations} (PDEs) are differential equantions containing derivatives of the unknown function with respect to several variables.
+
+\begin{altbox}
+	The differential model can be indicated as follows:
+	$$
+		\mathcal P(u; g)
+	$$
+	where
+	\begin{itemize}
+		\item $\mathcal P$ generically indicates the model
+		\item $u$ is the exact solution, a function of one or more independent variables
+		\item $g$ indicates the data
+	\end{itemize}
+\end{altbox}
+
+The following are typical differential models involving PDEs. Specifically, we will consider linear models with a scalar unknown solution.
+
+\textbf{Boundary value problem in 1D}
+
+It is a stationary differential model with a single independent variable $x$, representing the space coordinate in an interval $\Omega = (a, b) \subset \mathbb R$. The problem involves second order derivatives of the unknown solution $u = u(x)$ with respect to $x$.
+
+The value of $u$, or the value of its first derivative, is set at the two boundaries of the domain (interval) $\Omega$, that is at $x = a$ and $x = b$ (the domain boundary is $\partial \Omega = \{a, b\}$).
+
+For example, let us consider the following \textit{Poisson} problem with (homogeneous) Dirichlet boundary conditions: find $u : \Omega \subset \mathbb R \to \mathbb R$ such that
+$$
+	\begin{cases}
+		-\dfrac{d^2 u}{d x^2}(x) = f(x) & \qquad x \in \Omega = (a, b) \\
+		u(a) = u(b) = 0
+	\end{cases}
+$$
+This equation models a stationary phenomenon: the time variable does not appear. Note that the boundary value problem in 1D is a particular case of PDEs, even if it involves only derivatives with respect to a single independent variable $x$, as one condition is set at $x = a$ and another condition is set at $x = b$. The conditions in the boundary value problem determine the so-called \textit{global nature of the model}.
+
+\textbf{Initial and boundary value problem in 1D}
+
+These problems concern equations that depend on space and time. The unknown solution $u = u(x, t)$ depends on both the space coordinate $x \in \Omega \subset \mathbb R$ in 1D, and the time variable $t \in I$.
+
+In this case, there must be prescribed the initial conditions at $t = 0$, as well as the boundary conditions at the end of the 1D interval.
+For example, consider the \textit{heat equation} (or \textit{diffusion equation}) with Dirichlet boundary conditions: find $u : \Omega \times I \to \mathbb R$ such that
+$$
+	\begin{cases}
+		\dfrac{\partial u}{\partial t} (x, t) - \mu \dfrac{\partial^2 u}{\partial x^2} (x, t)
+		=
+		f(x, t)
+		 & \qquad
+		x \in \Omega = (a, b), t \in I \\
+		u(a, t) = u(b, t) = 0
+		 & \qquad
+		t \in I                        \\
+		u(x, t_0) = u_0(x)
+		 & \qquad
+		x \in \Omega = (a, b)
+	\end{cases}
+$$
+In this example, the unknown function $u(x, t)$ describes the temperature in a point $x \in \Omega = (a, b)$ and time $t \in I$ of a metallic bar covering the space interval $\Omega$, and the diffusion coefficient $\mu$ represents the thermal response of the material.
+The boundary conditions express the fact that the ends of the bar are kept at a reference temperature (0 degrees in this case), while at time $t = t_0$, the temperature is assigned in each point $x \in \Omega$.
+
+\textbf{Boundary value problem in multidimensional domains $\Omega \subset \mathbb R^d$, with $d = 2, 3$}
+
+We can extend the 1D boundary value problem in multidimensional domains $\Omega = \mathbb R^d$, with $d = 2, 3$. The solution is then $u(\mathbf x)$, where $\mathbf x = (x_1, \dots, x_d)^T \in \mathbb R^d$. This leads to the following Poisson problem with (homogeneous) Dirichlet boundary conditions: find $u : \Omega \subset \mathbb R^d \to \mathbb R$ such that:
+$$
+	\begin{cases}
+		- \Delta u = f & \qquad \text{in $\Omega$ (i.e. $\mathbf x \in \Omega$)}                      \\
+		u = 0          & \qquad \text{on $\partial \Omega$ (i.e. on $\mathbf x \in \partial \Omega$)}
+	\end{cases}
+$$
+where
+$$
+	\Delta u(\mathbf x) := \sum_{i = 1}^d \frac{\partial^2 u}{\partial x_i^2}(\mathbf x)
+$$
+is the \textit{Laplace operator}, the domain $\Omega \subset \mathbb R^d$ is endowed with boundary $\partial \Omega$, and $f = f(x)$ is the external forcing term.
+
+\textbf{Initial and boundary value problem in multidimensional domains $\Omega \subset \mathbb R^d$, with $d = 2, 3$}
+
+The multidimensional counterpart of the head equation reads: find $u: \Omega \times I \to \mathbb R$ such that
+$$
+	\begin{cases}
+		\dfrac{\partial u}{\partial t} - \mu \Delta u = f
+		                                  & \qquad
+		\mathbf x \in \Omega, t \in I                                                     \\
+		u(\mathbf x, t) = 0               & \qquad \mathbf x \in \partial \Omega, t \in I \\
+		u(\mathbf x, t_0) = u_(\mathbf x) & \qquad \mathbf x \in \Omega
+	\end{cases}
+$$
+where $u_0$ is the initial datum.
+
+\textbf{Classification of PDEs}
+
+A PDE is a relationship among the partial derivatives of a function $u = u(\mathbf x, t)$, the PDE solution (which typically depends on the spatial coordinates $\mathbf x = (x_1, \dots, x_d)^T \in \mathbb R^d$ if the problem is defined in a spatial domain $\Omega \subset \mathbb R^d$), and the time variable $t$.
+
+\begin{altbox}
+	In general, a PDE can be written as:
+	$$
+		\mathcal P \left( u, \frac{\partial u}{\partial t}, \frac{\partial u}{\partial x_1}, \dots, \frac{\partial u}{\partial x_d}, \dots, \frac{\partial^{p_1 + \dots + p_d + p_t} u}{\partial x_1^{p_1} \dots \partial x_d^{p_d} \partial t^{p_t}}, \mathbf x, t; g \right) = 0
+	$$
+
+	where $p_1, \dots, p_d, p_t \in \mathbb N$ and $g$ is the data.
+\end{altbox}
+The PDE \textit{order} is the maximum order of derivation that appears in $\mathcal P$, that is $q = p_1 + \dots + p_d + p_t$. The PDE is \textit{linear} if $\mathcal P$ linearly depends on $u$ and its derivatives.
+
+PDEs can be classified in three groups: \textit{elliptic}, \textit{parabolic}, and \textit{hyperbolic} PDEs.
+
+\subsection{Physical, mathematical, and numerical problem}
+
+In most cases, we cannot analytically solve a PDE. We have to use \textit{numerical methods} that allow to construct an approximation $u_h$ of the exact solution $u$, for which the corresponding error $u - u_h$ can be quantified or estimated.
+
+Here $h$ indicates a discretization parameter that characterizes the numerical approximation. Conventionally, the smaller is $h$, the better is the approximation of $u$ made by $u_h$ (that is, the error $u - u_h$ tends to zero as $h$ gets smaller).
+
+Let us consider a \textit{physical problem} (PP) endowed with a physical solution $u_{ph}$, and dependent on data $g$. The \textit{mathematical problem} (MP) is the mathematical formulation for the PP and has a mathematical solution $u$. We indicate the MP as
+$$
+	\mathcal P(u; g) = 0
+$$
+where $u \in \mathcal U$ and $g \in \mathcal G$, with $\mathcal U$ and $\mathcal G$ two suitable sets or spaces. The error between the physical and mathematical solution is called \textit{model error}, say $e_m := u_{ph} - u$.
+
+Before solving a MP, it is required to ensure that it is \textit{well-posed}.
+
+\begin{altbox}[title = Definition]
+	The MP $\mathcal P(u; g) = 0 $ is \textit{well-posed} if and only if there exists a unique solution $u \in \mathcal U$ that continuously depends on the data $g \in \mathcal G$.
+\end{altbox}
+
+$\mathcal G$ is the set of admissible data, i.e. those for which the MP admits a unique solution.
+
+The \textit{numerical problem} (NP) is an approximation of the MP. We indicate its numerical solution as $u_h$, where $h$ is a suitable \textit{discretization parameter}. We state the NP as
+$$
+	\mathcal P_h(u_h; g_h) = 0
+$$
+where $u_h \in \mathcal U_h$ and $g_h \in \mathcal G_h$, with $\mathcal U_h$ and $\mathcal G_h$ two suitable sets or spaces $g_h$ is the representation of the data in the NP. The error between the mathematical and numerical solution is called \textit{truncation error} $e_h := u - u_h$. This is the error that stems from the discretization of the MP.
+
+If the numerical solution is computed by execuuting the algorithm on a \textit{calculator}, then the final solution is $\hat u_h$ and is affected by the \textit{round-off error} $e_r := u_h - \hat u_h$. Both the truncation and round-off errors concur to determine the \textit{computational error}, say $e_c := u - \hat u_h = e_h + e_r$. For some NP, we can have $|e_r| << |e_h|$, for which $e_c \approx e_h$.
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/pp-mp-np.png}
+\end{figure}
+
+As for the MP, we have to ensure that the NP is well-posed and we have to assess the condition number of the NP.
+
+\begin{altbox}[title = Definition]
+	The NP $\mathcal P_h(u_h; g_h) = 0$ is \textit{well-posed} if and only if there exists a unique solution $u_h \in \mathcal U_h$ that continuously depends on the data $g_h \in \mathcal G_h$.
+\end{altbox}
+
+We are interested in NPs that allow to obtain computational errors that tend to zero as the discretization parameter $h$ goes to zero.
+
+\begin{altbox}[title = Definition]
+	The NP is \textit{convergent} when the computational error tends to zero as $h$ tends to zero, that is
+	$$
+		\lim_{h \to 0} e_c = 0
+	$$
+\end{altbox}
+
+A crucial aspect is to determine the \textit{convergence order} of the the NP.
+
+\begin{altbox}[title = Definition]
+	If $|e_c| \leq C h^p$, with $C$ positive constant independent of $h$ and $p$, then the NP is convergent with \textit{order} $p$.
+\end{altbox}
+
+Note that a well-posed NP is not necessarily convergent. To ensure convergence of the NP, this must satisfy the \textit{consistency} property: the NP must be a "faithful copy" of the original MP.
+
+\begin{altbox}[title = Definition, parbox=false]
+	The NP is \textit{consistent} if and only if $\lim_{h \to 0} \mathcal P_h (u; g) = \mathcal P(u; g) = 0$, with $g \in \mathcal G_h$.
+
+	The NP is \textit{strongly consistent} if and only if $\mathcal P_h (u; g) \equiv \mathcal P(u; g) = 0$ for all $h > 0 $, with $g \in G_h$.
+\end{altbox}
+
+It is clear that the NP must be well-posed, consistent, and convergent. The concepts of well-posedness and convergence are indeed strongly connected and encoded in the following theoretical result.
+
+\begin{altbox}[title = Theorem: equivalence]
+	If the NP $\mathcal P_h(u_h; g_h) = 0$ with $u_h \in \mathcal U_h$ and $g_h \in \mathcal G_h$ is consistent, then it is well-posed if and only if it is also convergent.
+\end{altbox}
+
+It follows that, if the NP is well-posed and consistent, then the NP is also convergent. Equivalently, if the NP is consistent and convergent, then the NP is also well-posed. The equivalence theorem is very useful as it allows us to verify only two of the properties of a NP to obtain the third.
