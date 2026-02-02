@@ -1,0 +1,133 @@
+\section{GPGPU Computing}
+
+A Graphics Processing Unit (GPU) is a full device equipped with a highly parallel microprocessor (many-core) and a high bandwidth private memory:
+
+\begin{itemize}
+	\item High streaming throughput
+	\item Fine-grain SIMD parallelism
+	\item Low-latency floating point (FP) computation
+\end{itemize}
+
+Born in response to the growing demand for high-definition 3D rendering graphic applications, as they are specialized for parallel intensive computation. All operations are performed in parallel by the GPU using a large number of \textbf{threads} processing all data independently.
+
+The target of a GPU is the \textbf{throughput}, not \textbf{latency} (as for CPUs).
+
+Many scientific/technical applications process large data sets and use data-parallel programming models to speed up the computation. GPU graphics API were not suitable to scientific applications, but the idea remained valid $\implies$ General Purpose GPU computing (GPGPU)
+
+\subsection{GPGPU programming model}
+
+The GPU (device) serves as a \textbf{coprocessor} for the CPU (host):
+
+\begin{itemize}
+	\item CPU and GPU are separate devices, with separate memory addresses
+	\item The GPU has its own high-bandwidth memory
+	\item CPU and GPU should work together for maximum performance
+\end{itemize}
+
+Serial parts of a program run on the CPU (host), but \textbf{computation-intensive} and \textbf{data-parallel} parts are offloaded to the GPU (device). Data is moved between device memory and host memory when needed.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250702163042.png}
+\end{figure}
+
+The data movement between CPU and GPU is the main bottleneck:
+
+\begin{itemize}
+	\item Low bandwidth with respect to internal CPU and GPU since it exploits PCI Express
+	\item Relatively high latency
+	\item Data transfer can take more than the actual computation
+\end{itemize}
+
+This is especially a problem when porting CPU applications to GPGPU:
+
+\begin{itemize}
+	\item Ignoring or not treating data movement seriously destroys GPU performance benefits.
+	\item Some programming solutions may hide/automate data transfer
+\end{itemize}
+
+\subsection{CUDA basics}
+
+CUDA is a parallel computing architecture and programming model that expose the computational horsepower of \textbf{NVIDIA GPUs}. It has its own C/C++/Fortran compiler and enables GPGPU computing with minimal effort:
+
+\begin{itemize}
+	\item Write a program for one thread
+	\item Instantiate it on many parallel threads
+	\item Low learning curve, no knowledge of graphics is required
+\end{itemize}
+
+The programming model evolves to reflect the underlying hardware architecture.
+
+A function which runs on a GPU is called \textbf{kernel}:
+
+\begin{itemize}
+	\item When a kernel is launched on a GPU, thousands of threads will execute its code
+	\item The programmer decides the number of threads
+	\item Each thread acts on different data elements independently
+\end{itemize}
+
+\subsection{CUDA thread hierarchy}
+
+\begin{itemize}
+	\item Threads are grouped together in blocks
+	\item Blocks are grouped together in grids
+	\item Blocks and grids are organized as N-dimensional (up to 3) arrays
+\end{itemize}
+
+Threads that belong to the same block can cooperate through shared memory (SM). IDs are used to identify threads and blocks.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/Pasted image 20250702164349.png}
+\end{figure}
+
+Dividing threads into blocks improves scalability.
+
+\subsection{Warp scheduling}
+
+Blocks are divided in warps. \textbf{Warps} are scheduling units on the SM. All threads in a warp execute the same instruction (SIMD):
+
+\begin{itemize}
+	\item Control unit for instruction fetch, decode, and control is shared among multiple processing units.
+	\item Control overhead is minimized.
+\end{itemize}
+
+\subsection{Control divergence}
+
+Control divergence occurs when threads in a warp take different control flow paths by making different control decisions (is/else, different number of loop iterations).
+
+The execution of threads taking different paths are serialized in current GPUs:
+
+\begin{itemize}
+	\item The control paths taken by the threads in a warp are traversed one at a time
+	\item During the execution of each path, only the threads taking that path will be executed in parallel
+\end{itemize}
+
+\subsection{CUDA memory hierarchy}
+
+Three types of memory are available, matching the hardware architecture:
+
+\begin{itemize}
+	\item Per-thread Private Local Memory (Registers)
+	\item Per-block Shared Memory (Cache)
+	\item Global Memory (off-chip DRAM)
+\end{itemize}
+
+Host can transfer data to/from global memory.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/Pasted image 20250702172056.png}
+\end{figure}
+
+\subsection{GPU execution model}
+
+A GPU kernel is invoked:
+
+\begin{itemize}
+	\item Each thread block is assigned to a SM
+	\item When a block completes, the runtime system assigns another one to the SM
+	\item Threads within a block are divided in warps
+	\item The scheduler selects warps for execution on the SM cores
+\end{itemize}
+

@@ -1,0 +1,177 @@
+\section{Instruction Level Parallelism}
+
+Pipelining overlaps the execution of instructions, exploiting the \textbf{instruction level parallelism}. The goal is to maximize the throughput, instructions per clock (IPC), and minimize the clocks per instructions (CPI). Pipelining improves instructions throughput, but not the latency of the single instruction.
+
+Determining \textbf{dependencies} among instructions is critical to define the amount of parallelism existing in a program. If two instructions are \textit{dependent} on each other, they cannot be executed in parallel, they must be executed in order, or only partially overlapped. There are three different types of dependencies in a code:
+
+\begin{enumerate}
+	\item \textbf{True data dependencies} - Instruction $j$ is dependent on some data produced by a previous instruction $i$;
+	\item \textbf{Name Dependencies} - Two instructions use the same register or memory location;
+	\item \textbf{Control dependencies} - Seen in Section \ref{sec:control-hazards}. They impose the order of instructions.
+\end{enumerate}
+
+\subsection{Name dependencies}
+
+A \textbf{name dependency} occurs when two instructions use the same register or memory location, but there is no flow of data between the instructions associated with that name.
+
+Name dependencies are \textit{not} true data dependencies, since there is no value (no data flow) being transmitted between the two instructions, here it's just a \textbf{register reuse}.
+
+Consider instruction $I_{i}$ that precedes instruction $I_{j}$ in the program order. There are two types of name dependencies:
+
+\begin{itemize}
+
+	\item \textbf{Anti-dependencies} - When $I_{j}$ writes in a register or memory location that instruction $I_{i}$ reads, it can generate a \textbf{Write After Read (WAR) hazard}. Original instructions ordering must be preserved to ensure that $I_{i}$ reads the previous value.
+	      \begin{align*}
+		      I_{i}: \quad & r_{3} \gets \textcolor{red}{r_{1}} \text{ operation } r_{2} \\
+		      I_{j}: \quad & \textcolor{red}{r_{1}} \gets r_{4} \text{ operation } r_{5}
+	      \end{align*}
+
+	\item \textbf{Output dependencies} - When $I_{i}$ and $I_{j}$ write in the same register or memory location, it can generate a \textbf{Write After Write (WAW) hazard}. Original instructions ordering must be preserved to ensure that the value finally written corresponds to $I_{j}$.
+	      \begin{align*}
+		      I_{i}: \quad & \textcolor{red}{r_{3}} \gets r_{1} \text{ operation } r_{2} \\
+		      I_{j}: \quad & \textcolor{red}{r_{3}} \gets r_{6} \text{ operation } r_{7}
+	      \end{align*}.
+\end{itemize}
+
+We can solve name dependencies with \textbf{register renaming}: if the register used can be changed, then the instructions do not conflict anymore. This can be easily done if there are enough registers available in the ISA (instruction set architecture). It can be either done statically by the compiler, or dynamically by the hardware.
+
+On the other side, dependencies through memory locations are more difficult to detect (\textit{memory disambiguationi} problem), since two addresses may refer to the same location but can look different.
+
+A dependency of this kind can potentially generate an hazard, but the number of stalls to eliminate the hazard are part of the pipeline architecture (dependencies are a property of the \textit{program}, while hazards are a property of the \textit{architecture}).
+
+In order for a program to be correct, it is necessary to respect these two critical \textbf{properties} (normally preserved by maintaining both data and control dependencies during scheduling):
+
+\begin{enumerate}
+	\item \textbf{Data flow}: the actual flow of data values among instructions that produces the correct results and consumes them;
+	\item \textbf{Exception behavior}: preserving this property means that any changes in the ordering of instruction execution  must not change how exception are raised in the program.
+\end{enumerate}
+
+\subsection{Multi-cycle pipelining}
+
+We will uses these basic assumptions:
+
+\begin{itemize}
+	\item We consider \textbf{single-issue} processors (one instruction issued per clock);
+	\item Instructions are \textbf{issued in-order};
+	\item The \textbf{execution stage} might require multiple cycles latency, depending on the operation type;
+	\item \textbf{Memory stages} might require multiple cycles access time due to instruction and data cache misses.
+\end{itemize}
+
+\subsubsection{Multi-cycle in-order pipeline}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/Pasted image 20250504233529.png}
+\end{figure}
+
+We se that, with this technique, the instructions are issued in-order, and committed in-order. This avoids the generation of WAR and WAW hazards, and preserves the precise exception model.
+
+\subsection{Multi-cycle out-of-order pipeline}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250504233628.png}
+\end{figure}
+
+We can see the following characteristics:
+\begin{itemize}
+	\item The ID stage is split in 2 stages: \textit{instruction decode} (ID) and \textit{Issue} (read registers);
+	\item There are multiple functional units with variable latency;
+	\item There exist multi-cycle floating-point instructions with long latency;
+	\item The memory systems have variable access time, multi-cycle memory accesses due to data cache misses (unpredictable statically);
+	\item No more commit point: out-of-order commit (instructions are still issued in-order). There is the need to check for WAR and WAW hazards and imprecise exceptions.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/Pasted image 20250515181045.png}
+\end{figure}
+
+\subsection{Dynamic scheduling}
+
+Hazards due to true data dependencies that cannot be solved by forwarding cause \textbf{stalls} of the pipeline. This means that no new instructions are fetched nor issued, even if they are not data dependent.
+
+The \textbf{solution} is to allow data independent instructions behind a stall to proceed. The hardware manages dynamically the instruction execution to reduce stalls: an instruction execution begins as soon as their operands are unavailable. This generates out-of-order execution and completion.
+
+\begin{altbox}[title = Example]
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1\textwidth]{images/Pasted image 20250515182211.png}
+	\end{figure}
+
+	Here \texttt{ADDD} \textit{stalls} for RAW hazard on \texttt{\$f0} (waiting many clock cycles for \texttt{DIVD} commit), \texttt{SUBD} would stall even if not data dependent on any previous instruction.
+
+	Instead, we to enable \texttt{SUBD} to proceed. This generates \textit{out-of-order execution}.
+\end{altbox}
+
+\subsection{Imprecise exceptions}
+
+An exception is \textbf{imprecise} if the processor state when an exception is raised does not look exactly as if the instructions were executed in-order.
+
+Imprecise exceptions can occur \textit{out-of-order} because:
+
+\begin{itemize}
+	\item The pipeline may have \textit{already} completed instructions that are \textit{later} in the program order than the instruction causing the exception.
+	\item The pipeline may have \textit{not yet} completed some instructions that are \textit{earlier} in the program order than the instruction causing the exception.
+\end{itemize}
+
+Imprecise exception make it difficult to restart execution after handling.
+
+\subsection{Multiple-issue processors}
+
+A scalar pipeline (the one seen up until now) is limited to a $CPI_{\text{ideal}} = 1$. That is, it can never fetch and execute more than \textit{one instruction per clock} (single-issue). It can be even worse due to \textit{stalls} added to solve hazards.
+
+To reach higher performance, we need \textbf{multiple-issue}. It means fetching and executing \textit{more than one} instruction per clock.
+
+Instruction dependencies must be detected and solved: instructions must be \textit{re-ordered} (\textbf{scheduling}) to achieve the highest instruction level parallelism given the available resources:
+$$
+	IPC_{\text{ideal}} > 1 \implies CPI_{\text{ideal}} < 1
+$$
+
+\begin{altbox}[title = Example: dual-issue pipeline]
+
+	With a 2-issue 5-stage pipeline there are 2$\times$5 different instructions overlapped:
+
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{images/Pasted image 20250515184153.png}
+	\end{figure}
+
+\end{altbox}
+
+\subsubsection{Dynamic scheduling}
+
+\textbf{Dynamic scheduling} can be applied to both \textit{single-issue} scalar processor and \textit{multi-issue} processors (\textit{superscalars}). However, multiple-issue pipelines have disadvantages:
+
+\begin{itemize}
+	\item Very complex logic and cost to check and manage dependencies at runtime (i.e., to decide with instructions can be issued at every clock cycle).
+	\item Cycle time limited by scheduling logic (dispatcher and associated dependency-checking logic).
+	\item It does not scale well. It is almost impractical to make the issue-width greater than 4.
+\end{itemize}
+
+\subsubsection{VLIW (Very Long Instruction Word) and static scheduling}
+
+VLIW processors issue a fixed number of instructions formatted either as one large instruction, or as a fixed instruction packet with parallelism among instructions explicitly indicated by the instruction.
+
+VLIW relies on the compiler to schedule the code for the processor. This makes it similar to static scheduling, although static scheduling issues a varying (rather than a fixed) number of instructions per clock.
+
+The advantages of VLIW increases as the maximum issue rate grows. Static scheduling, on the other hand, is typically used for narrow issue width, as their advantages diminish as the issue width grows.
+
+These are the main disadvantages of static scheduling:
+
+\begin{itemize}
+	\item \textbf{Unpredictable branch behavior}: the code parallelization is limited to basic blocks;
+	\item \textbf{Unpredictable cache behavior}: variable memory latency for hits/misses;
+	\item \textbf{Complexity of compiler technology}: the compiler needs to find a lot of parallelism in order to keep the multiple functional units of the processors busy;
+	\item \textbf{Code size explosion} duo to insertion of NOPs;
+	\item \textbf{Low code portability and binary code incompatibility}: consequence of the larger exposure of the microarchitecture (implementation details) at the compiler in the generated code;
+	\item \textbf{Low performance portability}.
+\end{itemize}
+
+\subsection{ILP Limitations}
+
+The \textbf{issue width} is the number of instructions that can be issued in a single cycle by a \textit{multiple-issue} processor.
+
+When superscalars were invented, 2- and rapidly 4-issue width processors were created. However, due to the intrinsic level of parallelism of a program, it is hard to decide which 8, or 16, instructions can execute every cycle.
+
+The solution is to \textit{introduce more levels of parallelism}.

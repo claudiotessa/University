@@ -1,0 +1,7 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{LastOf0}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{ExScanOf1}\PYG{p}{[}\PYG{n}{last}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{;}
+\PYG{k}{if}\PYG{p}{(}\PYG{n}{InitialMask}\PYG{p}{[}\PYG{n}{i}\PYG{p}{])}
+\PYG{+w}{    }\PYG{n}{out}\PYG{p}{[}\PYG{n}{ExScanOf1}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{n}{LastOf0}\PYG{p}{]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{DataInput}\PYG{p}{[}\PYG{n}{i}\PYG{p}{];}
+\PYG{k}{else}
+\PYG{+w}{    }\PYG{n}{out}\PYG{p}{[}\PYG{n}{ExScanOf0}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]]}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{DataInput}\PYG{p}{[}\PYG{n}{i}\PYG{p}{];}
+\end{MintedVerbatim}

@@ -1,0 +1,29 @@
+\section{SIMD processing}
+
+SIMD (Single Instruction Multiple Data) is a parallel processing technique that increases compute capabilities by performing the exact same operation on multiple ALUs in parallel.
+
+the idea is to amortize the cost and complexity of managing instructions across many ALUs.
+
+The compiler understands if loop iterations are independent, and it maps that logic onto each ALU to make use of SIMD processing capabilities within a core.
+
+However, the fact that SIMD makes it such that all ALUs must receive the exact same command at the same time creates a problem when the code contains an \texttt{if} statement. Let's say we have 8 ALUs in a core, and 3 loop iterations will evaluate their \texttt{if} to true while 5 to false. In this case, the hardware cannot physcally branch in two directions at once, as it has only one instruction decoder.
+
+Instead of branching, SIMD processors use a techinique called \textbf{masking} to execude the code linearly.
+The processor checks the condition for all 8 elements simultaneously, then creates a \textbf{mask} of true/false values (e.g., \texttt{[T T F T F F F F]}).
+
+When the processor broadcasts the instructions to \textit{everyone}, the \textbf{active ALUs (True)} perform the calculations, while the \textbf{inactive ALUs (False)} receive the instruction but discard the output of the calculations. If there is an \texttt{else} block, the processor flips the maps and broadcasts the instructions again.
+
+\begin{altbox}[title = Terminology]
+	\textbf{Instruction stream coherence} ("coherent execution") is a property of a program the same sequence of instructoins applies to many data elements.
+
+	This is \textbf{necessary} for efficient SIMD processing because SIMD hardware broadcasts one instruction to all ALUs.
+
+	It is however \textbf{not necessary} for efficient parallelization across different cores, since each core has the capability to fetch/decode a different instruction from their thread instruction stream.
+\end{altbox}
+
+\subsection{Implicit SIMD}
+
+\textbf{Implicit SIMD} is used on modern GPUs, which means that the programmer writes standard "scalar" code, and then the compiler also generates a standard binary with scalar instructions.
+
+The \textbf{hardware} is then responsible for simultaneously executing the same instruction from multiple program instances on different data on SIMD ALUs.
+

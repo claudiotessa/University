@@ -1,0 +1,81 @@
+\section{Scoreboard dynamic scheduling algorithm}
+
+In the case of the simple scalar pipeline, hazards due to true data dependences that cannot be solved by forwarding cause the stall of the pipeline. No new instructions can be fetched nor issued even if there are not data dependencies in the new instructions.
+
+The solution is to allow data independent instructions behind a stall to proceed. The hardware rearranges dynamically the instruction execution to reduce stalls. This causes out-of-order execution and out-of-order commit.
+
+The \textbf{scoreboard} is a dynamic scheduling algorithm (implemented at the hardware level). We will make use of the following basic assumptions:
+
+\begin{itemize}
+	\item We consider a single-issue processor;
+	\item In-order issue;
+	\item Instruction execution begins as soon as operands are ready, whenever not dependent on previous instructions (no RAW hazards);
+	\item There are multiple pipelined Functional Units with variable latencies;
+	\item Execution stage might require multiple cycles, depending on the operation type and latency;
+	\item Memory stage might require multiple cycles access time due to data cache misses.
+\end{itemize}
+
+This means that there is out-of-order execution and out-of-order commit, which introduces the possibility of WAR and WAW hazards.
+
+\subsection{Scoreboard basics}
+
+Scoreboard allows data independent instructions behind a stall to proceed, not waiting for previous instructions.
+
+In the time between when an instruction begins execution and when in completes execution, the instruction is in execution. The scoreboard pipeline allows multiple instructions in execution at the same time, meaning that it requires multiple pipelined functional units.
+
+\subsection{Scoreboard pipeline stages}
+
+Scoreboard divides the ID stage in two stages:
+
+\begin{enumerate}
+	\item \textbf{Issue} - Decode instructions and check for structural hazards;
+	\item \textbf{Read Operands} - Wait until not dependent on previous instructions and no data hazards, then read operands.
+\end{enumerate}
+
+Scoreboard allows instructions to execute whenever both stages 1 and 2 hold, not waiting for prior instructions to complete.
+
+Scoreboard keeps track of dependencies and the state of parallel ongoing operations. Instructions pass through the issue stage \textit{in-order}, but they can be stalled or bypass each other in the read operand stage (out-of-order read operands). Then instructions enter \textit{execution out-of-order} and have different latencies, which implies \textit{out-of-order commit}.
+
+There are multiple instructions in the execution phase, meaning that there are multiple pipelined execution units. Also, there is no register renaming, as this would be a compile time technique.
+
+The fact that there is out-of-order commit means that \textit{WAR and WAW hazards can occur}. To \textit{solve WAR} hazards, we read registers only during the Read Operands stage, and we stall Write Back until the previous registers have been read. To \textit{solve WAW} hazards, we detect the WAW hazard and stall the issuing of new instructions until previous instruction causing WAW completes.
+
+\subsection{Scoreboard scheme}
+
+Any hazard detection and resolution is \textbf{centralized} in the scoreboard. Every instruction goes through the scoreboard, where a record of data dependencies is constructed. The scoreboard then determines when the instruction can read its operand and begin execution (check for RAW).
+
+If the scoreboard decides that the instruction cannot execute immediately, it monitors every change and decides \textit{when} the instruction can execute. The scoreboard also controls \textit{when} the instruction can write its result into the destination register (check for WAR and WAW).
+
+The idea of the scoreboard is to keep track of the status of instructions, functional units, and registers.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/Pasted image 20250518182819.png}
+\end{figure}
+
+The scoreboard control has \textbf{4 stages}:
+
+\begin{enumerate}
+	\item \textbf{Issue} - Decode instruction and check for structural hazards and WAW hazards. The instructions are issued in program order (for hazard checking).
+	      \begin{itemize}
+		      \item If a functional unit (FU) for the instruction is available (\textit{no structural hazard}) and no other active instruction has the same destination register (\textit{no WAW hazard}), then the scoreboard issues the instruction to the FU and updates its data structure.
+		      \item If either a \textit{structural hazard} or a \textit{WAW hazard} exists, then the instruction issue stalls, and no further instruction will issue until these hazards are solved.
+	      \end{itemize}
+	\item \textbf{Read Operands} - Wait until there are no RAW hazards, then read operands. Check for structural hazards in reading ports of RF. \\
+	      A source operand is available if:
+	      \begin{itemize}
+		      \item  no earlier issued active instruction will write it; or
+		      \item a functional unit is writing its value in a register.
+	      \end{itemize}
+	      When the source operands are available, the scoreboard tells the FU to proceed to read the operands from the RF and begin execution. \\
+	      RAW hazards are solved dynamically in this step: there is \textit{out-of-order} reading of operands, and instructions are sent into execution \textit{out-of-order} (no data forwarding).
+	\item \textbf{Execution} - The FU begins execution upon receiving operands. When the result is ready, it notifies the scoreboard that the execution has been completed. \\
+	      FUs are characterized by \textit{variable latencies} to complete execution. The load/store latency depends on data cache HIT/MISS times. Therefore, there is \textit{out-of-order execution}.
+	\item \textbf{Write result} - Check for WAR hazards on destination, check for structural hazards in writing RF, and finish execution.
+	      Once the scoreboard is aware that the FU has completed execution, the scoreboard \textit{checks for WAR hazards}:
+	      \begin{itemize}
+		      \item If none, it writes the results.
+		      \item If there is a WAR, then the scoreboard stalls the completing instruction.
+	      \end{itemize}
+
+\end{enumerate}

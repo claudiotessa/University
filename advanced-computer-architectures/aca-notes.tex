@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+    parbox=false,
+    breakable
+}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+\usepackage{minted}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
+
+% Page setup
+\geometry{a4paper, margin=1in}
+
+% Title
+\title{ADVANCED COMPUTER ARCHITECTURES}
+\author{Claudio Tessa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+\input{sections/pipelining.tex}
+\input{sections/control-hazards.tex}
+\input{sections/parallelism.tex}
+\input{sections/scoreboard.tex}
+\input{sections/tomasulo.tex}
+\input{sections/vliw.tex}
+\input{sections/memory-hierarchy.tex}
+\input{sections/multithreading.tex}
+\input{sections/data-level-parallelism.tex}
+\input{sections/gpgpu.tex}
+
+\end{document}

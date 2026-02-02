@@ -1,0 +1,148 @@
+\section{Pipelining: basic concepts}
+
+\textit{Pipelining} is an implementation technique where multiple instructions are overlapped in execution. Like an assembly line, every step of the pipeline completes a part of an instruction.
+
+\subsection{RISC-V instruction set}
+
+RISC architectures are characterized by a few key \textbf{properties}:
+\begin{itemize}
+	\item All operations on data apply to data in registers and change the entire register.
+	\item The only operations that affect memory are load and store operations.
+	\item The instruction formats are few in number.
+\end{itemize}
+These simple properties lead to dramatic simplification in the implementation of the pipelining.
+
+There are three classes of instructions:
+\begin{enumerate}
+	\item \textbf{ALU instructions} - These instructions take two registers (or a register and a sign-extended immediate), operate on them, and store the result into a third register.
+	      \begin{itemize}
+		      \item \texttt{add rd, rs1, rs2} $\iff$ \texttt{rd = rs1 + rs2}
+		      \item \texttt{addi rd, rs1, 4} $\iff$ \texttt{rd = rs1 + 4}
+	      \end{itemize}
+	\item \textbf{Load and store instructions} - These instructions take a register source and an immediate, called \textit{offset}. The sum of the content of the source register and the offset is used as the memory address. Another register is also taken to performing the operation.
+	      \begin{itemize}
+		      \item \texttt{ld rd, offset (rs1)} $\iff$ \texttt{rd = Memory[rs1 + offset]}
+		      \item \texttt{sd rs2, offset (rs1)} $\iff$ \texttt{Memory[rs1 + offset] = rs2}
+	      \end{itemize}
+	\item \textbf{Branches and Jumps} - Branches are conditional transfers of control, while jumps are unconditional.
+	      \begin{itemize}
+		      \item \texttt{beq rs1, rs2, L1} $\iff$ \texttt{if (rs1 == rs2) then go to L1}
+		      \item \texttt{j L1} $\iff$ \texttt{go to L1}
+	      \end{itemize}
+\end{enumerate}
+\subsection{Phases of execution of RISC-V instructions}
+
+Every instruction takes at most 5 clock cycles. The 5 clock cycles are as follows:
+\begin{enumerate}
+	\item \textbf{IF (Instruction Fetch)} - Send the program counter (PC) to memory and fetch the current instruction from memory. Update the PC to the next sequential PC by, adding 4 as every instruction is 4 bytes long in memory.
+	\item \textbf{ID (Instruction Decode)} - Decode the instruction and read the registers specified in the instruction. Decoding is done in parallel with reading registers.
+	\item \textbf{EX (execution)} - The ALU operates on the operands prepared in the previous cycle.
+	\item \textbf{MEM (Memory Access)} - Based on the instruction, the memory writes or reads data using the effective address computed in the previous cycle.
+	\item \textbf{WB (Write Back)} - Register-Register ALU instruction or lead instruction
+\end{enumerate}
+
+\subsection{RISC-V Pipelining}
+
+Instead of executing every instruction sequentially, as follows:
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250427230816.png}
+\end{figure}
+
+we can pipeline the execution by simply starting a new instruction on each clock cycle:
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250427230935.png}
+\end{figure}
+
+Each of the clock cycles now becomes a \textit{pipe stage}. Although each instruction takes 5 clock cycles to complete, during each clock cycle the hardware will initiate a new instruction.
+
+However, we must ensure that the instructions in different stages of the pipeline do not interfere with one another. This separation is done by introducing \textbf{pipeline registers} between successive stages of the pipeline, so that at the end of a clock cycle all the results from a given stage are stored into a register that is used as the input to the next stage on the next cycle.
+
+\subsection{Pipeline Hazards}
+
+A \textbf{hazard} (conflict) is a situation that prevents the next instruction from executing during its designated clock cycle. Hazards reduce the performance from the ideal speedup gained by pipelining. There are three classes of hazards:
+
+\begin{enumerate}
+	\item \textbf{Structural hazards} - Attempt to use the same resource from different instructions simultaneously.
+	\item \textbf{Data hazards} - Attempt to use a result before it is ready.
+	\item \textbf{Control hazards} - Attempt to make a decision on the next instruction to execute before the condition is evaluated.
+\end{enumerate}
+
+Hazards in the pipeline can make it necessary to \textit{stall} the pipeline.
+
+Note that there are \textit{no} structural hazards in the RISC-V architecture, as the instruction memory is separated from the data memory, and the same register can be read and written in the same clock cycle by different instructions.
+
+\subsection{Data Hazards}
+
+Data hazards can arise when instructions that are dependent on each other are \textit{too close} in the pipeline. Data hazards generate \textbf{Read After Write (RAW)} hazards in the pipeline. RAW hazards happen when instruction $n+1$ tries to read a source operand before the previous instruction $n$ has written its value in said register.
+
+\textbf{Example}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/Pasted image 20250428004558.png}
+\end{figure}
+
+We will assume that the RF (register file) reads from registers in the second half of the clock cycle and writes to registers in the first half of the clock cycle. In this way, it is possible to read and write the same register in the same clock cycle without any stall.
+
+Now, to solve the data hazard problem, we can use different techniques:
+
+\begin{itemize}
+	\item \textbf{Compilation techniques} (\textit{static-time techniques}) - They must be implemented before running the program, at compile time.
+
+	      \begin{itemize}
+		      \item Insertion of \texttt{nop} (no operation) instructions. A \texttt{nop} effectively makes the processor "wait" (by executing empty instructions) one clock cycle. Enough \texttt{nop} can be inserted until the hazard is no longer there.
+		      \item Instruction scheduling to avoid that correlating instructions are too close. The compiler tries to insert independent instructions among correlated instructions, otherwise inserts \texttt{nop}.
+	      \end{itemize}
+
+	\item \textbf{Hardware techniques} (\textit{runtime techniques}) - Can be implemented directly at runtime when an hazard is detected.
+
+	      \begin{itemize}
+		      \item Insertion of \textit{stalls} in the pipeline. Stalls effectively make the pipeline wait a few clock cycles until the current instruction finishes and the hazard is no longer there. They are analogous in performance to \texttt{nop} instructions, but they stop the instructions at any stage, rather than just making the processor wait before starting a new instruction.
+		      \item Data forwarding or bypassing. It works by using temporary results stored in the pipeline registers instead of waiting for the write back of results in the RF. In other words, the result from the ALU can be fed back in the ALU at the next stage, rather than waiting for it to be stored and then read from a register.
+	      \end{itemize}
+
+\end{itemize}
+
+\subsection{Performance Evaluation Of Pipelines}
+
+To evaluate the performance we use the following metrics: \textbf{IC} (Instruction Count), \textbf{CPI} (Clocks Per Instructions), and \textbf{IPC} (Instructions Per Clock):
+
+\begin{itemize}
+	\item $\text{CPI} = \dfrac{\text{IC + stalls + 4}}{IC}$
+	\item $\text{IPC} = \dfrac{1}{\text{CPI}}$
+	\item $\text{MIPS} = \dfrac{f_{\text{clock}}}{\text{CPI} \cdot 10^{6}}$, where
+	      \begin{itemize}
+		      \item $f_{\text{clock}}$ is the frequency of the clock
+		      \item MIPS stands for Millions of Instructions per Second
+	      \end{itemize}
+\end{itemize}
+
+\begin{altbox}[title = Example]
+
+	Let's evaluate the performance of a loop. Consider $n$ iterations of a loop composed of $m$ instructions per iteration, requiring $k$ stalls per iteration:
+
+	\begin{itemize}
+		\item $\text{IC}_{\text{per\_iter}}= m$
+		\item $\text{CPI}_{\text{per\_iter}} = \dfrac{ \text{IC}_{\text{per\_iter}} + \text{stalls}_{\text{per\_iter}} + 4 }{ \text{IC}_{\text{per\_iter}} } = \dfrac{m+k+4}{m}$
+		\item $\text{MIPS}_{\text{per\_iter}} = \dfrac{ f_{\text{clock}} }{ \text{CPI}_{\text{per\_iter}} \cdot 10^{6} }$
+	\end{itemize}
+
+	Let's now evaluate the \textit{asymptotic} performance on the same loop:
+
+	\begin{itemize}
+		\item $\text{IC}_{\text{AS}} = m\cdot n$
+		\item $\text{CPI}_{\text{AS}} = \lim_{ n \to \infty }{\dfrac{\text{IC}_{\text{AS}} + \text{stalls}_{\text{AS}} + 4}{\text{IC}_{\text{AS}}}} = \lim_{ n \to \infty }{\dfrac{m\cdot n + k\cdot n + 4}{m \cdot n}} = \dfrac{m + k}{m}$
+		\item $\text{MIPS}_{\text{AS}} = \dfrac{f_{\text{clock}}}{\text{CPI}_{\text{AS}} \cdot 10^6}$
+	\end{itemize}
+
+\end{altbox}
+
+Overall, the \textit{ideal} CPI on a pipelined processor would be 1, but stalls cause the pipeline performance to degrade from the ideal performance, so we have:
+
+$$
+	\text{CPI}_{\text{avg}} = \dfrac{\text{CPI}_{\text{ideal}} + \text{Pipe Stall Cycles per Instruction}}{1 + \text{Pipe Stall Cycles per Instruction}}
+$$
+
+Pipeline stall cycles per instructions are due to structural hazards, data hazards, control hazards, and memory stalls.
+

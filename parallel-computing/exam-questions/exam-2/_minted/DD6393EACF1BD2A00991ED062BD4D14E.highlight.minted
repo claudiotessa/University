@@ -1,0 +1,9 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}pragma omp parallel \PYGZob{}}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}pragma omp single \PYGZob{}}
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task \PYGZob{} Task1(); \PYGZcb{}}
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task \PYGZob{} Task2(); \PYGZcb{}}
+\PYG{+w}{        }\PYG{n}{Task3}\PYG{p}{();}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

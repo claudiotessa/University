@@ -1,0 +1,66 @@
+\section{Exercises 1}
+
+\num Please describe how the Pack parallel pattern works. How is it implemented (pseudo code and PRAM complexity required)?
+
+\begin{tcolorbox}
+	Used to eliminate unused elements from a collection:
+
+	\begin{enumerate}
+		\item Convert input array of Booleans into integer 0s and 1s;
+		\item Perform an exclusive scan of this array with the SUM operation;
+		\item Write values in the output array based on the offset
+	\end{enumerate}
+
+
+
+	\begin{minted}{cpp}
+        if(InitialMask[i])
+            out[ExScanOf1[i]] = input[i];     
+    \end{minted}
+
+	If executed on $N$ execution units, step 1 and 2 have a complexity of $O(1)$, while step 2 has a time complexity of $O(\log N)$, therefore the total time complexity is $O(\log N)$. Work is $O(N)$.
+\end{tcolorbox}
+
+\num Consider the following nested loop:
+
+\begin{minted}{text}
+    for (j = 0; j < 999; j++) {
+        for (i = 2; i < 999; i++) {
+            a[i][j] = f(a[i-2][j]);
+        }
+    }
+\end{minted}
+
+Evaluate the cache-friendliness of this code and consider its relationship to parallelizability. How does the memory layout of the array affect performance, and what changes could improve cache utilization vs parallelizability? Justify your answer. Assume that \texttt{a} stores integers.
+
+\begin{tcolorbox}
+    Original code is fully parallelizable with respect to loop \texttt{j} if function \texttt{f} is safe and it is partially parallelizable with respect to loop \texttt{i}. 
+
+    The original code is poor with respect to cache friendliness because the variable \texttt{a} is accessed column-wise. Swapping the two loops fixes cache friendliness. Tiling could be another approach to improve cache friendliness and parallel computation
+\end{tcolorbox}
+
+\num Please describe the parallel gather pattern, including assumptions, complexity, and examples.
+
+\begin{tcolorbox}
+    Given a collection of ordered indices, read data from the source collection at each index, and write data to the output collection in index order. It can be seen as the inverse of scatter.
+
+    Typically assumes a CREW PRAM (Concurrent Read, Exclusive Write) model to allow multiple threads to read from the same source location simultaneously.
+
+    Time complexity is $O(1)$ since all reads happen in parallel. Work is $O(N)$, one operation per element.
+
+   An \textbf{example} is rotating an image: the new target pixel need to \textit{gather} the color from the source pixel.
+\end{tcolorbox}
+
+\num Please describe how the Split parallel pattern works. How is it implemented (pseudo code required)?
+
+\begin{tcolorbox}
+    Split rearranges data so that all elements of the input are moved to either the lower or upper part of the output collection, given on a boolean collection that tells in which of the two portions an element will go. Relative ordering withing the lower/upper half is kept.
+
+    \begin{minted}[autogobble]{cpp}
+        LastOf0 = ExScanOf1[last] + 1;
+        if(InitialMask[i])
+            out[ExScanOf1[i] + LastOf0] = DataInput[i];
+        else
+            out[ExScanOf0[i]] = DataInput[i];
+    \end{minted}
+\end{tcolorbox}

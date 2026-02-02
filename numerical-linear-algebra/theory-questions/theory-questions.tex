@@ -1,0 +1,60 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+    parbox=false,
+    breakable
+}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+\usepackage{float}
+\usepackage{soul}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
+
+% Page setup
+\geometry{a4paper, margin=1in}
+% Title
+\title{NLA theoretical questions from previous exams}
+\author{Claudio Tessa}
+\date{2025-2026}
+
+\newcounter{N}
+\newcommand{\num}{
+    \vspace{2em}
+    \boxed{\refstepcounter{N}\theN}
+    \ignorespaces
+}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/gradient.tex}
+\input{sections/least-squares.tex}
+\input{sections/eigenvalue-problems.tex}
+\input{sections/gmres.tex}
+\input{sections/lu.tex}
+
+\end{document}

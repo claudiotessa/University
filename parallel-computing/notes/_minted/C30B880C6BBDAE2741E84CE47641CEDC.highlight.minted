@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{pthread\PYGZus{}mutex\PYGZus{}lock}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{my\PYGZus{}lock}\PYG{p}{);}
+\PYG{c+c1}{// critical section}
+\PYG{n}{pthread\PYGZus{}mutex\PYGZus{}unlock}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{my\PYGZus{}lock}\PYG{p}{);}
+\end{MintedVerbatim}

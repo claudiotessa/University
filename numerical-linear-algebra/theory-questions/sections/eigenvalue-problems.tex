@@ -1,0 +1,76 @@
+\num Consider the following eigenvalue problem: $A \mathbf x = \lambda \mathbf x$, where $A \in \mathbb R^{n \times n}$ is given.
+
+\begin{enumerate}
+	\item Describe the power method for the numerical approximation of the largest in modulus eigenvalue of $A$. Introduce the notation, the algorithm, and the applicability conditions.
+
+	      \begin{tcolorbox}
+		      Assume $A$ as $n$ eigenvalues $|\lambda_1| \textcolor{red}{>} |\lambda_2| \geq \dots \geq |\lambda_n|$, with $\mathbf x_1, \mathbf x_2, \dots, \mathbf x_n$ the corresponding linearly independent eigenvectors. The power method is used to identify the largest in modulus eigenvalue $\lambda_1$.
+
+		      Starting from a given nonzero vector $\mathbf x^{(0)}$ such that $\lVert \mathbf x^{(0)} \rVert = 1$, the iteration scheme for $k \geq 0$ is:
+		      \begin{align*}
+			       & \mathbf y^{(k + 1)} \gets A \mathbf x^{(k)}                                          \\
+			       & \mathbf x^{(k + 1)} \gets \dfrac{\mathbf y^{(k+1)}}{\lVert \mathbf y^{(k+1)} \rVert} \\
+			       & \lambda^{(k+1)} \gets \left[ \mathbf x^{(k + 1)}    \right]^T A \mathbf x^{(k+1)}
+		      \end{align*}
+		      where:
+
+		      \begin{itemize}
+			      \item $\mathbf x^{(k)}$ is the approximation of $\mathbf x_1$ at step $k$ (converges to a multiple of $\mathbf x_1$).
+			      \item $\lambda^{(k)}$ is the approximation of $\lambda_1$ at step $k$ (converges to $\lambda_1$).
+		      \end{itemize}
+
+		      Note: $|\lambda_1|$ must be unique;
+	      \end{tcolorbox}
+
+	\item State the main theoretical result.
+
+	      \begin{tcolorbox}
+		      The convergvence rate depends on the ratio $\dfrac{|\lambda_2|}{|\lambda_1|}$, where $\lambda_2$ is the second largest in modulus eigenvalue. Therefore, the convergence rate is slow if $|\lambda_2| \approx |\lambda_1|$, and fast if $|\lambda_2| \ll |\lambda_1|$.
+	      \end{tcolorbox}
+
+
+	\item Discuss how the power method can be suitably modified in order to approximate the smallest in modulus eigenvalue of $A$ and comment on computation cost.
+
+	      \begin{tcolorbox}
+		      To find the smallest in modulus eigenvalues, we can use the fact that the eigenvalues of $A^{-1}$ are the reciprocals of those of $A$. Thereforen the smallest eigenvalue of $A$ is the largest eigenvalue of $A^{-1}$. Instead of explicitly computing $A^{-1}$, we can modify the power method as follows (inverse power method):
+
+		      Starting from a given nonzero vector $\mathbf x^{(0)}$ such that $\lVert \mathbf x^{(0)} \rVert = 1$, the iteration scheme for $k \geq 0$ is:
+		      \begin{align*}
+			      \text{Solve the linear system }    & A \mathbf y^{(k + 1)} = \mathbf x^{(k)}                                                                                               \\
+			      \text{Like with the power method } & \begin{cases}
+				                                           \mathbf x^{(k + 1)} \gets \dfrac{\mathbf y^{(k+1)}}{\lVert \mathbf y^{(k+1)} \rVert} \\[1em]
+				                                           \lambda^{(k + 1} \gets \left[ \mathbf x^{(k + 1)} \right]^T A \mathbf x^{(k + 1)}
+			                                           \end{cases}
+		      \end{align*}
+		      The inverse power method requires solving a linear system for each iteration, which is very expensive: $O(n^3)$. We can instead use e.g. LU factorization before the iterations start, so the cost per iteration becomes $O(n^2)$, comparable to that of the standard power method.
+	      \end{tcolorbox}
+
+	\item Describe the deflation technique. Present the algorithm and the applicability conditions.
+
+	      \begin{tcolorbox}
+		      After computing the dominant eigenvalue, we can compute additional eigenvalues using \textbf{deflation} technique, which removes the known eigenvalue. It constructs a new matrix $B$ with eigenvalues $\lambda_2, \dots, \lambda_n$, and then we can obtain $\lambda_2$ (the new dominant eigenvalue) with the power method.
+
+		      \begin{enumerate}
+			      \item Choose any nonsingular matrix $S$ such that $S \textbf v_1 = \alpha \textbf e_1$, a scalar multiple of $\textbf e_1$ (the first column of the identity matrix $I$).
+			      \item Compute $S A S^{-1}$, which is a matrix of the form
+			            $$
+				            S A S^{-1} = \begin{bmatrix}
+					            \lambda_1 & \mathbf b^T \\
+					            0         & B
+				            \end{bmatrix}
+			            $$
+			            where $B \in \mathbb R^{(n-1) \times (n-1)}$
+			      \item Using the power method, we find $\lambda_2$ and $\mathbf z_2$ eigenvector of $B$.
+			      \item To recover $\textbf v_2$ eigenvector of $A$, we can use the following:
+			            $$
+				            \textbf v_2 = S^{-1} \begin{pmatrix}
+					            \alpha \\ \textbf z_2
+				            \end{pmatrix}
+				            \qquad
+				            \alpha = \frac{\textbf b^T \textbf z_2}{\lambda_1 - \lambda_2}
+			            $$
+		      \end{enumerate}
+		      Note that this requires $\lambda_2 \neq \lambda_1 (<)$.
+	      \end{tcolorbox}
+\end{enumerate}
+

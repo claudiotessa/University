@@ -1,0 +1,223 @@
+\section{Exercises 2}
+
+\num Explain the difference between superscalar execution and SIMD execution.
+
+\begin{tcolorbox}
+	\textbf{Superscalar} execution allows a processor to execute multiple independent instructions from the same instruction stream in parallel.
+
+	\textbf{SIMD (Single Instruction Multiple Data)} executes the same instruction on multiple data elements simultaneously.
+
+	Instruction stream coherence is crucial for SIMD because all ALUs execute the same instruction; divergence (branches) create inefficiencies. Meanwhile, superscalar processors can handle different instructions independently.
+\end{tcolorbox}
+
+\num Why does multi-threading help hide memory latency, and how many threads are needed to achieve full utilization if each thread performs 3 arithmetic operations with a latency of one cycle, followed by a memory load with 12-cycle latency? Please motivate the answer.
+
+\begin{tcolorbox}
+	Multi-threading hides memory latency by allowing the processor to switch to another thread when one is stalled.
+
+	To hide a 12-cycle latency with 3 arithmetic instructions per thread, 5 threads are needed:
+	(3 instructions × 5 threads = 15 cycles, covering the 12-cycle stall).
+\end{tcolorbox}
+
+\num What does it mean for a computation to be bandwidth-bound, and why is vector multiplication of large arrays an example of this?
+
+\begin{tcolorbox}
+	A computation is bandwidth-bound when its performance is limited by the rate at which data can be transferred from memory, not by the processor's compute capability.
+
+	Vector multiplication involves multiple memory accesses per arithmetic operation, saturating memory bandwidth before compute units are fully utilized.
+\end{tcolorbox}
+
+\num Write a short pseudocode that would result in worst-case SIMD efficiency on an 8-wide SIMD processor due to divergent execution.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble, escapeinside=||]{cpp}
+        forall (int i from 0 to N) {
+            float t = x[i];
+            if (i |\%| 8 == 0) {
+                t = t * 2.0;
+            } else if (i |\%| 8 == 1) {
+                t = t + 3.0;
+            } else if (i |\%| 8 == 2) {
+                t = t / 4.0;
+            } else if (i |\%| 8 == 3) {
+                t = t - 5.0;
+            } else if (i |\%| 8 == 4) {
+                t = sqrt(t);
+            } else if (i |\%| 8 == 5) {
+                t = log(t);
+            } else if (i |\%| 8 == 6) {
+                t = exp(t);
+            } else {
+                t = sin(t);
+            }
+            y[i] = t;
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num Briefly describe what “Divergent” execution” means. Provide also an example to support the description.
+
+\begin{tcolorbox}
+	Divergent execution occurs in SIMT architectures (like GPUs) when threads in the same group are forced to follow different paths due to a conditional branch. Since the hardware issues the same instruction to all threads simultaneously, it cannot run different paths and it must serialize the execution.
+
+	Example:
+	\begin{minted}[autogobble, escapeinside=||]{cpp}
+        if (threadIdx |\%| 2 == 0) {
+            A();
+        } else {
+            B();
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num Describe the difference between the Message Passing and Shared Address Space programming model.
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Shared Address Space}: all processors have access to a single global memory and communicate implicitly by reading and writing shared variables (using load/store instructions), which requires explicit synchronization (like locks) to manage access.
+		\item \textbf{Message Passing}: each processor has its own private local memory. Communication is explicit, requiring processors to actively send and receive data packets to exchange information.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Can a program with many arithmetic operations and a small number of memory accesses be a problem for a multi-threaded processor? True/False. Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	Multi-threaded processors hide memory latency by switching to another thread whenever the current one stalls on memory access. If a program has a small number of memory accesses, threads rarely stall, causing them to compete for the same execution units (ALUs). This prevents efficient interleaving and can degrade performance.
+\end{tcolorbox}
+
+\num Compare Coarse-grain multithreading with Simultaneous multithreading.
+
+\begin{tcolorbox}
+
+	\begin{itemize}
+		\item \textbf{Coarse-grained multithreading} executes instructions from a single thread at a time, switching contexts only when a long stall occurs.
+		\item \textbf{Simultaneous Multithreading} mixes instructions from multiple threads in every clock cycle, filling almost every available execution unit.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Coherent execution is not necessary for efficient parallelization. True/False? When?
+
+\begin{tcolorbox}
+	\textbf{TRUE} for MIMD (like CPUs) architectures, because each processor core has its own independent fetch and decode unit, allowing them to execute different instruction streams (divergent path) simultaneously.
+
+	\textbf{FALSE} for SIMD/SIMT architectures (like GPUs) where multiple execution units share a single control unit. Here divergence forces the hardware to serialize execution.
+\end{tcolorbox}
+
+\num Three different forms of parallel execution: Superscalar, SIMD, and Multicore. Please describe the differences between these three forms of execution.
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Superscalar}: exploits Instruction-Level Parallelism (ILP) within a single core by dynamically issuing multiple instructions from a single thread to different execution units for every clock cycle (e.g., pipelining).
+		\item \textbf{SIMD}: exploits Data-Level Parallelism by applying a single operation to multiple data elements simultaneously.
+		\item \textbf{Multicore}: exploits Thread-Level Parallelism (TLP) by using multiple physical processing units (cores) to execute completely independent instruction streams at the same time.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please describe the tradeoffs between the silicon area dedicated to the cache and the processor contexts.
+
+\begin{tcolorbox}
+	Allocating silicon area to Cache reduces the effective memory access time for individual threads (data locality).
+
+	Conversely, allocating area to Processor Contexts (e.g., large register files) allows the hardware to maintain many active threads simultaneously. This allows the processor to hide memory latency by context-switching to ready threads when active ones stall, maximizing the total throughput rather than reducing the latency of any single operation.
+\end{tcolorbox}
+
+\num Show an example with a few lines of code where a data-parallel program allows SIMD/vectorize instructions extraction.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+            for (int i = 0; i < N; i++) {
+                A[i] = B[i] + C[i];
+            }
+        \end{minted}
+	Each iteration is completely \textbf{independent}, so the compiler can map these operations to SIMD units, executing multiple additions in a single clock cycle.
+\end{tcolorbox}
+
+\num Please describe what stream coherence means and why it is related to SIMD processing resources.
+
+\begin{tcolorbox}
+	In SIMD, \textbf{stream coherence} refers to the uniformity of operations between data elements being processed in parallel. If all SIMD units are doing the exact same thing at the same time and accessing neighbors data, then the stream is coherent. Otherwise, we have \textit{divergence} (e.g., branches).
+\end{tcolorbox}
+
+\num Write a short description of "Hardware-supported interleaved multi-threading.”
+
+\begin{tcolorbox}
+	\textit{Interleaved multi-threading} is a tecnique where the CPU is designed to switch between different active threads in every cycle. \textit{Hardware-supported} means that the hardware has physical elements on the chip to maintain multiple contexts (e.g., separate program counters and registers).
+
+	In this way we hide execution latencies (such as stalls) by executing work from other threads instead of waiting for the resource to become available. Furthermore, hardware-support allows to reduce the context-switching overhead.
+\end{tcolorbox}
+
+\num List what a programmer can do to reduce the slow-down due to the memory stalls.
+
+\begin{tcolorbox}
+	To reduce the slow-down, a programmer can:
+	\begin{itemize}
+		\item \textbf{avoid dependencies} where possible (loop-carried dependencies, reorder/remove instruction for flow-dependencies, etc.);
+		\item improve \textbf{data locality}: access memory sequentially (e.g., iterate through an array linearly), use Structures Of Arrays (SoA) instead of Arrays Of Structures (AoS) to avoid loading unwanted data;
+		\item use \textbf{multithreading} to hide latencies;
+		\item maximize \textbf{data reuse} to avoid unnecessary reloading of data, and can even recompute the value instead of loading it (as computing is faster and does not stall).
+	\end{itemize}
+\end{tcolorbox}
+
+\num “In a superscalar processor, the parallelism is automatically discovered.” True/False? Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}
+
+	The parallelism is automatically discovered by the hardware at \textbf{runtime}. The processor has logic that scans a sequential stream of instructions and identifies which ones are independent. It then dispatches multiple instructions to different execution units simultaneously within a single clock cycle.
+\end{tcolorbox}
+
+\num Please describe the key characteristics of data-parallel program execution with SIMD instructions in the presence of conditional instructions.
+
+\begin{tcolorbox}
+	In SIMD, all units execute the same instruction in parallel. In case of branching, SIMD processors use a techinique called \textbf{masking} to execude the code linearly. The processor checks the condition for all elements simultaneously, then creates a mask of true/false values (e.g., [T T F T F F F F]).
+
+	When the processor broadcasts the instructions to everyone, the active ALUs (True) perform the calculations, while the inactive ALUs (False) receive the instruction but discard the output of the calculations. If there is an else block, the processor flips the mask and broadcasts the instructions again.
+\end{tcolorbox}
+
+\num Prefetching reduces stalls. True/False? Explain what is meant by prefetching and stall.
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	\begin{itemize}
+		\item A \textbf{stall} occurs when the processor must pause execution because the data (or instruction) required for the next step is not yet available (usually because waiting for memory latency).
+		\item \textbf{Prefetching} is a technique where the system predicts which data will be needed soon and loads it from the slow memory into the fast cache. This hides latency.
+	\end{itemize}
+\end{tcolorbox}
+
+\num CUDA kernels may create dependencies between threads in a block. True/False?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	Threads within the same CUDA block can interact through Shared Memory and synchronization barriers like \texttt{\_\_syncthreads()}. This creates explicit dependencies.
+
+	For example, Thread B might wait at a barrier until Thread A has finished writing a specific value to shared memory, ensuring that Thread B reads the updated data rather than the old one.
+\end{tcolorbox}
+
+\num Please discuss the following sentence: “The latency of the memory operation is changed by multi-threading."
+
+\begin{tcolorbox}
+	False. Multi-threading does not change the physical latency of a single memory operation. that latency is determined by the hardware physics.
+
+	Instead, multi-threading is a technique used to hide latency. When one thread stalls waiting for memory, the hardware switches to another ready thread to keep the core busy, but the actual time that the memory request takes to complete generally remains the same.
+\end{tcolorbox}
+
+\num Explain when the following sentence is not true: “A processor with multiple hardware
+threads has the ability to avoid stalls.”
+
+\begin{tcolorbox}
+	Multi-threading hides latency by switching to a "ready" thread when the current one stalls. However, if every single thread is waiting for a slow resource or if they are all waiting at a synchronization barrier, there is no valid work to switch to.
+
+	Additionally, if there are too few threads launched to mathematically cover the long wait times, the processor runs out of work before the memory fetch completes, forcing the hardware to stall despite having multi-threading capabilities.
+\end{tcolorbox}
+
+\num What does it mean conditional execution in a data-parallel program?
+
+\begin{tcolorbox}
+    Conditional execution (divergence) occurs when different execution units must take different paths through the code (e.g., some have to take the \texttt{if} branch while others the \texttt{else}). 
+
+    Since SIMD hardware executes the same instruction on all units simultaneously, it cannot run both paths at once. instead, it serializes the execution (masking). The hardware first executes the \texttt{if} block (disabling threads that didn't take it), then executes the else block (disabling the others). This temporarily reduces the effective throughput of the processor.
+\end{tcolorbox}

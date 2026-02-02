@@ -1,0 +1,40 @@
+\section{Exercises 3}
+
+\num Efficient parallel programming with CUDA requires knowledge about GPU architecture. Discuss this claim by providing concrete examples.
+
+\begin{tcolorbox}
+	Yes because performance gains depend on aligning code with physical hardware constraints rather than just logical correctness.
+
+	For example, a developer must understand the SIMT (Single Instruction, Multiple Threads) execution model to avoid warp divergence, where conditional branches (\texttt{if-else}) force the hardware to serialize execution paths, leaving ALUs idle.
+
+	Additionally, maximizing memory throughput requires knowledge of memory coalescing, structuring data access so that threads read contiguous addresses, allowing the memory controller to merge individual requests into a single transaction.
+\end{tcolorbox}
+
+\num What is Unified Memory in CUDA? When is it used?
+
+\begin{tcolorbox}
+	Unified Memory is an abstraction that lets the programmer treat the host and device memories as a single address space. Data transfers between host and device happen at runtime. It is used to simplify the programming (so that data does not need to be moved explicitly between host and device) and it might be useful for sparse/irregular workloads or in multi-GPU systems.
+\end{tcolorbox}
+
+\num Given the following CUDA kernel, discuss the impact of control divergence for different \texttt{N} values.
+
+\begin{minted}[escapeinside=||, autogobble]{text}
+    __global__ void myKernel(int *data, int N) {
+        int idx = threadIdx.x + blockIdx.x * blockDim.x;
+        if (idx < N) {
+            if (idx |\%| 2 == 0) {
+                data[idx] *= 2;
+            } else {
+                data[idx] += 1;
+            }
+        }
+    }
+\end{minted}
+
+\begin{tcolorbox}
+    The impact of control divergence in this kernel is severe regardless of \texttt{N}. Since CUDA threads are grouped into warps of 32 consecutive indices, the condition \texttt{idx \% 2 == 0} creates an alternating pattern. Consequently, the GPU hardware must serialize the execution, halving the throughput for the entire kernel execution. 
+
+    The value of \texttt{N} only affects the boundary check (\texttt{idx < N}). Ideally, \texttt{N} should be greater than the warp size, but the divergence explained above dominates the performance penalty.
+\end{tcolorbox}
+
+

@@ -1,0 +1,8 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}pragma omp task}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+cm}{/* code section */}
+\PYG{p}{\PYGZcb{}}
+\PYG{c+cp}{\PYGZsh{}pragma omp taskwait}
+\PYG{c+cp}{\PYGZsh{}pragma omp taskyield}
+\end{MintedVerbatim}

@@ -1,0 +1,195 @@
+\section{Exercises 3}
+
+\num Please describe shared address space model in terms of communication abstraction and required hardware support.
+
+\begin{tcolorbox}
+	Threads communicate by reading/writing to shared variables in a shared address space. This abstraction necessitates synchronization primitives (e.g., locks to ensure mutual exclusion).
+
+	Hardware implementation: there is an interconnect that allows any processor to directly reference the contents of any memory location. Interconnects can be of various types (e.g., shared bus, crossbar, etc.)
+\end{tcolorbox}
+
+\num Why must CUDA allocate execution contexts for all threads in a block before execution begins?
+
+\begin{tcolorbox}
+	Since CUDA threads in a block may synchronize (e.g., with \texttt{\_\_syncthreads()}), all threads must be live concurrently to avoid deadlocks and ensure correct execution. This requires allocating resources (registers, shared memory) for all threads upfront.
+\end{tcolorbox}
+
+\num Describe the distinct types of address spaces visible to kernels in a CUDA/GPU based environment. How many? How much is shared? How fast are they?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Per-thread private memory}: readable and writable only by the single thread that owns it (\textit{fastest});
+		\item \textbf{Per-block shared memory}: readable and writable by all threads within the same block (\textit{variable speed because they are cached, generally fast};
+		\item \textbf{Device global memory}: readable and writable by all threads in the entire grid (\textit{slowest}).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Briefly describe how CUDA threads-block are assigned to hardware considering the V100 SM processor architecture.
+
+\begin{tcolorbox}
+	The scheduler assigns each block to a streaming multiprocessor (SM). Threads within a block are divided into warps (groups of 32). Warps are the fundamental unit of execution and are assigned to one of the SM's four sub-cores. Instead of managing individual threads, the hardware schedules these warps, (SIMT).
+\end{tcolorbox}
+
+\num Please describe what a stall is and how its effect can be reduced.
+
+\begin{tcolorbox}
+	A stall occurs when a processor must pause execution because a necessary resource is not yet available.
+
+	Its effects can be reduced with multithreading, which hides the latency by switching to another thread while the stalled thread waits.
+\end{tcolorbox}
+
+\num Please describe what a performant parallel program will do to overcome the bandwidth limits.
+
+\begin{tcolorbox}
+	Performant parallel programs will organize computation to fetch data from memory less often, by
+
+	\begin{itemize}
+		\item Reusing data previously loaded by the same thread;
+		\item Sharing data across threads;
+		\item Performing additional arithmetic instead of reloading values (doing math is faster than the memory).
+	\end{itemize}
+
+\end{tcolorbox}
+
+\num Please describe the thread hierarchy in the CUDA abstraction. Is a “warp” part of the CUDA language?
+
+\begin{tcolorbox}
+	Individual threads are grouped into \textbf{thread blocks}, and thread blocks are grouped into a \textbf{grid}.
+
+	Threads in the same block can communicate via shared memory (needing synchronization, like barriers), while threads from different blocks operate independently and generally should not communicate directly. All threads, however, can read/write the device global memory.
+
+	\textbf{Warps} are not part of CUDA as they are an hardware-specific execution unit (typically 32 threads per warp).
+\end{tcolorbox}
+
+\num Please describe the main characteristics of a message-passing programming model.
+
+\begin{tcolorbox}
+	Processes are independent, each with its own private local memory (they cannot directly read or write to each other's memory).
+
+	All data exchange and synchronization must occur through explicit communication, where one process executes a \textbf{send} operation and another executes a \textbf{receive} operation
+
+	This gives the programmer control over data distribution, making it highly scalable for distributed clusters.
+\end{tcolorbox}
+
+\num Multi-threading is mainly meant for throughput-oriented systems. True/False. Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	It hides latency by keeping the execution units busy: when one thread stalls, the hardware switches to another ready thread, which improves overall system utilization (throughput) while degrading the performance of individual threads due to resource sharing and context-switching overheads.
+\end{tcolorbox}
+
+\num Please describe the different hardware architectures supporting multi-threading.
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Fine-grain multithreading}: the processor switches threads after every cycle. If one thread stalls, others are executed immediately. Requires complex hardware to switch extremely fast.
+		\item \textbf{Coarse-grain multithreading}: the processor only switches when a long stall occurs. This simplifies the hardware but fails to hide shorter stalls.
+		\item \textbf{Simultaneous multithreading}: instructions from multiple threads issue to the execution units in the exact same clock cycle, using all the available functional units at once. This is useful in multiple-issue dynamically scheduled processors.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please describe how a programmer can reduce the penalties due to the memory bandwidth bound.
+
+\begin{tcolorbox}
+	Programs must access memory infrequently to utilize modern processors efficiently:
+	\begin{itemize}
+		\item Organize computation to fetch data from memory less often
+		      \begin{itemize}
+			      \item Reuse data previously loaded by the same thread (temporal locality optimizations)
+			      \item Share data across threads (inter-thread cooperation)
+		      \end{itemize}
+		\item Favor performing additional arithmetic to storing/reloading values
+		      (the math is “free”)
+	\end{itemize}
+\end{tcolorbox}
+
+\num What is meant for the Block/Tiling CUDA code optimization technique?
+
+\begin{tcolorbox}
+	\textbf{Tiling} improves performance by restructuring code execution to improve data locality. It involves dividing the large input data into smaller blocks (tiles) fit entirely within the processor's high-speed memory (cache or shared memory).
+
+	This minimizes expensive accesses to main memory, since each thread has its needed tile of data very "close"
+\end{tcolorbox}
+
+\num Please describe what is meant by GPU “SIMT”.
+
+\begin{tcolorbox}
+	\textbf{SIMT} is an execution model introduced by NVIDIA. The programmer writes code for a single logical thread (scalar code), the GPU hardware then dynamically groups these independent threads into Warps (typically groups of 32 threads) and executes the same instruction on every thread (similar to how SIMD does with the different SIMD units).
+
+	It gives the programmer the illusion that each thread is executing independently with its own register state and instruction address.
+\end{tcolorbox}
+
+\num Please describe the key characteristics of the CUDA synchronization constructs.
+
+\begin{tcolorbox}
+	We have:
+
+	\begin{itemize}
+		\item \texttt{\_\_syncthreads()}: is a barrier. It forces all threads in a single block to wait until every other thread has reaached the synchronization point.
+		\item Atomic operations (e.g., \texttt{atomicAdd}): available for both gloabal memory addresses and per-block shared memory addresses.
+		\item Host/device synchronization: there is an implicit barrier at the return of the kernel, meaning that all threads in the grid have completed their execution before the kernel finishes.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please describe how each sub-core runs the next instruction for the CUDA threads in the warp. What is meant by divergence in this context?
+
+\begin{tcolorbox}
+	Each sub-core does not fetch its own instruction. Instead, \textbf{a single instruction unit maintains one Program Counter} for the entire warp, and each thread executes the same instruction.
+
+	\textbf{Divergence} occurs when threads within this single warp evaluate a conditional branch differently (e.g., half the threads need to run the if block and half the else block). Because the hardware cannot fetch two different instructions at the same time, it serializes the execution: it runs the if path for the relevant threads while masking the others, and then runs the else path with the masks reversed.
+\end{tcolorbox}
+
+\num Why CUDA kernels cannot exploit context switching?
+
+\begin{tcolorbox}
+	Because of the massive size of the thread state. A GPU manages thousands of simultaneous threads, each holding private variables in a huge, on-chip Register File (often megabytes in size). Saving and restoring this enormous amount of data to memory would saturate the memory bandwidth, giving a prohibitive performance penalty.
+
+	Therefore, instead of swapping tasks out, GPUs keep all active contexts resident on the chip and use zero-overhead hardware switching between them to hide latency.
+\end{tcolorbox}
+
+\num Is there a relation between the number of CUDA threads in a warp and the number of registers in a streaming multi-processor (SM) unit? What else influences the number of registers?
+
+\begin{tcolorbox}
+	Yes, there is a direct relationship. The Streaming Multiprocessor (SM) has a fixed physical pool of registers. Since registers are private to each thread, the cost to host a single warp is $(32 \times RegistersPerThread)$. If this number is too high, the SM cannot fit the maximum number of active warps, forcing it to leave execution slots empty and reduce parallelism.
+
+	The number of registers allocated can also be influenced by the compiler’s optimization strategy, and explicit limits set by the programmer.
+\end{tcolorbox}
+
+\num On NVIDIA V100 a CUDA grid could be executed on multiple SM units. True/False?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	A CUDA Grid is composed of many Thread Blocks. When a grid is launched, the GPU's hardware scheduler distributes these blocks across the many available Streaming Multiprocessors (SMs) on the chip.
+\end{tcolorbox}
+
+\num How are scalar registers for CUDA threads organized in an NVIDIA V100SM “sub-core”?
+
+\begin{tcolorbox}
+	The Streaming Multiprocessor (SM) is partitioned into four independent processing blocks (sub-cores). Each of these sub-cores contains its own dedicated Register File. This register file consists of scalar registers.
+
+	Registers are distributed among active warps. Warps assigned to a specific sub-core can only use the registers present in that sub-core's local file. This partitioning reduces hardware complexity and increases bandwidth for register accesses.
+\end{tcolorbox}
+
+\num Please describe how multi-threading can be implemented at the core level.
+
+\begin{tcolorbox}
+	Multi-threading is implemented at the core level (Simultaneous Multi-Threading or SMT) by duplicating the architectural state for each thread: Program Counter and Register File. The execution resources (ALUs, caches, and Floating Point Units) remain shared.
+
+	If Thread A stalls, the scheduler instantly fills the idle execution slots with instructions from Thread B, maximizing the utilization of the hardware without needing a full operating system context switch.
+\end{tcolorbox}
+
+\num Please explain how the CUDA threads are executed.
+
+\begin{tcolorbox}
+	CUDA threads are executed using a SIMT (Single Instruction, Multiple Threads) model.
+
+	\begin{enumerate}
+		\item Threads are grouped into \textbf{Warps} (typically 32 threads).
+		\item The SM's warp \textbf{scheduler} selects a warp that is ready to execute (not stalled) and issues the same instruction to all 32 threads simultaneously.
+		\item Each thread \textbf{executes} this instruction on its own private data. If threads diverge (e.g., due to an \texttt{if-else}), the hardware serializes the execution paths.
+	\end{enumerate}
+\end{tcolorbox}
+
+

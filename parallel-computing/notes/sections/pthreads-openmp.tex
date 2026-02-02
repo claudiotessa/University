@@ -1,0 +1,437 @@
+\section{POSIX threads and OpenMP}
+
+POSIX threads and OpenMP are two implementations of \textbf{shared memory} parallel programming model with \textbf{threads}. Parallel programming models are an \textit{abstraction} above the hardware. There are different implementations for each parallel programming model.
+
+\subsection{Threads model}
+
+
+\noindent
+\begin{minipage}{0.7\textwidth}
+	Initially, the shared memory model was implemented using processes mapped directly to the physical memory (\textit{no threads}), allowing data too be shared directly. However, it makes it difficult to maintain locality (ensuring the data is stored close to the processor currently using it).
+\end{minipage}
+\hfill
+\begin{minipage}{0.25\textwidth}
+	\centering
+	\includegraphics[width=1\textwidth]{images/shared-memory-no-threads.png}
+\end{minipage}
+
+\noindent
+\begin{minipage}{0.4\textwidth}
+	\centering
+	\includegraphics[width=1\textwidth]{images/shared-memory-threads.png}
+\end{minipage}
+\hfill
+\begin{minipage}{0.55\textwidth}
+	\setlength{\parskip}{1em}
+	The \textbf{threads model}, instead, allows to run multiple threads for a single process that can execute concurrently. This allows each thread to have local data, but can also access all resources acquired by the main proces.
+
+	A \textbf{UNIX process} is created by the operating system. Processes contain information about the program resources and execution state: process ID, process group ID, user ID, and group ID; environment; working directory; program instructions; etc.
+\end{minipage}
+
+A \textbf{thread} is an independent stream of instrucitons within a process. Threads can be scheduled to run by the operating system, meaning multiple threads can execute simultaneously (concurrently).
+
+Threads have their own local resources and can also access the shared process resources. A thread can be seen as a \textbf{procesure} that runs independently from its main program.
+
+\begin{altbox}[title = Example]
+	An example of a multi-thread program is the \texttt{main}, which calls some procedures. All the procedures run \textit{simultaneously and/or independently} by the operating system.
+\end{altbox}
+
+Threads can execute \textit{dynamically} during execution. Multi-thread is \textit{lighter} than multi-processes, as they duplicate only the \textit{bare essential} resources.
+
+Since threads exist within a process and share most of the process resources, we have that:
+
+\begin{itemize}
+	\item Changes made by one thread to the shared system resources (such as closing a file) will be seen by all other threads;
+	\item Two pointers having the same value point to the same data;
+	\item There is \textbf{implicit communication} by reading and writing shared variables;
+	\item Reading and writing to the same memory locations requires \textbf{explicit synchronization} by the programmer.
+\end{itemize}
+
+The programmer is responsible for handling parallelism and synchronization, usually through a library of subroutines, and a set of compiler directives.
+
+Hardware vendors have implemented their \textbf{own prorietary versions} of threads. We will see 2 different standards: POSIX threads (Pthreads) and OpenMP.
+
+\subsection{Pthreads}
+
+Pthreads is the standard that specifies the \textbf{API to explicitly manage threads}.
+
+The Pthread API functionality is divided into two main categories:
+
+\begin{enumerate}
+	\item \textbf{Thread management}: functions to handle the \textit{creation} of new threads, \textit{joining} (waiting for) threads to finish, \textit{detaching} threads to run them independently, and \textit{setting or querying} thread attributes.
+	\item \textbf{Synchronization}: tools to coordinate accesses and prevent conflicts: \textit{mutexes} to control access for mutual exclusion sections, and \textit{condition variables} to manage conditional inte-threads communications.
+\end{enumerate}
+
+\subsubsection{Thread management: Creation}
+
+Once created, threads are peers, and may even create other threads. there is no implied hierarchy or dependency between threads (the maximum number of threads depends on the particular implementation).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/pthreads-creation.png}
+\end{figure}
+
+The \texttt{pthread\_create} function is the primary subroutine used to create a new thread:
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        int pthread_create(
+            pthread_t * thread, 
+            const pthread_attr_t * attr,
+            void * (* start_routine) (void *),
+            void *arg
+        )
+    \end{minted}
+\end{tcolorbox}
+
+where:
+
+\begin{itemize}
+	\item \texttt{thread} is the identifier for the new thread returned by the subroutine.
+	\item \texttt{attr} is used to set the thread attributes: joinable/detached, scheduling, stack size.
+	\item \texttt{start\_routine} is the C routine that the thread will execute once it is created.
+	\item \texttt{arg} is the argument passed to \texttt{start\_routine}. It must be passed by address as a pointer cast of type \texttt{void}.
+\end{itemize}
+
+\subsubsection{Thread management: Termination}
+
+A thread's execution can be terminated in several ways:
+
+\begin{itemize}
+	\item The thread finishes its work and returns from its starting routine;
+	\item The thread ends itself by callling the \texttt{pthread\_exit} subroutine;
+	\item The thread is canceled by another peer thread via the \texttt{pthread\_cancel} routine;
+	\item The entire process is canceled;
+\end{itemize}
+
+Note that if the main thread calls \texttt{pthread\_exit} (rather than returning or callling \texttt{exit()}), the process remains alive, allowing the other created threads to "survive" and continue running.
+
+\subsubsection{Thread management: Joining}
+
+The \texttt{pthread\_join} subroutine is used to synchronize thread execution by forcing the calling thread to \textbf{pause} until the specific target \texttt{thread} has completely \textbf{terminated}.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        int pthread_join(pthread_t thread, void ** retval)
+    \end{minted}
+\end{tcolorbox}
+
+It also retrieves results from the finished thread: the \texttt{retval} argument will contain the copy of the data that the target thread passed to \texttt{pthread\_exit} just before it ended.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/pthreads-join.png}
+\end{figure}
+
+\subsubsection{Thread management: Detaching}
+
+Threads can be created as \textbf{joinable} or \textbf{detached}. A joinable thread can become detached, but not vice-versa. The joinable/detatched attribute is set explicitly.
+
+A \textbf{detatched} thread runs independently. When it reminates, its resources are automatically released without requiring another thread to wait for it. Detached threads may consume less resources.
+
+\subsubsection{Thread management: Joining through Barriers}
+
+Unlike \texttt{pthread\_join}, which forces one thread to fait for a specific single thread to terminate, \textbf{barriers} allow a \textbf{group} of threads to synchronize together. This way, all threads of the group need to wait for all other threads, then they can resume working.
+
+The function \texttt{pthread\_barrier\_init} sets up the barrier. \texttt{pthread\_barrier\_wait} makes a thread wait for all other threads.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        int pthread_barrier_init(
+            pthread_barrier_t * barrier,
+            pthread_barrierattr_t * attr,
+            unsigned int count
+        ) 
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        int pthread_barrier_wait(pthread_barrier_t * barrier) 
+    \end{minted}
+\end{tcolorbox}
+
+\texttt{count} is the number of threads to be waited.
+
+\subsubsection{Syncrhonization: Mutexes}
+
+\textbf{Mutexes (mutual exclusion)} variables are the basic method to protect shared data when multiple writes occur.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        pthread_mutex_lock(&my_lock);
+        // critical section
+        pthread_mutex_unlock(&my_lock);
+    \end{minted}
+\end{tcolorbox}
+
+Only one thread can \textbf{lock} a mutex variable at any given time. If several threads try to lock a mutex, only one thread will be successful, while the other threads that could not acquire the mutex are blocked.
+
+Note that multiple mutexes can lead to \textbf{deadlocks}.
+
+To reduce blocking overhead, we can use \texttt{trylock}. Unlike standard lock requests that puts a thread to sleep if the resource is busy, \texttt{trylock} allows the thread to perform other work instead of waiting if the resource is busy.
+
+\subsubsection{Synchronization: Condition variables}
+
+Mutexes implement synchronization by serializing data accesses. \textbf{Condition variables}, instead, allow threads to synchronize based on the actual state of the data. One thread can pause execution until another thread explicitly signals that a specific condition has been met.
+
+Without condition variables, the programmer would need to loop (\textbf{poll}) continuously to check if the condition is met.
+
+\subsection{OpenMP}
+
+OpenMP is an API for multi-threaded shared memory programming. It mainly provides \textbf{compiler directives}, but also library routines, and environment variables. OpenMP requires specific compiler support to interpret these directives.
+
+It is characterized by its high \textbf{ease of use}, as it relies on a \textit{simple and limited} set of directives: 3 or 4 are enough to implement significant parallelism. This simple design facilitates \textbf{incremental parallelization}, allowing developers to gradually transform a serial program into a parallel one step-by-step, rather than rewriting the entire code base at once. Additionally, this model supports both \textit{coarse-grained} and \textit{fine-grained} parallelism.
+
+OpenMP is based on the \textbf{fork-joint} paradigm, which dictates how parallel execution begins and ends:
+
+\begin{enumerate}
+	\item \textbf{Master thread}: the execution starts with a single \textit{master} thread running sequentially;
+	\item \textbf{Forking}: when a parallel region is reaches, the master thread \textit{forks} a team of \textit{slave} threads;
+	\item \textbf{Parallel execution}: the work (\textit{tasks}) is divided among these \textit{slave} threads, which run concurrently on different processors, as allocated by the runtime environment;
+	\item \textbf{Joining}: once the parallel task is complete, the thread synchronize and join back together, leaving only the master thread to continue until the next parallel region.
+\end{enumerate}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/fork-join.png}
+\end{figure}
+
+\subsubsection{OpenMP C/C++ syntax}
+
+The OpenMP C/C++ syntax consists of 3 main components:
+
+\begin{enumerate}
+	\item \textbf{Preprocessor directives} (\texttt{\#pragma}): they are the main part of the OpenMP standard and are used to identify parallel tasks and handle synchronization. The general syntax for these directives is \texttt{\#pragma omp \textless name\textgreater\ [list-of-clauses]}.
+	\item \textbf{Auxiliary C functions}: helper functions used to query or set runtime information (such as the number of available threads) and to manage explicit locks.
+	\item \textbf{Environment variables}: allow the user to configure runtime behavior without changing the code.
+\end{enumerate}
+
+\subsubsection{Parallel control structures}
+
+OpenMP programs execute serially until they reach a \texttt{parallel} directive:
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp parallel
+        {
+            /* parallel section */
+        } 
+    \end{minted}
+\end{tcolorbox}
+
+\begin{enumerate}
+	\item The thread that was executing the code spawns a group of slave threads and becomes the master (thread ID 0);
+	\item The code in the structured (the parallel section) is replicated, and each thread executes a copy;
+	\item At the each of the block there is an implied barrier: the master waits for all slaves to finish their work before it continues execution alone.
+\end{enumerate}
+
+There are some \textbf{optional clauses} to the \texttt{parallel} directive:
+
+\begin{itemize}
+	\item Conditional parallelization with \texttt{if (condition)}, to decide at runtime whether to run in parallel. If the condition is false, the overhead of creating threads is avoided.
+	\item Force a specific number of spawned threads with \texttt{num\_threads(int)}.
+	\item Data scope clauses.
+\end{itemize}
+
+Under the hood, depending on the compiler, it might replace the directive with a Pthreads implementation.
+
+The number of threads in a parallel region is determined by the following factors, in order of precedence:
+
+\begin{enumerate}
+	\item Evaluation of the texttt{if} clause. If it evaluates to false, then the region runs serially (1 thread).
+	\item Value of the \texttt{num\_threads} clause.
+	\item If neither of the above is set, the system checks if the thread count was globally set within the code using the \texttt{omp\_set\_num\_threads()} library function.
+	\item The system then looks outside the program to the \texttt{OMP\_NUM\_THREAD} environment variable.
+	\item Finally, if absolutely nothing is specified, it falls back to the implementation default (the number of available CPU cores).
+\end{enumerate}
+
+\subsubsection{Work sharing}
+
+\textbf{Work sharing} constructs in OpenMP are mechanisms designed to distribute the execution of a specific code region among the threads that are already active in a team. The key characteristics are:
+
+\begin{itemize}
+	\item A work-sharing construct must be \textit{enclosed} within a \texttt{parallel} region in order for the directive to execute in parallel;
+	\item Work-sharing constructs do not launch new threads, they simply assign tasks to the members of the existing thread team.
+	\item There is no implied barrier upon entry to a work-sharing construct, however there is an implied barrier at the end of the construct.
+\end{itemize}
+
+\hrulefill
+
+For example, parallelize the execution of iterations with \texttt{for}. Note that the iterations number cannot be internally modified.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp parallel
+        {
+            #pragma omp for
+            /* for loop */
+        }
+    \end{minted}
+\end{tcolorbox}
+
+Other possible \texttt{for}'s clauses include:
+
+\begin{itemize}
+	\item \texttt{schedule}: describes how the iterations of the loop are divided among the threads in the team. The most typical scheduling types for a \texttt{for} loop are:
+	      \begin{itemize}
+		      \item \texttt{static}: loop iterations are divided into blocks of size \texttt{chunk} and then statically assigned to threads. If \texttt{chunk} is not specified, the iterations are evenly (if possible) divided contiguously among the threads.
+		      \item \texttt{dynamic}: loop iterations are divided into blocks of size \texttt{chunk}, and dynamically scheduled among the threads. When a thread finishes one chunk, it is dynamically assigned another. The default chunk size is 1.
+		      \item \texttt{runtime}: depends on the environment variable \texttt{OMP\_SCHEDULE}.
+	      \end{itemize}
+	\item \texttt{nowait}: avoid synchronizing at the end of the parallel loop;
+	\item \texttt{reduction}: a reduction variable in a loop aggregates (accumulates) a value that depends on each iteration of the loop, and does not depend on the iteration order (e.g., a sum).
+
+	      The \texttt{reduction (operator: list)} clause helps to perform a reduction:
+	      \begin{itemize}
+		      \item Each thread updates a private copy of each variable in the list;
+		      \item At the end the \textit{reduction operator} is applied to all private copies and the end result is written into a global variable.
+	      \end{itemize}
+	\item Data scope clauses.
+\end{itemize}
+
+\hrulefill
+
+Another work-sharing mechanism in OpenMP is the \texttt{section} construct. While loops are used for data parallelism (running the same code on different data), sections are used for running completely different tasks at the same time.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp parallel
+        {
+            #pragma omp sections
+            {
+                #pragma omp section
+                {
+                    /* code section 1 */
+                }
+                #pragma omp section
+                {
+                    /* code section 2 */
+                }
+            }
+        }    
+    \end{minted}
+\end{tcolorbox}
+
+Each \texttt{section} is executed once by a thread in the team.
+
+\hrulefill
+
+If you are inside a parallel region but need a specific block code to run only \textbf{once}, rather than being replicated by every thread, you can use the \texttt{single} (execute only by a single thread) and \texttt{master} (execute only by the master) directives:
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp parallel
+        {
+            #pragma omp single
+            {
+                /* code section */
+            }
+            #pragma omp master
+            {
+                /* code section */
+            }
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\hrulefill
+
+The \texttt{task} directive introduces a more dynamic method of parallelism. It specifies a work unit which may be executed or deferred (put in a queue) to  be run later by another thread in the same team.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp task
+        {
+            /* code section */
+        }
+        #pragma omp taskwait
+        #pragma omp taskyield
+    \end{minted}
+\end{tcolorbox}
+
+The \texttt{taskwait} directive introduces a barrier.
+
+The \texttt{taskyield} directive interrupts the execution of the current task. May be resumed by the same thread or by another.
+
+\subsubsection{Synchronization}
+
+The \texttt{critical} directive specifies a region of code that must be executed by only one thread at a time.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp critical [name]
+        {
+            /* code section */
+        }
+    \end{minted}
+\end{tcolorbox}
+
+The optional \texttt{name} enables multiple different \texttt{critical} regions:
+
+\begin{itemize}
+	\item names act as global identifiers: different \texttt{critical} regions with the same name are treated as the same region;
+	\item all \texttt{critical} sections which aare unnamed, are treated as the same section.
+\end{itemize}
+
+\hrulefill
+
+The \texttt{barrier} directive synchronizes all threads in the team.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp barrier
+    \end{minted}
+\end{tcolorbox}
+
+When a \texttt{barrier} directive is reached, a thread will wait at that point untill all other threads have reached that barrier. All threads then resume executing in parallel the code taht follows the barrier.
+
+It is not very used because of implicit synchronization of other constructs.
+
+\hrulefill
+
+The \texttt{atomic} directive ensures that a specific storage location is accessed atomically.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp atomic
+        /* statement */
+    \end{minted}
+\end{tcolorbox}
+
+Multiple reads and writes to an atomic operations are not allowed. Only valid for the following statement, not for a structured block.
+
+\subsubsection{Data environment}
+
+OpenMP is based upon the shared memory programming model so most variables are \textbf{shared by default}.
+
+The OpenMP Sata Scope Attribute clauses are used to explicitly define how variables should be scoped. They include: \texttt{private}, \texttt{shared}, \texttt{default}, and \texttt{reduction}.
+
+Data Scope Attribute clauses are used in conjunction with several directives to:
+
+\begin{itemize}
+	\item define how and which data variables in the serial section of the program are transferred to the parallel sections;
+	\item define which variables will be visible to all threads in the parallel sections and which variables will be privately allocated to all threads.
+\end{itemize}
+
+The \texttt{shared} clause declares variables in its list to be shared among all threads in the team.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp <name> shared (list)
+    \end{minted}
+\end{tcolorbox}
+
+A \texttt{shared} variable exists in only one memory location and all threads can read or write to that address. It is the programmer's responsibility to ensure that multiple threads properly access \texttt{shared} variables.
+
+\subsubsection{Runtime functions}
+
+the OpenMP standard defines an API for library calls that perform a variety of functions to control execution of the program:
+
+\begin{itemize}
+	\item \texttt{int omp\_get\_num\_threads()} returns the number of threads that are currently in the team executing the parallel region from which it is called.
+	\item \texttt{int omp\_get\_thread\_num()} returns the identifier for the thread making this call.
+	\item \texttt{void omp\_set\_num\_threads(int num\_threads)} sets the number of threads that will be used in the next parallel region.
+	\item \texttt{double omp\_get\_wtime()} provides a wall clock timing routine.
+	\item \texttt{double omp\_get\_wtick()} returns the number of seconds between two clock ticks.
+\end{itemize}

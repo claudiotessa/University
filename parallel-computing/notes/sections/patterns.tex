@@ -1,0 +1,414 @@
+\section{Parallel patterns}
+
+\textbf{Parallel patterns} are a recurring combination of task distribution and data access that solve a specific problem in parallel algorithm design. Patterns provide us with a vocabulaty for algorithm design and are universal, they can be used in \textit{any} parallel programming system.
+
+We can use \textbf{nesting}, that is the ability to hierarchically compose patterns.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/nesting.png}
+\end{figure}
+
+\subsection{Dependencies}
+
+Parallel execution must address control, data, and system dependencies. A \textbf{dependency} arises when one operation depends on an earlier operation to complete and produce a result before this later operation can be performed. We extend this notion of dependency also to resources.
+
+We say that two statements are \textbf{independent} if their order of execution does not matter. Instead, when the order of their execution affects the computation outcome, they are \textbf{dependent}.
+
+Given statements S1 and S2 (executed in this order), we have that:
+
+\begin{itemize}
+	\item S2 has a \textbf{flow dependence} on S1 if and only if S2 reads a value written by S1;
+	\item S2 has an \textbf{anti-dependence} on S1 if and only if S2 writes a value read by S1;
+	\item S2 has an \textbf{output dependence} on S1 if and only if S2 writes a value written by S1;
+\end{itemize}
+
+We can use graphs to show dependence relationships, for example
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/dependency-graph.png}
+\end{figure}
+
+Two statements can execute in parallel if and only if there are \textbf{no dependencies} between them. Some dependencies can be removed by modifying the program, rearranging and eliminating statements.
+
+Data dependence relations can be found by comparing the IN and OUT sets of each node, defined as:
+
+\begin{itemize}
+	\item IN(S): the set of memory locations (variables) that may be used in S;
+	\item OUT(S): the set of memory locations (variables) that may be modified by S.
+\end{itemize}
+
+\subsection{Loop-level parallelism}
+
+Significant parallelism can be identified \textbf{within} loops. We can unroll loops into separate statements to show dependencies between iterations.
+
+A \textbf{loop-carried} dependency between two statements is present only if the statements are part of the execution of a loop (i.e., between two statements instances in two different loop iterations).
+
+Otherwise, it is \textbf{loop-independent}, including if it has dependencies between two statements in the same loop iteration.
+
+\begin{comment}
+
+\subsection{Serial control patterns}
+
+Structured serial programming is based on these patterns: sequence, selection, iteration, and recursion. The nesting pattern can also be used to hierarchically compose these four patterns. It's very important to understand these patterns when parallelizing serial algorithms based on these patterns.
+
+\subsubsection{Serial control patterns: Sequence}
+
+The \textbf{sequence} pattern represents an ordered list of tasks that are executed in a specific order. This is obvious in serial code, but ordering becomes critical when parallelizing.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/sequence.png}
+\end{figure}
+
+\subsubsection{Serial control patterns: Selection}
+
+The \textbf{selection} pattern dictates control flow based on a condition:
+
+\noindent
+\hfill
+\begin{minipage}{0.2\textwidth}
+	\begin{tcolorbox}
+		\begin{minted}[autogobble]{cpp}
+        if (c) {
+            a;
+        } else {
+            b;
+        }
+    \end{minted}
+	\end{tcolorbox}
+\end{minipage}
+\begin{minipage}{0.3\textwidth}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/selection.png}
+\end{minipage}
+\hspace{4cm}
+
+Note that \texttt{a} and \texttt{b} are never executed before \texttt{c}.
+
+\subsubsection{Serial control patterns: Iteration}
+
+The \textbf{iteration} pattern is the foundation for loops. It complicates things when parallelizing, as it introduces potential dependencies between previous iterations
+
+\noindent
+\hfill
+\begin{minipage}{0.21\textwidth}
+	\begin{tcolorbox}
+		\begin{minted}[autogobble]{cpp}
+            while (c) {
+                a;
+            }
+        \end{minted}
+	\end{tcolorbox}
+\end{minipage}
+\begin{minipage}{0.3\textwidth}
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/iterations.png}
+\end{minipage}
+\hspace{4cm}
+
+\subsubsection{Serial control patterns: Recursion}
+
+\textbf{Recursion} is a dynamic for of nesting, allowing functions to call themselves. \textit{tail} recursion is a special recursion that can be converted into iteration. It is important for functional languages.
+
+\end{comment}
+
+\subsection{Parallel control patterns}
+
+Parallel control patterns extend serial control patterns. Each pattern is related to at least one serial control pattern, but it relaxes assumptions of serial control patterns. Those patterns are: fork-join, map, stencil, reduction, scan, recurrence.
+
+\subsubsection{Parallel control patterns: Fork-join}
+
+\textbf{Fork-join} allow control flow to fork into multiple parallel flows, then rejoin later.
+
+A \textit{join} is different than a \textit{barrier}. Here only one thread continues, while with a barrier all threads continue.
+
+\subsubsection{Parallel control patterns: Map}
+
+\textbf{Map} performs a function over every element of a collection. It replicates a serial iteration pattern where each iteration is independent of the others, the number of iterations is known in advance, and computation only depends on the iteration count and data from the input collection.
+
+The replicated function is referred to as an \textit{elemental function}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/map.png}
+\end{figure}
+
+\subsubsection{Parallel control patterns: Stencil}
+
+The \textbf{stencil} pattern updates an element in an elemental function by looking at the \textit{neighbors} of each element.
+
+Boundary conditions must be handled carefully in the stencil pattern.
+
+\subsubsection{Parallel control patterns: Reduction}
+
+\textbf{Reduction} combines every element in a collection using an associative \textit{combiner function}. Thanks to the associativity of the combiner function, different orderings of the reduction are possible.
+
+\subsubsection{Parallel control patterns: Scan}
+
+\textbf{Scan} computes all partial reduction of a collection.
+
+For every output in a collection, it computes a reduction of the input up to that point. If the function being used is associative, the scan can be parallelized.
+
+Parallelizing a scan is not obvious at first, because of dependencies to previous iterations in the serial loop.
+
+\subsubsection{Parallel control patterns: Recurrence}
+
+\textbf{Recurrence} is a more complex version of map, where the loop iterations can depend on one another. It is similar to mup, but elements can use the outputs of adjacent elements as inputs.
+
+For a recurrence to be computable, there \textit{must} be a serial ordering of the recurrence elements, so that elements can be computed using previously computed outputs.
+
+\subsection{Serial data management patterns}
+
+Serial programs can manage data in many ways. Data management deals with how data is allocated, shared, read, written, and copies. Patterns are:
+
+\begin{itemize}
+	\item \textbf{Random read and write}: memory locations are indexed with addressses. Pointers are typically used to refer to memory addresses.
+	\item \textbf{Stack allocation}: useful for dynamically allocating data in a LIFO manner. It is efficient as an arbitrary amount of data can be alloated in constant time. Typically, when parallelized, each thread will get its own stack, so thread locality is preserved.
+	\item \textbf{Heap allocation} useful when data cannot be allocated in a LIFO fashion, but is slower and more complex than stack allocation. A parallelized heap allocator will keep separate pools for each parallel worker.
+	\item \textbf{Objects}: they are language constructs to associate data with code to manipulate and manage that data. Objects can have member functions, and they are also considered members of a class of an object.
+\end{itemize}
+
+\subsection{Parallel data management patterns}
+
+To avoid things like race conditions, it is very important to know when data is (and isn't) potentially shared by multiple parallel workers:
+
+\begin{itemize}
+	\item \textbf{Pack}: used to eliminate unused space in a collection. Elements marked \textit{false} are discarded, the remaining elements are placed in a contiguous sequence in the same order. It is useful when used with map.
+
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.3\textwidth]{images/pack.png}
+	      \end{figure}
+
+	      \textbf{Unpack} is the inverse and is used to place elements back in their original locations.
+
+	\item \textbf{Pipeline}: connects tasks in a producer-consumer manner. One task (the producer) creates data and passes it to the next task (the consumet), which processes it.
+
+	\item \textbf{Geometric decomposition}: arranges data in subcollections. Overlapping and non-overlapping decompositions are possible. Note that this pattern doesn't necessarily move data, it just gives us another view of it.
+
+	\item \textbf{Gather}: reads a collection of data given a collection of indices. Think of a combination of map and random serial reads.
+
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.6\textwidth]{images/gather.png}
+	      \end{figure}
+
+	      The output collection shares the same type as the input collection, but it shares the same shape as the indices collection
+
+	\item \textbf{Scatter}: the inverse of gather. A set of input and indices is required, but each element of the input is written (instead of read) to the output at the given index. Race conditions can occur when we have two writes to the same location.
+
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.6\textwidth]{images/scatter.png}
+	      \end{figure}
+
+\end{itemize}
+
+\subsection{Map}
+
+\textbf{Mapping} involves taking a collection of data and applying the \textit{same function} to every single element independently. An operation is a map if it can be applied to each element without knowledge of neighbors.
+
+Since each iteration is independent, we can run map completely in parallel. Map function should be \textit{pure} or \textit{pure-ish} and should not modify shared states. Modifying shared states breaks perfect independence.
+
+\subsubsection{N-ary maps}
+
+So far, we have only dealt with mapping over a single collection. However, sometimes it makes sense to map over multiple collections at once.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/n-ary-map.png}
+\end{figure}
+
+\subsubsection{Sequences of maps}
+
+Often several map operations occur in sequence. Vector math consists of many small operations such as additions and multiplications applied as maps.
+
+A naïve implementation may write each intermediate result to memory. However, we can sometimes \textbf{fuse} together the operations to perform them at once. This adds arithmetic intensity but reduces memory/cache usage. Ideally, operations can be performed using registers alone.
+
+Sometimes it's impractical to fuse together the map operations. We can instead break the work into blocks, giving each CPU one block at a time.
+
+\subsection{Reduce}
+
+\textbf{Reduce} is used to combine a collection of elements into one summary value. A combiner function combines elements pairwise, and it only needs to be associative to be parallelizable.
+
+We can use \textbf{tiling} to break-up chunks of work for workers to reduce serially.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/reduce-tiling.png}
+\end{figure}
+
+\textbf{Precision} can become a problem with reductions on floating-point data. Different orderings of floating-point operations can change the reduction value.
+
+\begin{altbox}[title = Example: dot product]
+	To perform the dot product between 2 vectors of the same length:
+
+	\begin{enumerate}
+		\item Map (*) to multiply the components one by one;
+		\item Reduce (+) to get the final answer.
+		      $$
+			      \mathbf a \cdot \mathbf b = \sum_{i = 0}^{n - 1} a_i b_i
+		      $$
+	\end{enumerate}
+\end{altbox}
+
+\subsection{Scan}
+
+The \textbf{scan} pattern produces partial reductions of input sequence, generating a new sequence (e.g., every element in the output array will contain the sum of the elements before it). It is trickier to parallelize than reduce. There are 2 types of scans:
+
+\begin{itemize}
+	\item \textbf{Inclusive scan}: includes current element in partial reduction;
+	\item \textbf{Exclusive scan}: excludes current element in partial reduction. In this case, partial reduction is of all prior elements up to current element, excluded.
+\end{itemize}
+
+We can use \textbf{tiling} also on the scan pattern, which comprises 3 phases:
+
+\begin{enumerate}
+	\item The input array is divided into independent chunks, and each thread performs a local scan on its own tile;
+	\item A scan is performed only on the output of phase 1;
+	\item The results calculated in phase 2 are fed back into the tiles.
+\end{enumerate}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/scan-tiling.png}
+\end{figure}
+
+Just like with reduce, we can also fuse the map pattern with the scan pattern.
+
+\subsection{Gather}
+
+The \textbf{gather} pattern creates a collection of data by reading from another data collection.
+
+Given a collection of ordered indices, read data from the source collection at each index, and write data to the output collection in index order. The element type of output collection is the same as the source, and the shape of the output collection is that of the index collection (same dimensionality).
+
+\subsubsection{Special case of gather: Shifts}
+
+Shifts are used to move data elements within memory, to the loft or to the right. The data accesses are offset by a fixed distance.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/gather-shift.png}
+\end{figure}
+
+Since the movement is uniform, this pattern is highliy \textbf{regular}, which allows for specific hardware optimization. Shifts can also take advantage of good data locality.
+
+The variants depend on how the boundary conditions are handles (e.g., rotate: when for example shifting left by 1, the 1st element becomes the last element of the new sequence).
+
+\subsubsection{Special case of gather: Zip}
+
+Zip takes two separate collections of data and combines them into a single collection by \textbf{interleaving} the elements (they alternate one-by-one).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/gather-zip.png}
+\end{figure}
+
+It can be generalized to have more than just 2 sequences, and can also zip data of unlike types.
+
+\subsubsection{Special case of gather: Unzip}
+
+Unzip reverses a zip. It extracts sub-arrays at certain offsets and strides from an input array.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.25\textwidth]{images/gather-unzip.png}
+\end{figure}
+
+\subsection{Scatter}
+
+While \textit{gather} reads locations provided as input, the \textbf{scatter} pattern is a combination of map with random \textit{writes}, where the write locations are provided as input.
+
+Note that in the case of scatter, you cannot guarantee that the write destinations will be unique. This leads to \textbf{race conditions}. Parallel writes to the same location are \textbf{collisions}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/scatter.png}
+\end{figure}
+
+Note how the output collection does not need to be larger in size.
+
+There exists different variations of scatter based on the way they handle \textbf{collisions resolution}:
+
+\begin{itemize}
+	\item \textbf{Atomic scatter}: there is \textit{no rule} to determine which one of the input items will be retained (non-deterministic).
+	\item \textbf{Permutation scatter}: this patter simply states that collisions are \textit{illegal}. It checks for collisions in advance.
+	\item \textbf{Merge scatter}: associative and commutative operators are provided to merge the elements in case of a collision (e.g., sum the colliding elements). Both the associative properties are required since scatters to a particular location could occur in any order.
+	\item \textbf{Priority scatter}: every element in the input harray has a priority based on its position. In case of a collision, the priority decides which element is written.
+\end{itemize}
+
+\subsection{Pack}
+
+The \textbf{pack} pattern is used to eliminate unused elements from a collection. The remaining elements are then moved so that they are contiguous in memory.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.3\textwidth]{images/pack.png}
+\end{figure}
+
+\subsubsection{Pack algorithm}
+
+The \textbf{algorithm} goes as follows:
+
+\begin{enumerate}
+	\item \textbf{Convert the type} of the input array of booleans into proper integers 0s and 1s.
+	\item Performe an \textbf{exclusive scan} of this integer array with the addition operation (every element will contain the sum up to and including the element itself).
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.3\textwidth]{images/pack-algorithm-step2.png}
+	      \end{figure}
+	\item Each element of the input array will be written in the output array at the offset calculated in the previous step.
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.3\textwidth]{images/pack-algorithm-step3.png}
+	      \end{figure}
+\end{enumerate}
+
+\subsubsection{Unpack}
+
+\textbf{Unpack} is the inverse of the pack operation. Given the same data on which elements were kept and which were discarded, spread the elements back in their original locations.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{images/unpack.png}
+\end{figure}
+
+\subsubsection{Split}
+
+\textbf{Split} is a generalization of the pack pattern. Elements are moved to the upper or lower half of the output collection based on some state.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.32\textwidth]{images/pack-split.png}
+\end{figure}
+
+In this case we do not lose information like for pack.
+
+\subsubsection{Unsplit}
+
+\textbf{Unsplit} is the inverse operation of split. It creates the ouput collection based on the original input collection.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.32\textwidth]{images/pack-unsplit.png}
+\end{figure}
+
+\subsubsection{Bin}
+
+\textbf{Bin} is a generalized split taht supports more categories (instead of just upper/lower, here we can have more than 2 bins).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.32\textwidth]{images/pack-bin.png}
+\end{figure}
+
+\subsubsection{Expand}
+
+In the \textbf{expand} operation, each element can produce \textit{any} number of elements. The results are then fused together in order.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.35\textwidth]{images/pack-expand.png}
+\end{figure}

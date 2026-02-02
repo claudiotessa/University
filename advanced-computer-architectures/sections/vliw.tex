@@ -1,0 +1,177 @@
+\section{Very Long Instruction Word (VLIW) architectures}
+
+VLIW architectures are a type of static multiple-issue processor designed to exploit Instruction Level Parallelism (ILP). Instead of hardware dynamically checking dependencies and scheduling instructions, VLIW processors rely on the compiler to statically identify and package parallel operations into a single, very long instruction word, also known as a bundle.
+
+The \textbf{single-issue packet (bundle)} represents a wide instruction with multiple independent operations per instruction, named \textbf{Very Long Instruction Word}. The compiler identifies \textit{statically} the multiple independent operations to be executed \textit{in parallel} by the multiple functional units.
+
+The compiler solves \textit{statically} the \textit{structural hazards} for the use of HW resources and the \textit{data hazards}, otherwise the compiler inserts NOPs.
+
+The long instruction (bundle) has a fixed set of operations (\textit{slots}). For example, a 4-issue VLIW has a bundle that contains up to 4 operations (corresponding to 4 slots).
+
+\subsection{VLIW Processors}
+
+There is a \textbf{single PC} to fetch a long instruction (bundle). Only one branch for each bundle to modify the control flow.
+
+There is a \textbf{shared multi-ported register file}: if the bundle has 4 slots, we need $2 \times 4$ read ports and 4 write ports to read 8 source registers per cycle, and to write 4 destination registers per cycle.
+
+To keep the FUs busy, there must be enough parallelism in the source code to fill in the available 4 operation slots. Otherwise, \textbf{NOPs are inserted}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250622174716.png}
+\end{figure}
+
+If each slot is assigned to a Functional Unit, the decode unit is a simple decoder and each operation is passed to the corresponding FU to be executed.
+
+If there are more parallel FUs than the number of issues (slots), the architecture must have a \textbf{dispatch network} to redirect each operation and the related source operands to the target FU.
+
+\subsubsection{Data dependencies}
+
+True, anti, and output data dependencies are solved \textbf{statically} by the compiler by considering the FU latency. \textbf{To solve RAW hazards in VLIW processors}:
+
+\begin{itemize}
+	\item The compiler during the scheduling phase \textbf{statically} reorders instructions (not involved in the dependencies).
+	\item Otherwise, the compiler introduces some \textbf{NOPs}.
+\end{itemize}
+
+\textbf{Operation latencies} and \textbf{data dependencies} must be exposed by the compiler. Otherwise, correct instruction execution is compromised. This is true even in case of a pipelined multiplier.
+
+\textit{WAR} and \textit{WAW} hazards are statically solved by the compiler by correctly selecting temporal slots for the operations, or by using Register Renaming. \textit{Structural hazards} are also solved by the compiler.
+
+The compiler can also provide useful \textit{hints} on how to statically predict branches. However, a \textbf{mispredicted branch} must be solved dynamically by the hardware \textbf{flushing} the execution of the speculative instructions in the pipeline.
+
+To keep \textit{in-order execution}, the Write Back phase of the parallel operations in a bundle must occur at the same clock cycle, to avoid structural hazards accessing the RF and WAR/WAW hazards.
+
+Operations in a bundle are constrained to the \textbf{latency} of the longer latency operation in the bundle. Otherwise, we get out-of-order execution and we need to check the RF write accesses and WAR/WAW hazards.
+
+\subsubsection{Register pressure}
+
+\textbf{Register pressure} refers to the fact that the multicycle latency of the operations, together with the multiple issue of instructions, generates an increment of the number of registers occupied over time.
+
+The \textbf{register renaming} used to solve WAR and WAW hazards by the compiler also increases the register pressure.
+
+\subsubsection{Dynamic events}
+
+The compiler at static time does not know the behavior of some \textbf{dynamic events} such as:
+
+\begin{itemize}
+	\item \textbf{Data Cache Misses}: stalls are introduced at runtime (latency of a data cache miss is known at compile time).
+	\item \textbf{Branch Mispredictions}: need of flushing at runtime the execution of speculative instructions in the pipeline.
+\end{itemize}
+
+\subsubsection{Statically scheduled processors}
+
+\textbf{Compilers} can use sophisticated algorithms for code scheduling to exploit ILP. It detects whether instructions can be run in parallel based on hardware resource availability and data dependencies.
+
+Consider a \textbf{basic block}, a straight-line sequence of code with only one entry point and one exit point. This means that if the first instruction in a basic block is executed, all subsequent instructions in that block are guaranteed to be executed exactly once and in order (without any branches). The \textit{problem} is that the amount of parallelism within a basic block is small.
+
+\textbf{Data dependencies} can further limit the amount of ILP we can exploit within a \textbf{basic block} to much less than the average block size (true data dependencies force sequential execution of instructions).
+
+to obtain substantial performance enhancements, we must \textit{exploit ILP across multiple basic blocks} (i.e., across branches).
+
+\subsection{Main advantages of VLIW}
+
+Good performance through extensive \textbf{compiler optimizations} to schedule the code statically (exploiting the intrinsic program parallelism). The compiler can analyze the code on a \textbf{wider instruction window} than the hardware. The compiler has more time to analyze data dependencies and to extract more parallelism.
+
+There is also a \textbf{reduced hardware complexity} because the complexity is moved to the compiler level. A small die area means cheaper processor cost and lower power consumption. It is also easily extendable to a large number of FUs. Moreover, instructions have fixed fields, therefore we can use a simpler decode logic.
+
+\subsection{VLIW code scheduling}
+
+The main goal is to statically reorder instructions in object code so that they are executed in a minimum amount of time, and in a semantically correct order.
+
+First, decompose the code in \textbf{basic blocks} (sequence of operations with no branches). The code in a basic block has:
+
+\begin{itemize}
+	\item \textbf{One single entry point}: no code line within the basic block is the destination of a branch/jump anywhere in the program.
+	\item \textbf{One single exit point}: only the last instruction can cause the program to begin executing code in a different basic block.
+\end{itemize}
+
+\subsubsection{Dependence graph}
+
+A \textbf{dependence graph} captures true, anti, and output dependencies between instructions. Anti and output dependencies are named dependencies due to variables/registers reuse.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250622182309.png}
+\end{figure}
+
+\begin{itemize}
+	\item Each node represents an \textbf{operation} in the basic block;
+	\item There is an edge from a node $i$ to another node $j$ in the graph \textbf{if} the results of the operation $i$ are used by the operation $j$ (node $i$ is a \textit{direct predecessor} of node $j$);
+	\item Each node is annotated with: the \textbf{longest path} to reach it (i.e., the node latency).
+\end{itemize}
+
+The \textbf{longest critical path} is the longest path in the dependency graph.
+
+The \textbf{scheduling problem} consists of assigning the cycle of execution to each operation in the graph. The simplest type of scheduling occurs when we want to execute the code with the minimum amount of time, given the latency of each node, and we don't care about the number of resources required.
+
+We have a list of nodes (\textbf{Ready List}) whose predecessors are all scheduled and their operands are ready. We then simply assign each node in the Ready List as soon as possible (\textbf{ASAP algorithm}) without any constraint on the resources.
+
+\subsubsection{Lint-based scheduling algorithm}
+
+This is a \textbf{resource-constrained} scheduling algorithm.
+
+Before scheduling begins, operations on top of the graph are inserted in the \textbf{ready set}. An operation is in the \textbf{ready set} if all of its predecessors have been scheduled and if the operands are ready.
+
+Starting from the first cycle, for each cycle, try to schedule operations (nodes) from the \textbf{ready set} that can fill the available resource slots.
+
+When more nodes are in the ready set, select the node with the \textbf{highest priority} (longest path to the end of the graph).
+
+\subsubsection{Local and global scheduling techniques}
+
+To exploit all the possible parallelism within each basic block, then the compiler must try to expand basic blocks and schedule instructions across basic blocks.
+
+\textbf{Local scheduling} techniques operate within a single basic block (loop unrolling, software pipelining). \textbf{Global scheduling} techniques operate across basic blocks (trace scheduling, superblock scheduling).
+
+\textbf{Loop unrolling}
+
+The compiler must test if loop iterations are \textbf{independent} to each other. The compiler can increase the amount of available ILP by unrolling a loop: the loop body is replicated multiple times (depending on the \textit{unrolling factor}), adjusting the loop termination code.
+
+
+\textbf{Pros}:
+
+\begin{itemize}
+	\item \textbf{Loop overhead} (number of counter increments and branches per loop) is minimized;
+	\item Extends the \textbf{length of the basic block}, so the loop exposes more instructions that can be effectively scheduled to minimize NOP insertions.
+\end{itemize}
+
+\textbf{Cons}:
+
+\begin{itemize}
+	\item Increases the \textbf{register pressure} (number of allocated registers) due to the need of register renaming to avoid name dependences;
+	\item Increases the \textbf{code size and instruction cache misses}.
+\end{itemize}
+
+\textbf{Loop-carried dependences}
+
+\textbf{Loop-level analysis} involves determining what data dependences exist among the operands across the iterations of a loop.
+
+\textbf{Loop-carried dependences} occur when \textit{data accesses} in later iterations are dependent on data values produces in earlier iterations.
+
+\textbf{Software pipelining}
+
+We can reorganize the loop in anew loop so that each new iteration executes instructions (stages) chosen from different iterations of the original loop. this technique is called \textbf{software pipelining}. It can be seen as a sort of symbolic loop unrolling.
+
+\textbf{Trace scheduling}
+
+We try to find parallelism across conditional branches (global code scheduling). It is composed in two steps:
+
+\begin{enumerate}
+	\item \textbf{Trace Selection}: find the most likely sequence of basic blocks (trace) of long sequence of straight-line code (statically-predicted or profile-predicted).
+	\item \textbf{Trace Compaction}: squeeze the trace into few VLIW instructions. Need book-keeping (compensation) code in case the prediction is wrong.
+\end{enumerate}
+
+This is a form of compiler-generated speculation. The compiler must generate \textbf{fixup} code to handle cases in which the trace is wrong (misprediction). Needs extra registers and time to undo badly predicted instructions.
+
+\textbf{Superblock scheduling}
+
+It is an extension/optimization of trace scheduling.
+
+A \textbf{superblock} is a group of basic blocks with a single entrance and multiple control exits. Superblocks are constructed by profiling the application and by duplicating tails (blocks after an entrance in the trace).
+
+Advantages:
+
+\begin{itemize}
+	\item Optimization is simpler because there are no side entrances.
+	\item We need to create compensation code only for the exits and not for the entrance.
+\end{itemize}

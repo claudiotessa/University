@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+A = 1;
+flag = 1;
+\end{MintedVerbatim}

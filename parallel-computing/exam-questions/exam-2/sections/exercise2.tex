@@ -1,0 +1,43 @@
+\section{Exercises 2}
+
+\num What is the impact of memory coalescing on DRAM access efficiency in CUDA?
+
+\begin{tcolorbox}
+	When all threads of a warp execute a load instruction, if all accessed locations fall into the same burst section (coalesced access), only one DRAM request will be made and the access is fully coalesced.
+\end{tcolorbox}
+
+\num What is the purpose of using shared memory in tiled matrix multiplication? Is the corner turning technique relevant for this purpose?
+
+\begin{tcolorbox}
+	Reading A and B in a matrix multiplication results in A read in non-coalesced way and B read in a coalesced way. To improve performance, we copy the data into shared memory, allowing both input matrices to be accessed coalesced in both cases (corner turning).
+\end{tcolorbox}
+
+\num Please describe how priority scatter works.
+
+\begin{tcolorbox}
+	Given a collection of input data, and a collection of location, \textbf{scatter} copies the input data in the output data, at the location specified by the locations collection.
+
+	The location array could map two or more input elements to the same location. In this case, priority scatter solves this write conflict by allowing only the processor with highest priority to write.
+\end{tcolorbox}
+
+\num How can a CUDA programmer judge if an access is coalesced?
+
+\begin{tcolorbox}
+	By checking if consecutive threads in a warp are accessing consecutive memory addresses. Mathematically, the access is coalesced if the memory accesses are in the form of \texttt{Mem[Base + ThreadIdx.x]}. This creates a sequential pattern that allows the memory controller to merge the individual requests into a single transaction.
+
+	If the threads access memory e.g. randomly, the hardware must split the operation into multiple separate transactions, signaling uncoalesced access.
+\end{tcolorbox}
+
+\num Describe the corner turning technique. How the size of the shared memory is defined in this technique?
+
+\begin{tcolorbox}
+	\textit{See corner turning technique definition in a previous question}
+
+	The allocated size is primarily defined by the tile dimensions (e.g., $TILE\_WIDTH \times TILE\_WIDTH$). However, in \textbf{Corner Turning}, the size is frequently defined as
+	$$
+		TILE\_WIDTH \times (TILE\_WIDTH + 1)
+	$$
+	This extra column of padding shifts the data layout in shared memory to ensure that when threads read down a column, they access different memory banks, preventing Bank Conflicts.
+\end{tcolorbox}
+
+

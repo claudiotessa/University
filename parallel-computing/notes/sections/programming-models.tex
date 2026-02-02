@@ -1,0 +1,54 @@
+\section{Programming models}
+
+\textbf{Programming models} influence how programmers think when writing programs and influence the design of parallel hardware platforms designed to execute them efficiently.
+
+They differ based on what communication abstraction they present to the programmer.
+
+\subsection{Shared address space model}
+
+The implementation of the linear memory address space abstraction (the "array") on a modern computer is complex. The instruction "\textit{load the value stored at address X into register R0}" might involve a complex sequence of operations by multiple data caches and access to DRAM.
+
+In the \textbf{Shared address space model}, the threads communicate by readingwriting to locations in a shared address space (shared variables)
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/shared-address-space1.png}
+\end{figure}
+
+We coordinate the access to the shared variables with \textbf{synchronization}. To do so we use mutual exclusion.
+
+To implement shared address space at a hardware level, the key idea is that any processor can \textbf{directly} reference contents of any memory location. Each core, is connected to an \textbf{interconnect}, which in turn is connected to the memory. Here are some examples of interconnects:
+
+\begin{figure}[h]
+	\centering
+	\raisebox{-0.5\height}{\includegraphics[width=0.38\textwidth]{images/interconnect1.png}}
+	\hspace{0.5cm}
+	\raisebox{-0.5\height}{\includegraphics[width=0.2\textwidth]{images/interconnect2.png}}
+	\hspace{0.5cm}
+	\raisebox{-0.5\height}{\includegraphics[width=0.25\textwidth]{images/interconnect3.png}}
+\end{figure}
+
+\subsection{Message passing model}
+
+In the \textbf{message passing model}, threads operate within their own private address space, and communicate between each other by sendin/receiving messages (the \textit{only} way to exchange data):
+
+\begin{itemize}
+	\item \textbf{Send}: specifies recipient, buffer to be transmitted, and optional message identifier;
+	\item \textbf{Receive}: sender, specifies buffer to store data, and optional message identifier.
+\end{itemize}
+
+The hardware does not need to implement system-wide loads and stores to execute message passing programs. Message passing is a programming model for clusters and supercomputers, as it can connect commodity systems together to form a large parallel machine.
+
+\subsection{Data-parallel model}
+
+The \textbf{data-parallel model} organizes computation as operations on sequences of elements (e.g., perform the same function on all elements of a sequence).
+
+In fact, \textbf{sequences} (ordered collection of elements) are the key data type here. The program can only access elements of a sequence through sequence operators: \texttt{map}, \texttt{reduce}, \texttt{scan}, \texttt{shift}, etc.
+
+\subsubsection{Map}
+
+\textbf{Map} is a higher order function (i.e., a function that takes a function as an argument) that operates on sequences.
+
+It applies a side-effect free unary function $f : a \to b$ to all elements of the input sequence and produces an output sequence of the same length.
+
+Since $f : a \to b$ is a side-effect free function, then applying $f$ to all elements of the sequence can be done \textbf{in any order} without changing the output of the program. This gives flexibility to parallelize the processing of the elements of the input sequence.

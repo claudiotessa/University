@@ -1,0 +1,16 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}pragma omp parallel num\PYGZus{}threads(2)}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// Outer parallel region}
+\PYG{+w}{    }\PYG{c+c1}{// executed by 2 threads: master and 1 slave}
+
+\PYG{+w}{    }\PYG{c+c1}{// Each outer thread creates a new team of 3 threads}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}pragma omp parallel num\PYGZus{}threads(3)}
+\PYG{+w}{    }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{c+c1}{// Inner parallel region}
+\PYG{+w}{        }\PYG{c+c1}{// executed by 2*3 = 6 threads}
+\PYG{+w}{        }\PYG{c+c1}{// each of the 2 outer threads becomes the master of}
+\PYG{+w}{        }\PYG{c+c1}{// its new team of 3 threads}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

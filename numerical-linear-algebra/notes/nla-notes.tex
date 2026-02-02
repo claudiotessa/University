@@ -8,13 +8,26 @@
 \usepackage{hyperref}
 \usepackage{parskip}
 \usepackage{mathrsfs}
-\usepackage{tcolorbox}
+\usepackage[most]{tcolorbox}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
 
 % Page setup
 \geometry{a4paper, margin=1in}
-
 % Title
 \title{NUMERICAL LINEAR ALGEBRA}
 \author{Claudio Tessa}

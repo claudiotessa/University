@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+    parbox=false,
+    breakable
+}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+\usepackage{minted}
+\usepackage{array}
+\usepackage{booktabs}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
+
+\newtheoremstyle{spaced}
+    {\parskip}   % Space above
+    {\parskip}   % Space below
+    {\itshape}   % Body font
+    {}           % Indent
+    {\bfseries}  % Head font
+    {.}          % Punctuation
+    {.5em}       % Space after head
+    {}
+
+\theoremstyle{spaced}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{spaced}
+\newtheorem{definition}{Definition}
+
+% Page setup
+\geometry{a4paper, margin=1in}
+
+% Title
+\title{PARALLEL COMPUTING}
+\author{Claudio Tessa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+\input{sections/pram.tex}
+\input{sections/simd.tex}
+\input{sections/accessing-memory.tex}
+\input{sections/programming-models.tex}
+\input{sections/gpu-architecture.tex}
+\input{sections/memory-consistency.tex}
+\input{sections/parallel-algorithms.tex}
+\input{sections/pthreads-openmp.tex}
+\input{sections/patterns.tex}
+\input{sections/heterogeneous-computing.tex}
+
+\end{document}

@@ -1,0 +1,63 @@
+\section{Exercises 4}
+
+\num Provide an example (in pseudocode, with explanations) of a batch processing pattern where OpenMP and CUDA are used together to distribute work among multiple GPUs.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        int deviceCount;
+        cudaGetDeviceCount(&deviceCount);
+        std::vector<cudaStream_t> streams(deviceCount);
+        
+        #pragma omp parallel for num_threads(deviceCount)
+        for(int dev = 0; dev < deviceCount; ++dev) { 
+            // for each GPU in the system:
+            cudaSetDevice(dev);
+            cudaStreamCreate(&streams[i]); // use a stream for data transfers
+            // Allocate, initialize and transfer memory
+        }
+
+        #pragma omp parallel for num_threads(deviceCount)
+        for(int dev = 0; dev < deviceCount; ++dev) {
+            cudaSetDevice(dev);
+            kernel<<<gridDim, blockDim, streams[i]>>>(...);
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num Provide an example (in pseudocode, with explanations) of an application that uses OpenMP instead of CUDA to offload computation on a GPU.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        // Offload the following region to a GPU, 
+        // transfer contents of a,b,c,d
+        #pragma omp target map(a, b, c, d) {
+            // use multiple GPU threads to parallelize this loop
+            #pragma parallel for 
+            for (i = 0; i < N; i++) {
+                a[i] = b[i] * c + d;
+            }
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num Describe the trade-offs that can be explored in the design space created by the Halide scheduling directives.
+
+\begin{tcolorbox}
+	The Halide scheduling directives navigates the trade-off between \textbf{locality}, \textbf{parallelism}, and \textbf{redundant computation} without altering the algorithm's correctness.
+
+	Halide solves these trade-offs by decoupling the algorithm (what to compute) from the schedule (how to execute it). Allows you to write the mathematical definition once and then use scheduling directives to manipulate the execution strategy instantly:
+
+	\begin{itemize}
+		\item Re-compute values on the fly to save memory bandwidth; or
+		\item compute them once and store them, which avoids redundant math but increases memory traffic; or
+		\item The "sweet spot" where you compute small tiles of data just before they are needed by the consumer loop, fitting them into the cache.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Provide at least two examples of situations where a combination of different parallel programming languages is used.
+
+\begin{tcolorbox}
+    A common approach is MPI + OpenMP, used in supercomputing clusters where MPI manages communication between distinct computing nodes while OpenMP parallelizes the workload within each node.
+
+    Another example is OpenMP + CUDA, used in heterogeneous systems where the CPU uses OpenMP to manage threads and data distribution, while offloading parallel compute-intensive kernels to the GPU via CUDA.
+\end{tcolorbox}

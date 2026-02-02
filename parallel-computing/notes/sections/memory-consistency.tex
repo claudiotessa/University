@@ -1,0 +1,101 @@
+\section{Memory consistency}
+
+While our intuition suggests that a load (read) should always return the \textit{latest} value written, the concept of \textit{latest} is vague in parallel systems.
+
+\textbf{Memory consistency} provides the strict rules to define this. It deals with the \textbf{apparent ordering} for all location, i.e., in what order do memory operations performed by one thread become visible to other threads.
+
+\subsection{Coherence vs consistency}
+
+It's important to distinguish between these two similar terms:
+\begin{itemize}
+	\item \textbf{Coherence} concerns \textit{only one memory location}. It ensures that if you write to a variable \texttt{A}, everyone eventually sees that new value of \texttt{A}.
+
+	      Defines requirements for the observed behavior of reads and writes to the \textbf{same} memory location: all processors must agree on the order of reads/writes to an address \texttt{X}. In other words, it is possible to put all operations involving \texttt{X} on a timeline such that the observations of all processors are consistent with that timeline.
+
+	      The goal of cache coherence is to ensure that the memory system in a parallel computer behaves as if the caches were not there, just like how the memory system in a one-processor system behaves as if the cache was not there (a system without cache would have no need for cache coherence).
+
+	\item \textbf{Consistency} concerns the history of \textit{all locations} combined. It ensures that the sequence of updates across different variables makes sense to everyone.
+
+	      Defines the behavior of reads and writes to \textbf{different} locations (as observed by other processors). While coherence only guarantees that writes to an address \texttt{X} \textit{will eventually} propagate to other processors, \textbf{consistency} deals with \textbf{when} writes to \texttt{X} propagate to other processors, relative to reads and writes to other addresses.
+\end{itemize}
+
+\subsection{Memory operation ordering}
+
+A program defines a sequence of loads and stores (this is the \textbf{program order}). There are 4 types of memory operation orderings:
+
+\begin{itemize}
+	\item $\text{W}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$: write to \texttt X must commit before subsequent read from \texttt Y.
+	\item $\text{R}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$: read from \texttt X must commit before subsequent read from \texttt Y.
+	\item $\text{R}_{\texttt{X}} \to \text{W}_{\texttt{Y}}$: read from \texttt X must commit before subsequent write to \texttt Y.
+	\item $\text{W}_{\texttt{X}} \to \text{W}_{\texttt{Y}}$: write to \texttt X must commit before subsequent write to \texttt Y.
+\end{itemize}
+
+Programmers should expect \textbf{sequential consistency}: it essentially promises that a parallel computer will behave like a single multitasking human. All operations from all treads are exdcuted in a single sequential order, as if they were manipulating a single shared memory. Meanwhile, the operations of any individual threads must appear in the exact order written in the code (program order).
+
+A \textit{sequentially consistent} memory system maintains all 4 memory operation orderings. \textbf{Relaxed memory consistency} models allow ceratin orderings to be violated.
+
+Why are we interested in relaxed ordering requirements? To gain performance. Specifically, \textbf{hiding memory latency}: overlap memory access operations with other operations when they are independent (remember, memory access in a cache coherent system may entail much more work than simply rading bits from memory, e.g., finding data, sending invalidations, ec.).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.4\textwidth]{images/relaxed-memory-consistency.png}
+\end{figure}
+
+\subsection{Write buffer}
+
+To avoid stalling for many cycles while waiting for main memory, CPU designers add a small, high-speed storage are called \textbf{write buffer} to each processor.
+
+For example, when \textit{processor 0} executes \texttt{A = 1},instead of sending the data all the way to the slow memory, it simply drops \texttt{A = 1} into its \textit{local write buffer}. This action is nearly istantaneous.
+
+Because the buffer accepts the data immediatle, \textit{processor 0} believes the write is done. It proceeds instantly to the next instruction without waiting. Each processor reads from and writes to its own write buffer.
+
+The write buffer allows the processors to "keep secrets" from each other (as the write buffer flushes its values to main memory at a "later time").
+
+\subsection{Allowing reads to move ahead of writes}
+
+To improve performance, modern architectures realax some of the rules of memory ordering. To do so, we can use models that deliberately break the $\text{W}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$ rule:
+
+\begin{itemize}
+	\item \textbf{Total Store Ordering (TSO)}: . A processor P can read \texttt Y before its write to \texttt X is seen by all processors (a processor can move its own reads in front of its own writes). Obviously, reads by other processors cannot return the new value of \texttt X until the write to \texttt X is observed by \textit{all processors}.
+	\item \textbf{Processor consistency (PC)}: any processor can read the new value of \texttt X before the write is observed by all processors.
+\end{itemize}
+
+With TSO and PC, only the rule $\text{W}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$ is relaxed. All the other constraints still exist.
+
+\subsection{Allowing writes to be reordered}
+
+To speed thing up, we can also allow writes to be reordered, relaxing the rule $\text{W}_{\texttt{X}} \to \text{W}_{\texttt{Y}}$. This is called the \textbf{Partial Store Ordering (PSO)} model.
+
+\begin{altbox}[title = Example]
+	\noindent
+	\centering
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\textbf{Thread 1 on P1} \\[1em]
+		\begin{minted}[autogobble, frame=single, framesep=1em]{text}
+            A = 1;
+            flag = 1;
+		\end{minted}
+	\end{minipage}
+	\hspace{1cm}
+	\begin{minipage}{0.3\textwidth}
+		\centering
+		\textbf{Thread 2 on P2} \\[1em]
+		\begin{minted}[autogobble, frame=single, framesep=1em]{text}
+            while (flag == 0)
+                print A;
+		\end{minted}
+	\end{minipage}
+	\\[1em]
+	Processor P2 may observe the change to \texttt{flag} before the change to \texttt A.
+\end{altbox}
+
+\subsection{Synchronization}
+
+Two memory accesses by differnt processors are considered to \textbf{conflict} if the access the same memory location, and at least one access is a \textit{write}.
+
+This leads to \textbf{data races}: the output of the program is no longer predictable, as it depends on the relative speed of the processors.
+
+The solution is \textbf{synchronization}. Synchronized programs yield SC results on non-SC systems. There are no data races, and the reordering behavior doesn't matter. The accesses are ordered by synchronization, and \textit{synchronization forces sequential consistency}.
+
+In practice, most programs will be synchronized (via locks, barriers, etc., implemented in synchronization libraries).

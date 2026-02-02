@@ -1,0 +1,236 @@
+\section{Tomasulo dynamic scheduling algorithm}
+
+The Tomasulo algorithm is another dynamic scheduling algorithm. It enables instructions execution behind a stall to proceed. It works by introducing the \textbf{implicit register renaming} to avoid WAR and WAW hazards.
+
+WAR hazards are avoided by \textbf{executing an instruction only when its operands are available}, which is exactly what the simpler scoreboard approach provides. WAR and WAW hazards, which arise from name dependences, are eliminated by register renaming. \textbf{Register renaming} eliminates these hazards by
+textbf{renaming all destination registers}, including those with pending read or write for an earlier instruction, so that the out-of-order write does not affect any instructions that depend on an earlier value of an operand.
+
+\begin{altbox}[title = Example]
+	Consider the following code:
+
+	\begin{minted}{mips}
+    DIV.D F0, F2, F4
+    ADD.D F6, F0, F8     # RAW F0
+    S.D F6, 0(R1)        # RAW F6
+    MUL.D F6, F10, F8    # WAW F6 with ADD.D, WAR F6 with S.D
+    \end{minted}
+
+	Static register renaming introduces a register \texttt{S} to avoid WAR and WAW hazards (statically by the compiler):
+
+	\begin{minted}{mips}
+    DIV.D F0, F2, F4
+    ADD.D S, F0, F8     # RAW F0
+    S.D S, 0(R1)        # RAW S
+    MUL.D F6, F10, F8
+	\end{minted}
+
+	\textit{Implicit} register renaming uses the \textit{reservation station} \texttt{RS1} to avoid WAR and WAW hazards (dynamically by the hardware):
+
+	\begin{minted}{mips}
+    DIV.D F0, F2, F4
+    ADD.D RS1, F0, F8     # RAW F0
+    S.D RS1, 0(R1)        # RAW RS1
+    MUL.D F6, F10, F8    
+    \end{minted}
+
+\end{altbox}
+
+\subsection{Tomasulo basic concepts}
+
+Tomasulo introduces some FU buffers called \textbf{Reservation Stations} (RSs) in front of the FUs to keep pending operands. The control logic and RSs are \textbf{distributed} with the function units (instead of being centralized like the scoreboard).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250520153359.png}
+\end{figure}
+
+Registers in instructions are replaced by their \textit{values} or \textit{pointers to reservation stations} to enable \textit{implicit register renaming}. This avoids WAR and WAW hazards by renaming results by using RS numbers instead of RF numbers. Since there are more reservation stations than registers, Tomasulo can perform optimizations that the compiler can't.
+
+The basic idea is that the \textbf{results are passed to the FUs from Reservation Stations} (not through registers), via a \textbf{common data bus that broadcasts the results to all FUs and to store buffers} (like a sort of forwarding). The \textit{store buffers} are treated as a sort of RSs as well.
+
+\subsection{Reservation station components}
+
+Each reservation station has the following fields:
+
+\begin{itemize}
+	\item \textbf{Tag} - Identifies the reservation station.
+	\item \textbf{Busy} - Indicates that this reservation station is occupied.
+	\item \textbf{OP} - The type of operation to perform on the source operands.
+	\item \textbf{Vj, Vk} - The values of the source operands.
+	\item \textbf{Qj, Qk} - Pointers to to the reservation station that will produce \textbf{Vj}, \textbf{Vk} (a zero value means that the source operand is already available in \textbf{Vj} or \textbf{Vk}).
+
+\end{itemize}
+
+Note that either V-field or Q-field is valid for each operand.
+
+\subsection{Register file and Store Buffers}
+
+Each entry in the RF and in the store buffers have a \textbf{value (Vi)} and a \textbf{pointer (Qi)} field. The value (Vi) field holds the register/buffer content. The pointer (Qi) field corresponds to the number of the reservation stations producing the result to be stored in this register.
+
+If the pointer is zero means that the value is available in the register/buffer content (no active instruction is computing the result)
+
+\subsection{Load/store buffers}
+
+Load/Store buffers have a \textbf{busy} and \textbf{address} field.
+
+The address field holds info for memory address calculation for load/stores. Initially it contains the instruction offset (immediate field). After address calculation, it stores the effective address.
+
+\textbf{Store instructions} in the \textbf{store buffers} wait for the value given by the RF or the FUs to be sent to the memory unit.
+
+\subsection{Stages of the Tomasulo algorithm}
+
+The Tomasulo algorithm comprises the following stages:
+
+\begin{enumerate}
+	\item \textbf{Issue} (in-order):
+	      \begin{itemize}
+		      \item Get an instruction \textbf{I} from the  head of instruction queue (maintained in FIFO order to ensure \textbf{in-order issue}).
+		      \item \textbf{Check if there is an empty reservation station}, otherwise the instruction \textbf{stalls}.
+		      \item If the operands are not ready in the RF, keep track of the FU that will produce them (\textbf{Q pointers}). This step \textbf{renames registers}, eliminating WAR and WAW hazards.
+		            \begin{itemize}
+			            \item \textbf{WAR resolution}: if \textbf{I} writes \textbf{Rx}, read by an instruction \textbf{K} already issued, \textbf{K} knows already the value of \textbf{Rx} read in the reservation station buffer, or knows what instruction (previously issued) will write it. So the RF can be linked to \textbf{I}.
+			            \item \textbf{WAW resolution}: since we use in-order issue, the RF can be linked to \textbf{I}.
+		            \end{itemize}
+	      \end{itemize}
+	\item \textbf{Start Execution} (out-of-order):
+	      \begin{itemize}
+		      \item Execution begins when both operands are ready, which resolves RAW hazards. Execution also requires the FU to be available, checking for structural hazards in the FU. By delaying the execution until operands are available, RAW hazards are avoided at this stage.
+		      \item If operands are not ready, the instruction monitors the Common Data Bus for results.
+		            \begin{itemize}
+			            \item Note that several instructions could become ready in the same clock cycle for the same FU. We need to check if the execution unit is available. This is a critical choice for loads/stores to be kept in program order.
+			            \item Note also that usually RAW hazards are shorter because operands are given directly by the reservation station without waiting for the RF write back.
+		            \end{itemize}
+		      \item \textbf{Load and stores} have a \textit{two-step} execution process:
+		            \begin{enumerate}
+			            \item \textbf{First step}: compute the effective address when base register is available, and place it in the load/store buffer.
+			            \item \textbf{Second step}: loads in the Load Buffer as soon as the memory unit is available, and stores in the Store Buffer wait for the value to be stored before being sent to the memory unit.
+		            \end{enumerate}
+		      \item To \textbf{preserve the exception behavior}, no instruction can initiate execution until all branches preceding it in the program order have completed. This restriction guarantees that an instruction that generates an exception really would have been executed. If branch prediction is used, the CPU must confirm prediction correctness before beginning the execution of next instructions
+	      \end{itemize}
+	\item \textbf{Write result} (out-of-order):
+	      \begin{itemize}
+		      \item When it is available, write the result on \textit{Common Data Bus} and from there into \textit{Register File} and into \textit{all reservation stations (including store buffers)} waiting for this result.
+		      \item \textit{Stores} also write data to the memory unit during this stage (when the memory address and result data are available).
+		      \item Then, \textit{mark the reservation station as available}.
+	      \end{itemize}
+\end{enumerate}
+
+Reservation stations offer a sort of \textit{data forwarding}.
+
+\subsection{ReOrder Buffer}
+
+\subsubsection{Hardware-based speculation}
+
+We introduce the concept of hardware-based (HW) speculation, which extends the ideas of dynamic scheduling beyond branches.
+
+HW-based speculation combines \textbf{3 key concepts}:
+
+\begin{enumerate}
+	\item \textbf{Dynamic branch prediction};
+	\item \textbf{Speculation} to enable the execution of instructions before the branches are solved by undoing the effects of mispredictions;
+	\item \textbf{Dynamic scheduling} beyond branches.
+\end{enumerate}
+
+To suppor HW-based speculation, we need to enable the execution of instructions \textit{before} the control dependences are solved. In case of \textbf{misprediction}, we need to undo the effects of an incorrectly speculated sequence of instructions. Therefore, we need to separate the process of execution completion from the commit of the instruction result in the RF or in memory.
+
+The solution is to introduce an HW buffer, called \textbf{ReOrder Buffer}, to hold the result of an instruction that has finished execution, but not yet committed in RF/memory.
+
+\subsubsection{ReOrder Buffer (ROB)}
+
+ReOrder Buffer has been introduced to support \textbf{out-of-order execution} but \textbf{in-order commit}.
+
+A buffer to hold the results of instructions that have finished execution \textit{but not yet committed}. And a buffer to pass results among instructions that have started \textit{speculatively} after a branch.
+
+The ROB is also used to pass results among dependent instructions to start execution as soon as possible. \textit{The renaming function of Reservation Stations is replaced by ROB entries}.
+
+Uses \textbf{ReOrder Buffer numbers} instead of reservation station numbers as pointers to pass data between dependent instructions. Reservation Stations now are used only to buffer instructions and operands to FUs (to reduce structural hazards).
+
+ROB supplies operands to other RSs between execution complete and commit (as a sort of forwarding). Once the instruction commits, the result will be written from the ROB to the register file. A mispredicted branch flushes the ROB entries marked as speculative.
+
+The instructions are written in ROB in strict program order. When an instruction is issued, an entry is allocated to the ROB \textbf{in-order}. Each entry must \textbf{keep the status of an instruction}: issued, execution started, execution completed, ready to commit. Each entry includes a \textbf{speculative status flag}, indicating whether the instruction is being speculatively executed or not.
+
+An instruction is \textbf{ready to commit (retire)} if and only if:
+
+\begin{itemize}
+	\item Its execution has already completed, AND
+	\item It is not marked as speculative, AND
+	\item All previous instructions have already retired.
+\end{itemize}
+
+The ROB is a \textbf{circular buffer} with two pointers:
+
+\begin{enumerate}
+	\item \textbf{Head pointer} indicating the instruction that will \textbf{commit} (leaving ROB) \textit{first}.
+	\item \textbf{Tail pointer} indicating the next free entry.
+\end{enumerate}
+
+\subsubsection{ROB content}
+
+Each entry in ROB contains the following fields:
+
+\begin{itemize}
+	\item \textbf{Busy field} - Indicates whether ROB entry is busy or not.
+	\item \textbf{Instruction type field} - Indicates whether instruction is a branch (no destination result), a store (memory address destination), or a Load/ALU (register destination).
+	\item \textbf{Destination field} - Supplies register number (for loads and ALU instructions) or memory address (for stores) where results should be written.
+	\item \textbf{Value field} - Used to hold the value of the result until instruction commits.
+	\item \textbf{Ready field} - Indicates that instruction has completed execution, value is ready.
+	\item \textbf{Speculative field} - Indicates whether instruction is executed speculatively or not.
+\end{itemize}
+
+\subsection{Speculative Tomasulo architecture with reorder buffer}
+
+Pointers are directed towards the ROB entries instead of reservation stations. \textbf{Implicit register renaming} by using the ROB entries to eliminate WAR and WAW hazards and enable dynamic loop unrolling.
+
+A register or memory location is updated only when the instruction reaches the \textit{head of ROB}. By using ROB to hold the result, it is easy to undo speculated instructions on mispredicted branches, and manage exceptions precisely.
+
+There are 4 phases of the Speculative Tomasulo Algorithm:
+
+\begin{enumerate}
+	\item \textbf{Issue} - Get instruction from the instructions queue.
+	      \begin{itemize}
+		      \item If there are one RS entry free and one ROB entry free, the instruction is issued:
+		            \begin{itemize}
+			            \item If its operands are available in RF or ROB, they are sent to RS
+			            \item Number of ROB entry allocated for first results is also sent to RSs (it will be used to tag the result when it will be placed on the CDB)
+		            \end{itemize}
+		      \item If the RS is full or/and ROB is full, the instruction stalls
+	      \end{itemize}
+
+	\item \textbf{Execution started}
+	      \begin{itemize}
+		      \item When both operands are ready in the RS (**RAW solved**), the instruction starts to execute on operands (**EX**)
+		      \item If one or more operands are not yet ready, check for RAW to be solved by monitoring the CDB for the result
+		      \item For a **store**: only the base register needs to be available (at this point, only the effective address is computed)
+	      \end{itemize}
+
+	\item \textbf{Execution completed and write result in ROB}
+	      \begin{itemize}
+		      \item Write result on Common Data Bus to all awaiting RS and ROB value field
+		      \item Mark RS as available
+		      \item For a \textit{store}: the value to be stored is written in the ROB value field, otherwise monitor CDB until value is broadcast.
+	      \end{itemize}
+
+	\item \textbf{Commit} - Update RF or memory with ROB result.
+	      \begin{itemize}
+		      \item When instruction is at the head of ROB and the result is ready, update RF with result (or store to memory), and remove instruction from ROB entry.
+		      \item Mispredicted branch flushes ROB entries (sometimes called "graduation").
+	      \end{itemize}
+\end{enumerate}
+
+Note that there are \textbf{3 different possible commit sequences}:
+
+\begin{itemize}
+	\item \textbf{Normal commit}: instruction reaches the head of the ROB, result is present in the buffer. Result is stored in the Register File, instruction is removed from ROB.
+	\item \textbf{Store commit}: as above, but the result is stored in memory, rather than in the RF.
+	\item \textbf{Instruction is a mispredicted branch}: speculation was wrong, so ROB is flushed ("graduation"), and execution restarts at the correct successor of the branch. If the branch was instead correctly predicted, the branch is completed.
+\end{itemize}
+
+\subsubsection{ReOrder Buffer: summary}
+
+\begin{itemize}
+	\item Only retiring instructions can \textit{complete}, i.e., update architectural registers and memory;
+	\item ROB can support both speculative execution and precise exception handling;
+	\item Speculative execution: each ROB entry includes a \textit{speculative status flag}, indicating whether the instruction has been executed speculatively.
+	\item Finished instructions cannot retire as long as they are in speculative status;
+	\item \textit{Interrupt handling}: exceptions generated in connection with instruction execution are made \textit{precise} by accepting exception request only when instruction becomes "ready to retire" (exceptions are processed \textit{in order}).
+\end{itemize}

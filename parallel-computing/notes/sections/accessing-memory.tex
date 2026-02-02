@@ -1,0 +1,64 @@
+\section{Accessing memory}
+
+A computer memory is organized as an array of bytes. Each byte is identified by its \textbf{address} in memory (its position in this array).
+
+To access the content of the memory we use the \textbf{load} instruction:
+
+\begin{minted}{mips}
+    ld R0 mem[R2] # R0 = mem[R2]
+\end{minted}
+
+\begin{altbox}[title = Terminology]
+	\textbf{Memory access latency} is the amount of time it takes the memory system to provide data to the processor (e.g., 100 clock cycles, 100 nsec, ...).
+\end{altbox}
+
+\subsection{Stalls}
+
+A processor \textbf{stalls} when it cannot run the next instruction stream because of a dependency on a previous instruction that is not yet complete. Accessing memory is a major source of stalls:
+
+\begin{minted}{mips}
+    ld r0 mem[r2]
+    ld r1 mem[r3]
+    add r0, r0, r1 # dependency from previous instructions
+\end{minted}
+
+Modern processors have \textbf{caches} which reduce the length of stalls, as wella s the memory access latency.
+
+\subsubsection{Prefetching}
+
+Another way to reduce stalls is \textbf{prefetching}, which "hides" latency. many modern CPUs have some logic for predicting what data will be accessed in the future, so they pre-load this data into caches.
+To make such predictions, the program's memory access pattern is analyzed dynamically.
+
+With prefetching we can reduce stalls because the data is already available in the cache when needed. Note that prefetching can also reduce performance if the guess is wrong (consumes bandwidth, pollutes caches, ...).
+
+\subsubsection{Multithreading}
+
+The idea is to exploit multithreading to reduce stalls. If you can't make progress on the current thread, instead of just waiting, work on another thread.
+
+Multithreading is a throughput-oriented optimization. Throughput-oriented systems accept to potentially increase the time it takes to complete the work for \textit{any} single thread if this means increasing the overall system throughput when running multiple threads.
+
+A thread is running until it hits a stall. The core then executes another thread. After the stall is resolved, the core could come back to the previous thread, but instead is executing instructions from another thread (to increase the overall system throughput).
+
+We have 3 types of multithreading:
+
+\begin{itemize}
+	\item \textbf{Fine-grain (interleaved) multithreading}: the processor switches threads after every cycle. If one thread stalls, others are executed immediately. Requires complex hardware to switch extremely fast.
+	\item \textbf{Coarse-grain multithreading}: the processor only switches when a long stall occurs. This simplifies the hardware but fails to hide shorter stalls.
+	\item \textbf{Simultaneous multithreading}: instructions from multiple threads issue to the execution units in the exact same clock cycle, using all the available functional units at once. This is useful in multiple-issue dynamically scheduled processors.
+\end{itemize}
+
+\subsection{Latency and bandwidth}
+
+\begin{altbox}[title = Terminology]
+	\textbf{Memory bandwidth} is the rate at which the memory system can provide data to a processor
+\end{altbox}
+
+The instruction throughput is not impacted by memory latency, but only by memory bandwidth. The computation is bandwidth limited: if the processors request data at a rate too high, the memory system cannot keep up.
+
+Overcoming bandwidth limits is often the most important challenge. Performant parallel programs will \textbf{organize computation} to fetch data from memory less often, by
+
+\begin{itemize}
+	\item Reusing data previously loaded by the same thread;
+	\item Sharing data across threads;
+	\item Performing additional arithmetic instead of reloading values (the math is "free").
+\end{itemize}

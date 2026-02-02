@@ -1,0 +1,4 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+while (flag == 0)
+    print A;
+\end{MintedVerbatim}

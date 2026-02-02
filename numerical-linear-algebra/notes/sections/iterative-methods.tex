@@ -5,10 +5,10 @@ $$A \mathbf{x} = \mathbf{b}$$
 where:
 
 \begin{itemize}
-    \item $A \in \mathbb{R}^{n \times n}$
-    \item $\mathbf{b} \in \mathbb{R}^{n}$
-    \item $\mathbf{x} \in \mathbb{R}^{n}$
-    \item $\det(A) \neq 0$
+	\item $A \in \mathbb{R}^{n \times n}$
+	\item $\mathbf{b} \in \mathbb{R}^{n}$
+	\item $\mathbf{x} \in \mathbb{R}^{n}$
+	\item $\det(A) \neq 0$
 \end{itemize}
 
 n general, direct methods (i.e., methods based on a \textit{manipulation} of $A$) are not suitable whenever $n$ is large, or $A$ is sparse. The average cost of direct methods scales as $n^{3}$. Therefore, we use iterative methods.
@@ -17,7 +17,7 @@ We introduce a sequence $\mathbf{x}^{(k)}$ of vectors determined by a recursive 
 
 For the method to make sense, it must satisfy the \textbf{convergence property}
 $$
-    \lim_{ k \to +\infty } \mathbf{x}^{(k)} = \mathbf{x}
+	\lim_{ k \to +\infty } \mathbf{x}^{(k)} = \mathbf{x}
 $$
 Convergence must not depend on the choice of $\mathbf{x}^{(0)}$.
 
@@ -32,15 +32,15 @@ Note that, even in exact arithmetic, an iterative method will inevitably be affe
 
 Starting from the $i$-th line of the linear system:
 $$
-    \sum_{j = 1}^{n} a_{ij} x_{j} = b_{i} \quad \implies \quad a_{i 1} x_{1} + a_{i 2} x_{2} + \dots + a_{i n} x_{n} = b_{i}
+	\sum_{j = 1}^{n} a_{ij} x_{j} = b_{i} \quad \implies \quad a_{i 1} x_{1} + a_{i 2} x_{2} + \dots + a_{i n} x_{n} = b_{i}
 $$
 Formally, the solution $x_{i}$ for each $i$ is given by
 $$
-    x_{i} = \frac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}}{a_{ii}}
+	x_{i} = \frac{b_{i} - \sum_{j \neq i} a_{ij} x_{j}}{a_{ii}}
 $$
 Obviously we cannot use it because we do not know $x_{j}$ for $j \neq i$. We can introduce an iterative method that updates $x_{i}^{(k+1)}$ using the others $x_{j}^{(k)}$ obtained in the previous step $k$
 $$
-    x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j\neq i} a_{ij} x_{j}^{(k)}}{a_{ii}} \qquad \forall i = 1, \dots, n
+	x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j\neq i} a_{ij} x_{j}^{(k)}}{a_{ii}} \qquad \forall i = 1, \dots, n
 $$
 In general, each iteration costs $\sim n^{2}$ operations, so the Jacobi method is competitive if the number of iterations is less that $n$. If $A$ is a sparse matrix, then the cost is only $\sim n$ per iteration.
 
@@ -52,7 +52,7 @@ Let's start from Jacobi's method: $x_{i}^{(k+1)} = \dfrac{b_{i} - \sum_{j \neq i
 
 At iteration $(k + 1)$, let's consider the computation of $x_{i}^{(k+1)}$. We observe that, for $j < i$ (for $i > 2$), $x_{j}^{(k + 1)}$ is known (we have already calculated it). We can therefore think of using the quantities at step $(k + 1)$ if $j < i$ and (as in the Jacobi method) those at the previous step $k$ if $j > i$.
 $$
-    x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j<i}a_{i j} x_{j}^{(k+1)} - \sum_{j > i}a_{ij} x_{j}^{(k)}}{a_{ii}}
+	x_{i}^{(k+1)} = \frac{b_{i} - \sum_{j<i}a_{i j} x_{j}^{(k+1)} - \sum_{j > i}a_{ij} x_{j}^{(k)}}{a_{ii}}
 $$
 The computational costs are comparable to those of the Jacobi method. However, unlike the Jacobi, GS is not fully parallelizable.
 
@@ -60,34 +60,34 @@ The computational costs are comparable to those of the Jacobi method. However, u
 
 n general, we consider linear iterative methods of the following form:
 $$
-    \mathbf{x}^{(k + 1)} = B \mathbf{x}^{(k)} + \mathbf{f} \qquad k \geq 0
+	\mathbf{x}^{(k + 1)} = B \mathbf{x}^{(k)} + \mathbf{f} \qquad k \geq 0
 $$
 where $B \in \mathbb{R}^{n \times n}$, $\mathbf{f} \in \mathbb{R}^{n}$
 
 $B$ is called iteration matrix. Its choice, together with $\mathbf{f}$, uniquely identify the method. So how to choose $B$ and $\mathbf{f}$?
 
 \begin{enumerate}
-    \item \textbf{Consistency}: If $\mathbf{x}^{(k)}$ is the exact solution $\mathbf{x}$, then $\mathbf{x}^{(k+1)}$ is again equal to $\mathbf{x}$
-          \begin{equation*}
-              \mathbf{x} = B\mathbf{x} + \mathbf{f} \quad \implies \quad \mathbf{f} = (I - B) \mathbf{x} = (I - B)A^{-1} \mathbf{b}
-          \end{equation*}
-          The former identity gives a relationship between $B$ and $\mathbf{f}$ as a function of the data.
-    \item \textbf{Convergence}: Let's introduce the error at step $(k+1)$: $\mathbf{e}^{(k+1)} = \mathbf{x} - \mathbf{x}^{(k+1)}$ and a suitable vector norm $\lVert \cdot \rVert$ (for example, the Euclidian norm).
-          Then we have:
-          \begin{align*}
-              \lVert \mathbf{e}^{(k+1)} \rVert & = \lVert \mathbf{x} - \mathbf{x}^{(k+1)} \rVert = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - \mathbf{f} \rVert   = \qquad \gets \text{consistency} \\[1em]
-                                               & = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - (I - B)\mathbf{x} \rVert = \lVert B \mathbf{e}^{(k)} \rVert                                           \\[1em]
-                                               & \leq \lVert B \rVert \lVert \mathbf{e}^{(k)} \rVert
-          \end{align*}
-          By recursion we obtain
-          \begin{align*}
-              \lVert  \mathbf{e}^{(k-1)} \rVert & \leq \lVert B \rVert \ \lVert B \rVert \ \lVert e^{(k+1)} \rVert                                                                                                   \\[1em]
-                                                & \leq \lVert B \rVert \ \lVert B \rVert \ \lVert B \rVert  \ \lVert \mathbf{e}^{(k-2)} \rVert \leq \dots \leq \lVert B \rVert ^{k+1} \lVert \mathbf{e}^{(0)} \rVert
-          \end{align*}
-          \begin{equation*}
-              \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert \leq \left(\lim_{ k \to \infty } \lVert B \rVert ^{k+1} \right) \lVert \mathbf{e}^{(0)} \rVert
-          \end{equation*}
-          If $\displaystyle \lVert B \rVert < 1 \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert = 0$. Therefore, $\lVert B \rVert < 1$ is a \textbf{sufficient condition for convergence}.
+	\item \textbf{Consistency}: If $\mathbf{x}^{(k)}$ is the exact solution $\mathbf{x}$, then $\mathbf{x}^{(k+1)}$ is again equal to $\mathbf{x}$
+	      \begin{equation*}
+		      \mathbf{x} = B\mathbf{x} + \mathbf{f} \quad \implies \quad \mathbf{f} = (I - B) \mathbf{x} = (I - B)A^{-1} \mathbf{b}
+	      \end{equation*}
+	      The former identity gives a relationship between $B$ and $\mathbf{f}$ as a function of the data.
+	\item \textbf{Convergence}: Let's introduce the error at step $(k+1)$: $\mathbf{e}^{(k+1)} = \mathbf{x} - \mathbf{x}^{(k+1)}$ and a suitable vector norm $\lVert \cdot \rVert$ (for example, the Euclidian norm).
+	      Then we have:
+	      \begin{align*}
+		      \lVert \mathbf{e}^{(k+1)} \rVert & = \lVert \mathbf{x} - \mathbf{x}^{(k+1)} \rVert = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - \mathbf{f} \rVert   = \qquad \gets \text{consistency} \\[1em]
+		                                       & = \lVert \mathbf{x} - B \mathbf{x}^{(k)} - (I - B)\mathbf{x} \rVert = \lVert B \mathbf{e}^{(k)} \rVert                                           \\[1em]
+		                                       & \leq \lVert B \rVert \lVert \mathbf{e}^{(k)} \rVert
+	      \end{align*}
+	      By recursion we obtain
+	      \begin{align*}
+		      \lVert  \mathbf{e}^{(k-1)} \rVert & \leq \lVert B \rVert \ \lVert B \rVert \ \lVert e^{(k+1)} \rVert                                                                                                   \\[1em]
+		                                        & \leq \lVert B \rVert \ \lVert B \rVert \ \lVert B \rVert  \ \lVert \mathbf{e}^{(k-2)} \rVert \leq \dots \leq \lVert B \rVert ^{k+1} \lVert \mathbf{e}^{(0)} \rVert
+	      \end{align*}
+	      \begin{equation*}
+		      \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert \leq \left(\lim_{ k \to \infty } \lVert B \rVert ^{k+1} \right) \lVert \mathbf{e}^{(0)} \rVert
+	      \end{equation*}
+	      If $\displaystyle \lVert B \rVert < 1 \implies \lim_{ k \to \infty } \lVert \mathbf{e}^{(k+1)} \rVert = 0$. Therefore, $\lVert B \rVert < 1$ is a \textbf{sufficient condition for convergence}.
 \end{enumerate}
 
 \subsubsection{necessary and sufficient condition for convergence}
@@ -105,43 +105,43 @@ A consistent iterative method with iteration matrix $B$ converges \textbf{if and
 
 Let
 $$
-    A = \begin{bmatrix}
-        \ddots &   & -F     \\
-               & D &        \\
-        -E     &   & \ddots
-    \end{bmatrix}
+	A = \begin{bmatrix}
+		\ddots &   & -F     \\
+		       & D &        \\
+		-E     &   & \ddots
+	\end{bmatrix}
 $$
 
 \begin{itemize}
-    \item $D$: diagonal part of $A$
-    \item $-E$: lower triangular part of $A$
-    \item $-F$: upper triangular part of $A$
+	\item $D$: diagonal part of $A$
+	\item $-E$: lower triangular part of $A$
+	\item $-F$: upper triangular part of $A$
 \end{itemize}
 
 The Jacobi method can be rewritten as
 $$
-    D \mathbf{x}^{(k+1)} = (E+F)\mathbf{x}^{(k)} + \mathbf{b}
+	D \mathbf{x}^{(k+1)} = (E+F)\mathbf{x}^{(k)} + \mathbf{b}
 $$
 its iteration matrix is given by
 $$
-    B_{J} = D^{-1}(E+F) = F^{-1}(D - A) = I - D^{-1}A
+	B_{J} = D^{-1}(E+F) = F^{-1}(D - A) = I - D^{-1}A
 $$
 
 For the Gauss-Seidel method we have
 $$
-    (D - E)\mathbf{x}^{(k+1)} = F \mathbf{x}^{(k)} + \mathbf{b}
+	(D - E)\mathbf{x}^{(k+1)} = F \mathbf{x}^{(k)} + \mathbf{b}
 $$
 The iteration matrix is given by
 $$
-    B_{GS} = (D - E)^{-1}F
+	B_{GS} = (D - E)^{-1}F
 $$
 
 Both methods are consistent.
 
 \begin{itemize}
-    \item If $A$ is strictly diagonally dominant by rows/columns, then J and GS converge.
-    \item If $A$ is SPD then the GS method is convergent.
-    \item If $A$ is tridiagonal, it can be shown that $\rho^{2}(B_{J}) = \rho(B_{GS})$. Therefore both methods converge or fail to converge at the same time. If they converge, GS is faster than J.
+	\item If $A$ is strictly diagonally dominant by rows/columns, then J and GS converge.
+	\item If $A$ is SPD then the GS method is convergent.
+	\item If $A$ is tridiagonal, it can be shown that $\rho^{2}(B_{J}) = \rho(B_{GS})$. Therefore both methods converge or fail to converge at the same time. If they converge, GS is faster than J.
 \end{itemize}
 
 \subsection{Stopping criteria}
@@ -152,38 +152,38 @@ where $\varepsilon$ is a user-defined tolerance.
 Unfortunately, the error is not known. We can use two criterion:
 
 \begin{enumerate}
-    \item \textbf{Residual-based stopping criterion}.
-          $$
-              \frac{\lVert \mathbf{x} - \mathbf{x}^{(k)} \rVert }{\lVert \mathbf{x} \rVert }
-              \leq
-              K(A) \frac{\lVert \mathbf{r}^{(k)} \rVert }{\lVert \mathbf{b} \rVert }
-              \quad \implies \quad
-              \boxed{\frac{\left\lVert  \mathbf{r}^{k} \right\rVert }{\lVert \mathbf{b} \rVert } \leq \varepsilon}
-          $$
-          This is a good stopping criterion whenever $K(A)$ is "small".
-    \item \textbf{Distance between consecutive iterates}.
-          Define the relative residual $\boldsymbol{\delta}^{(k)} = \mathbf{x}^{(k+1)} - \mathbf{x}^{(k)}$
-          $$
-              \boxed{\lVert \boldsymbol{\delta}^{(k)} \rVert \leq \varepsilon}
-          $$
-          It can be shown that the relation between the true error and $\boldsymbol{\delta}^{(k)}$ is
-          $$
-              \lVert \mathbf{e}^{(k)} \rVert \leq \frac{1}{1 - \rho(B)} \lVert \boldsymbol{\delta}^{(k)} \rVert
-          $$
-          This is a good stopping criterion only if $\rho(B) \ll 1$.
+	\item \textbf{Residual-based stopping criterion}.
+	      $$
+		      \frac{\lVert \mathbf{x} - \mathbf{x}^{(k)} \rVert }{\lVert \mathbf{x} \rVert }
+		      \leq
+		      K(A) \frac{\lVert \mathbf{r}^{(k)} \rVert }{\lVert \mathbf{b} \rVert }
+		      \quad \implies \quad
+		      \boxed{\frac{\left\lVert  \mathbf{r}^{k} \right\rVert }{\lVert \mathbf{b} \rVert } \leq \varepsilon}
+	      $$
+	      This is a good stopping criterion whenever $K(A)$ is "small".
+	\item \textbf{Distance between consecutive iterates}.
+	      Define the relative residual $\boldsymbol{\delta}^{(k)} = \mathbf{x}^{(k+1)} - \mathbf{x}^{(k)}$
+	      $$
+		      \boxed{\lVert \boldsymbol{\delta}^{(k)} \rVert \leq \varepsilon}
+	      $$
+	      It can be shown that the relation between the true error and $\boldsymbol{\delta}^{(k)}$ is
+	      $$
+		      \lVert \mathbf{e}^{(k)} \rVert \leq \frac{1}{1 - \rho(B)} \lVert \boldsymbol{\delta}^{(k)} \rVert
+	      $$
+	      This is a good stopping criterion only if $\rho(B) \ll 1$.
 \end{enumerate}
 
 \subsection{The stationary Richardson method}
 
 Given $\mathbf{x}^{(0)}$, $\alpha \in \mathbb{R}$:
 $$
-    \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha \underbrace{(\mathbf{b} - A \mathbf{x}^{(k)})}_{\text{residual }\mathbf{r}^{(k)}}
+	\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha \underbrace{(\mathbf{b} - A \mathbf{x}^{(k)})}_{\text{residual }\mathbf{r}^{(k)}}
 $$
 The idea is to update the numerical solution by adding a quantity proportional to the residual (e.g., if the residual is large, the solution at step $k$ should be corrected a lot).
 
 The stationary Richardson method is characterized by
 $$
-    B_{\alpha} = I - \alpha A \qquad \qquad \mathbf{f} = \alpha \mathbf{b}
+	B_{\alpha} = I - \alpha A \qquad \qquad \mathbf{f} = \alpha \mathbf{b}
 $$
 
 \subsubsection{Convergence of the stationary Richardson method}
@@ -191,13 +191,13 @@ $$
 Let $A$ be symmetric and positive definite matrix (SPD),
 then the stationary Richardson method is convergent if and only if
 $$
-    0 < \alpha < \frac{2}{\lambda_{max}(A)}
+	0 < \alpha < \frac{2}{\lambda_{max}(A)}
 $$
 with the optimal parameter $\alpha_{opt}$:
 $$\alpha_{opt} = \frac{2}{\lambda_{min}(A) + \lambda_{max}(A)}$$
 and optimal spectral radius $\rho_{opt}$ (maximum convergence speed):
 $$
-    \rho_{opt} = \frac{K(A) - 1}{K(A) + 1}
+	\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}
 $$
 
 \subsection{Preconditioning techniques}
@@ -207,19 +207,19 @@ The optimal value $\rho_{opt} = \frac{K(A) - 1}{K(A) + 1}$ expresses the maximum
 Badly conditioned matrices ($K(A) \gg 1$) are characterized by a very low convergence rate.
 To improve the speed of convergence, we introduce a SPD matrix $P^{-1}$ (called \textit{preconditioner}). Then, solving $A \mathbf{x} = \mathbf{b}$ is equivalent to the following preconditioned system:
 $$
-    P^{-\frac{1}{2}} A \underbrace{P^{-\frac{1}{2}} \mathbf{z}}_{\mathbf{x}} =  P^{-\frac{1}{2}} \mathbf{b}
+	P^{-\frac{1}{2}} A \underbrace{P^{-\frac{1}{2}} \mathbf{z}}_{\mathbf{x}} =  P^{-\frac{1}{2}} \mathbf{b}
 $$
 where $\mathbf{x} = P^{-\frac{1}{2}} \mathbf{z}$.
 
 Suppose that $P^{-1}$ has real and positive eigenvalues. We apply the stationary Richardson method to $P^{-1} A$, i.e.,
 $$
-    \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha P^{-1}\left( \mathbf{b} - A \mathbf{x}^{(k)} \right) = \mathbf{x}^{(k)} + \alpha P^{-1} \mathbf{r}^{(k)}
+	\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \alpha P^{-1}\left( \mathbf{b} - A \mathbf{x}^{(k)} \right) = \mathbf{x}^{(k)} + \alpha P^{-1} \mathbf{r}^{(k)}
 $$
 We obtain the same results as in the non preconditioned case, provided we replace $A$ with $P^{-1}A$:
 
 \begin{itemize}
-    \item Convergence: $\qquad0 < \alpha < \dfrac{2}{\lambda_{max}(P^{-1} A)}$
-    \item Optimal values: $$\qquad \alpha_{opt} = \dfrac{2}{\lambda_{min}(P^{-1} A) + \lambda_{max}(P^{-1} A)} \qquad \qquad \rho_{opt} = \dfrac{K(P^{-1}A) - 1}{K(P^{-1} A) + 1}$$
+	\item Convergence: $\qquad0 < \alpha < \dfrac{2}{\lambda_{max}(P^{-1} A)}$
+	\item Optimal values: $$\qquad \alpha_{opt} = \dfrac{2}{\lambda_{min}(P^{-1} A) + \lambda_{max}(P^{-1} A)} \qquad \qquad \rho_{opt} = \dfrac{K(P^{-1}A) - 1}{K(P^{-1} A) + 1}$$
 \end{itemize}
 
 Therefore, if $K(P^{-1} A) \ll K(A)$, we obtain a higher convergence rate with respect to the unpreconditioned case.
@@ -230,83 +230,181 @@ To have $K(P^{-1}A) \ll K(A)$ we need that the linear system in $P$ must be "eas
 
 Let $A \in \mathbb{R}^{n}$ be SPD. In this case, solving the linear system $A \mathbf{x} = \mathbf{b}$ is equivalent to minimizing the quadratic function $\Phi : \mathbb{R}^{n} \to \mathbb{R}$
 $$
-    \Phi(\mathbf{y}) = \frac{1}{2} \mathbf{y}^{T} A \mathbf{y} - \mathbf{y}^{T}\mathbf{b}
+	\Phi(\mathbf{x}) = \frac{1}{2} \mathbf{x}^{T} A \mathbf{x} - \mathbf{x}^{T}\mathbf{b}
 $$
-As $A$ is positive definite, the hyperplane given by $\mathbf{z} = \Phi(\mathbf{y})$ defines a paraboloid in $\mathbb{R}^{n+1}$ and global minimum in $\mathbf{x}$. Since $\nabla \Phi(\mathbf{y}) = A\mathbf{y} - \mathbf{b}$ we have that the minimum ($\nabla \Phi(\mathbf{x}) = \mathbf{0}$) coincides with the solution of $A \mathbf{x} - \mathbf{b}$.
+As $A$ is SPD, $\Phi(\mathbf{x})$ defines a paraboloid with global minimum in $\mathbf{x}$. Since $\nabla \Phi(\mathbf{x}) = A\mathbf{x} - \mathbf{b}$ (assuming $A$ is symmetric), we have that the minimum ($\nabla \Phi(\mathbf{x}) = \mathbf{0}$) coincides with the solution of $A \mathbf{x} = \mathbf{b}$. The update rule is
+$$
+	\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha_{k} \nabla \Phi(\mathbf{x}^{(k)})
+$$
+where $\alpha_{k}$ is the step size. The optimal parameter $\alpha_{k}$ is chosen by asking that
+$$
+	\frac{\mathrm d \Phi \left( \mathbf x^{(k+1)} \right)}{\mathrm d \alpha_k} = 0
+	\qquad \implies \qquad
+	\alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{\left( \mathbf{r}^{(k)} \right)^{T} A \mathbf{r}^{(k)}}
+$$
 
+Note that $\nabla \Phi(\mathbf{x}) = A \mathbf{x} - \mathbf{b} = - \mathbf{r}$. Therefore, the residual $\mathbf r^{(k)}$ at step $k$ is
 $$
-    \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha_{k} \nabla \Phi(\mathbf{x}^{(k)})
+	\mathbf{r}^{(k)}  = \mathbf{b} - A \mathbf{x}^{(k)} = -\nabla\Phi(\mathbf{x}^{(k)})
 $$
-where $\alpha_{k}$ is a parameter. The optimal parameter $\alpha_{k}$ is
+Also note that the gradient method can be interpreted as a Richardson method with dynamic parameter $\alpha_{k}$.
+
+\begin{algorithm}
+	\caption{Gradient method (steepest descent)}
+	\begin{algorithmic}
+		\State Given $\mathbf x^{(0)}$, compute $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$
+		\While{stopping criteria}
+		\State $\alpha_k = \dfrac{\left( \mathbf r^{(k)} \right)^T \mathbf r^{(k)}}{\left( \mathbf r^{(k)} \right)^T A\mathbf r^{(k)}}$ \Comment{$\approx n$ flops if $A$ is sparse}
+		\State $\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k \mathbf r^{(k)}$ \Comment{$\approx n$ flops}
+		\State $\mathbf r^{(k+1)} = (I - \alpha_k A) \mathbf r^{(k)}$ \Comment{$\approx n$ flops}
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
+Consider $\mathbf e^{(k)} = \mathbf x^{(k)} - \mathbf x$ the error at iteration $k$. We have that the convergence rate of the gradient method is the same as that of stationary Richardson's method with optimal parameter:
 $$
-    \alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{\left( \mathbf{r}^{(k)} \right)^{T} A \mathbf{r}^{(k)}}
+	\lVert \mathbf e^{(k + 1)} \rVert_A \leq \dfrac{K(A) - 1}{K(A) + 1} \lVert \mathbf e^{(k)} \rVert_A
+	\qquad \implies \qquad
+	\lVert \mathbf e^{(k)} \rVert_A \leq \left( \frac{K(A) - 1}{K(A) + 1} \right)^k \lVert \mathbf e^{(0)} \rVert_A
 $$
 
-Note that $\nabla \Phi(\mathbf{y}) = A \mathbf{y} - \mathbf{b} = - \mathbf{r}$, we obtain
-$$
-    -\nabla\Phi(\mathbf{x}^{(k)}) = \mathbf{b} - A \mathbf{x}^{(k)} = \mathbf{r}^{(k)}
-$$
-Therefore, the gradient method can be interpreted as a Richardson method with dynamic parameter $\alpha_{k}$.
 
 \subsection{The conjugate gradient method}
 
 We introduce a new updating direction $\mathbf{d}^{(k+1)}$ in such a way that it is $A$-conjugate to all the previous directions $\mathbf{d}^{(j)}, \ j \leq k$ (i.e., orthogonal with respect to the scalar product induced by $A$)
 $$
-    \left( \mathbf{d}^{(k+1)}, \mathbf{d}^{(j)} \right)_{A} = \left( \mathbf{d}^{(k+1)}, A \mathbf{d}^{(j)} \right) = 0 \qquad \qquad \forall j \leq k \quad \begin{matrix}
-        \text{conjugate} \\ \text{directions}
-    \end{matrix}
+	\left( \mathbf{d}^{(k+1)}, \mathbf{d}^{(j)} \right)_{A} = \left( \mathbf{d}^{(k+1)}, A \mathbf{d}^{(j)} \right) = 0 \qquad \qquad \forall j \leq k \quad \begin{matrix}
+		\text{conjugate} \\ \text{directions}
+	\end{matrix}
 $$
+
+\begin{algorithm}
+	\caption{Conjugate Gradient (CG) method}
+	\begin{algorithmic}
+		\State Given $\mathbf x^{(0)}$, compute $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$
+		\State Set $\mathbf d^{(0)} = \mathbf r^{(0)}$
+
+		\While{stopping criteria}
+
+		\State $a_k = \dfrac{\left( \mathbf d^{(k)} \right)^T \mathbf r^{(k)}}{\left( \mathbf d^{(k)} \right)^T A\mathbf r^{(k)}}$
+
+		\State $\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k \mathbf d^{(k)}$ \Comment{Update $\mathbf x^{(k+1)}$ along $\mathbf d^{(k)}$}
+
+		\State $\mathbf r^{(k+1)} = \mathbf r^{(k)} - \alpha_k A \mathbf d^{(k)}$ \Comment{Update $\mathbf r^{(k+1)}$}
+
+		\State $\beta_k = \dfrac{ \left( A \mathbf d^{(k)} \right)^T \mathbf r^{(k+1)} }{ \left( A \mathbf d^{(k)} \right)^T \mathbf d^{(k)} }$
+
+		\State $\mathbf d^{(k+1)} = \mathbf r^{(k+1)} - \beta_k \mathbf d^{(k)}$ \Comment{Update $\mathbf d^{(k+1)}$}
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
 In exact arithmetic, the CG method converges to the exact solution in at most $n$ iterations. At each iteration $k$, the error $\mathbf{e}^{(k)} = \mathbf{x} - \mathbf{x}^{(k)}$ can be bounded by
 $$
-    \left\lVert \mathbf{e}^{(k)} \right\rVert _{A} \leq \frac{2c^{k}}{1 + c^{2k}} \left\lVert \mathbf{e}^{(0)} \right\rVert _{A} \qquad \text{with} \qquad c = \frac{\sqrt{ K(A) } - 1}{\sqrt{ K(A) } + 1}
+	\left\lVert \mathbf{e}^{(k)} \right\rVert _{A} \leq \frac{2c^{k}}{1 + c^{2k}} \left\lVert \mathbf{e}^{(0)} \right\rVert _{A} \qquad \text{with} \qquad c = \frac{\sqrt{ K(A) } - 1}{\sqrt{ K(A) } + 1}
 $$
 We can also use preconditioning on the CG method.
 
+\subsection{Preconditioned Gradient and Conjugate Gradient}
+
+Both methods converge slowly with poorly conditioned matrices. We can introduce a preconditioner in order to accelerate convergence.
+
+Let $A$ and $P$ be SPD. We consider the following preconditioned system.
+$$
+	\hat A \hat{\mathbf x} = \hat{\mathbf b}
+$$
+$$
+	\underbrace{P^{- \frac 1 2} A P^{- \frac 1 2}}_{\hat A}
+	\underbrace{P^{\frac 1 2} \mathbf x}_{\hat{\mathbf x}}
+	=
+	\underbrace{P^{- \frac 1 2} \mathbf b}_{\hat{\mathbf b}}
+$$
+The solution to the original problem can be obtained from the solution $\hat{\mathbf x}$ to the original problem:
+$$
+	\mathbf x = P^{-\frac 1 2} \hat{\mathbf x}
+$$
+Let $\mathbf e^{(k)} = \mathbf x^{(k)} - \mathbf x$ be the error at iteration $k$. The error bound of the PCG method is
+$$
+	\lVert \mathbf e^{(k)} \rVert_A
+	\leq
+	\dfrac{ 2c^k }{ 1 + c^{2k} } \lVert \mathbf e^{(0)} \rVert
+	\qquad \text{with} \qquad
+	c = \dfrac{\sqrt{K(P^{-1} A)} - 1}{\sqrt{K(P^{-1} A)}}
+$$
+If the preconditioner is a "good" preconditioner, then
+$$
+	\frac{\sqrt{K(P^{-1}A)} - 1}{\sqrt{K(P^{-1} A)} + 1}
+	<
+	\frac{\sqrt{K(A)} -1}{\sqrt{K(A) + 1}}
+$$
+
+\begin{algorithm}[H]
+	\caption{Preconditioned Conjugate Gradient (PCG) method}
+	\begin{algorithmic}
+		\State Given $\mathbf x^{(0)}$, compute $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$
+		\State Set $\mathbf d^{(0)} = \mathbf r^{(0)}$
+
+		\While{stopping criteria}
+
+		\State $a_k = \dfrac{\left( \mathbf z^{(k)} \right)^T \mathbf r^{(k)}}{\left( A \mathbf d^{(k)} \right)^T \mathbf d^{(k)}}$
+
+		\State $\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k \mathbf d^{(k)}$
+
+		\State $\mathbf r^{(k+1)} = \mathbf r^{(k)} - \alpha_k A \mathbf d^{(k)}$
+
+		\State $P \mathbf z^{(k + 1)} = \mathbf r^{(k + 1)}$ \Comment{Compute the action of the preconditioner $P$ on $\mathbf r^{(k+1)}$}
+
+		\State $\beta_k = \dfrac{ \left( A \mathbf d^{(k)} \right)^T \mathbf r^{(k+1)} }{ \left( A \mathbf d^{(k)} \right)^T \mathbf d^{(k)} }$
+
+		\State $\mathbf d^{(k+1)} = \mathbf r^{(k+1)} - \beta_k \mathbf d^{(k)}$
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
+
 \subsection{Krylov-space methods}
 
-For linear iterative methods (with $P = I, \ \alpha_{k} = 1 \ \forall k$), we have:
+For linear iterative methods (with $P = I$ and $\alpha_{k} = 1 \ \forall k$) as those seen before, we have:
 \begin{equation}
-    \label{eq:linear-iterative-methods}
-    \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \mathbf{r}^{(k)} \qquad k \geq 1
+	\label{eq:linear-iterative-methods}
+	\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} + \mathbf{r}^{(k)} \qquad k \geq 1
 \end{equation}
-
 The following recursive relation for the residuals holds
 $$
-    \mathbf{r}^{(k+1)} = \mathbf{r}^{(k)} - A \mathbf{r}^{(k)} \qquad k \geq 1
+	\mathbf{r}^{(k+1)} = \mathbf{r}^{(k)} - A \mathbf{r}^{(k)} \qquad k \geq 1
 $$
 From the above identity, it follows by induction that
 $$
-    \mathbf{r}^{(k)} = p_{k-1} (A) \mathbf{r}^{(0)} \in \mathrm{span} \ \{\mathbf{r}^{(0)}, \ A \mathbf{r}^{(0)}, \ \dots, \ A^{k-1} \mathbf{r}^{(0)} \}
+	\mathbf{r}^{(k)} = p_{k-1} (A) \mathbf{r}^{(0)} \in \mathrm{span} \ \{\mathbf{r}^{(0)}, \ A \mathbf{r}^{(0)}, \ \dots, \ A^{k-1} \mathbf{r}^{(0)} \}
 $$
-where $p_{r}(\mathscr z) = (1 - \mathscr z)^{r}$ is a polynomial of exact degree $r$.
+where $p_{r}(z) = (1 - z)^{r}$ is a polynomial of exact degree $r$.
 
 From $\eqref{eq:linear-iterative-methods}$ we have
 $$
-    \mathbf{x}^{(k)} = \mathbf{x}^{(0)} + \mathbf{r}^{(0)} + \dots + \mathbf{r}^{(k-1)} = \mathbf{x}^{(0)} + p_{k-1}(A) \mathbf{r}^{(0)}
+	\mathbf{x}^{(k)} = \mathbf{x}^{(0)} + \mathbf{r}^{(0)} + \dots + \mathbf{r}^{(k-1)} = \mathbf{x}^{(0)} + p_{k-1}(A) \mathbf{r}^{(0)}
 $$
-so $\mathbf{x}^{(0)}$ lies in the affine space $\mathbf{x}^{(0)} + \mathrm{span} \ \{ \mathbf{r}^{(0)}, \ A \mathbf{r}^{(0)}, \ \dots, \ A^{k-1} \mathbf{r}^{(0)} \}$ obtained by shifting the subspace of $\mathbf{r}^{k-1}$.
+so $\mathbf{x}^{(k)}$ lies in the affine space $\mathbf{x}^{(0)} + \mathrm{span} \ \{ \mathbf{r}^{(0)}, \ A \mathbf{r}^{(0)}, \ \dots, \ A^{k-1} \mathbf{r}^{(0)} \}$ obtained by shifting the subspace of $\mathbf{r}^{k-1}$.
 
-\begin{tcolorbox}[title=Definition of Krylov (sub)space]
-    Given a nonsingular $A\in \mathbb{R}^{n\times n}$ and $\mathbf{y} \in \mathbb{R}^{n}, \ \mathbf{y} \neq 0$, the $k$-th Kyrlov (sub)space $\mathscr K_{k}(A, \mathbf{y})$ generated by $A$ from $\mathbf{y}$ is
-    $$
-        \mathscr K_{k}(A, \mathbf{y}) := \mathrm{span} \ (\mathbf{y}, \ A \mathbf{y}, \ \dots, \ A^{k-1} \mathbf{y})
-    $$
+\begin{tcolorbox}[title=Definition: Krylov subspace]
+	Given a nonsingular $A\in \mathbb{R}^{n\times n}$ and $\mathbf{y} \in \mathbb{R}^{n}, \ \mathbf{y} \neq 0$, the $k$-th Kyrlov subspace $\mathscr K_{k}(A, \mathbf{y})$ generated by $A$ from $\mathbf{y}$ is
+	$$
+		\mathscr K_{k}(A, \mathbf{y}) := \mathrm{span} \ (\mathbf{y}, \ A \mathbf{y}, \ \dots, \ A^{k-1} \mathbf{y})
+	$$
 \end{tcolorbox}
 
 Clearly, it holds
 $$
-    \mathscr K_{1}(A, \mathbf{y}) \subseteq \mathcal K_{2} (A, \mathbf{y}) \subseteq \dots
+	\mathscr K_{1}(A, \mathbf{y}) \subseteq \mathcal K_{2} (A, \mathbf{y}) \subseteq \dots
 $$
 
 We can choose the $k$-th approximate solution $\mathbf{x}^{(k)} \in \mathbf{x}^{(0)} + \mathscr K_{k}(A, \mathbf{r}^{(0)})$. In particular
 $$
-    \mathbf{x}^{(k)} = \mathbf{x}^{(0)} + p_{k-1}(A) \mathbf{r}^{(0)}
+	\mathbf{x}^{(k)} = \mathbf{x}^{(0)} + p_{k-1}(A) \mathbf{r}^{(0)}
 $$
 with a polynomial $p_{k-1}(A)$ of exact degree $k-1$.
 
 When applied to large real-world problems, Kyrlov space solvers often converge very slowly, if at all. In practice, they are therefore nearly always used with preconditioning:
 $$
-    A \mathbf{x} = \mathbf{b} \qquad \iff \qquad P^{-1} A \mathbb{P}^{-1}\mathbf{x} = P^{-1} \mathbf{b} \qquad \iff \qquad \hat{A}\hat{\mathbf{z}} = \hat{\mathbf{b}}, \quad \hat{P} \hat{\mathbf{z}} = \mathbf{x}
+	A \mathbf{x} = \mathbf{b} \qquad \iff \qquad P^{-1} A P^{-1}\mathbf{x} = P^{-1} \mathbf{b} \qquad \iff \qquad \hat{A}\hat{\mathbf{z}} = \hat{\mathbf{b}}, \quad \hat{P} \hat{\mathbf{z}} = \mathbf{x}
 $$
 Applying a preconditioned Kyrlov space solver means applying the method to $\hat{A} \hat{\mathbf{z}} = \hat{b}$.
 
@@ -318,26 +416,26 @@ Applying a preconditioned Kyrlov space solver means applying the method to $\hat
 
 While CG (for spd A) has mutually orthogonal residuals $\mathbf{r}^{(k)}$ with
 $$
-    \mathbf{r}^{(k)}
-    =
-    p_k(A) \mathbf{r}^{(0)}
-    \in
-    \mathrm{span} \{ \mathbf r^{(0)}, A \mathbf r^{(0)}, \dots, A^k \mathbf r^{(0)} \}
-    =
-    \mathscr K_{k+1}(A, \mathbf r^{(0)})
+	\mathbf{r}^{(k)}
+	=
+	p_k(A) \mathbf{r}^{(0)}
+	\in
+	\mathrm{span} \{ \mathbf r^{(0)}, A \mathbf r^{(0)}, \dots, A^k \mathbf r^{(0)} \}
+	=
+	\mathscr K_{k+1}(A, \mathbf r^{(0)})
 $$
 BiCG constructs in the same spaces residuals that are orthogonal to a dual Krylov
 space spanned by \textit{shadow residuals}
 $$
-    \tilde{\mathbf{r}}^{(k)}
-    =
-    p_k(A) \tilde{\mathbf{r}}^{(0)}
-    \in
-    \mathrm{span} \{ \tilde{\mathbf r}^{(0)}, A^T \tilde{\mathbf r}^{(0)}, \dots, (A^T)^k \tilde{\mathbf r}^{(0)} \}
-    =
-    \mathscr K_{k+1}(A^T, \tilde{\mathbf r}^{(0)})
-    \equiv
-    \tilde{\mathscr{K}}_{k+1}
+	\tilde{\mathbf{r}}^{(k)}
+	=
+	p_k(A) \tilde{\mathbf{r}}^{(0)}
+	\in
+	\mathrm{span} \{ \tilde{\mathbf r}^{(0)}, A^T \tilde{\mathbf r}^{(0)}, \dots, (A^T)^k \tilde{\mathbf r}^{(0)} \}
+	=
+	\mathscr K_{k+1}(A^T, \tilde{\mathbf r}^{(0)})
+	\equiv
+	\tilde{\mathscr{K}}_{k+1}
 $$
 The initial shadow residual $\tilde{\mathbf{r}}^(0)$ can be chosen freely.
 So, BiCG requires two matrix-vector multiplications to extend $\mathscr K_k$ and $\tilde{\mathscr K}_k$:

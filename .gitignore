@@ -1,0 +1,49 @@
+desktop.ini
+
+# Core LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.dvi
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+
+# Bibliography auxiliary files (BibTeX/Biber)
+*.bbl
+*.blg
+*.bcf
+*-blx.bib
+*.run.xml
+
+# Glossary and Index files
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.idx
+*.ind
+*.ilg
+
+# PDF output (Optional: comment this out if you WANT to track the PDF)
+# *.pdf
+
+# Editor specific files (VS Code, TeXShop, etc.)
+.vscode/
+*.synctex.gz
+*.user
+*.bak
+*.sav
+
+.obsidian/
+.exe

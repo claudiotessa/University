@@ -57,7 +57,7 @@ let's consider the following iteration scheme, for $k >= 0$:
 \begin{align*}
 	 & \mathbf y^{(k + 1)} \gets A \mathbf x^{(k)}                                         \\
 	 & \mathbf x^{(k+1)} \gets \frac{\mathbf y^{(k + 1)}}{\lVert \mathbf y^{(k+1)} \rVert} \\
-	 & \nu^{(k+1)} \gets [\mathbf x^{(k+1)}]^H A \mathbf x^{(k+1)}
+	 & \lambda^{(k+1)} \gets [\mathbf x^{(k+1)}]^T A \mathbf x^{(k+1)}
 \end{align*}
 
 It can be shown that the above iteration scheme converges to a
@@ -117,7 +117,7 @@ for $k \geq 0$:
 
 \begin{align*}
 	 & \text{Solve } A \mathbf z^{(k + 1)} =\mathbf q^{(k)}                                  \\
-	 & \mathbf q^{(k + 1)} \gets \frac{\mathbf z^{(k+1)}}{\lVert \mathbf z^{(k + 1)}} \rVert \\
+	 & \mathbf q^{(k + 1)} \gets \frac{\mathbf z^{(k+1)}}{\lVert \mathbf z^{(k + 1)} \rVert} \\
 	 & \sigma^{(k+1)} \gets [\mathbf q^{k+1}]^H A \mathbf q^{(k+1)}
 \end{align*}
 

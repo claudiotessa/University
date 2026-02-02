@@ -1,0 +1,218 @@
+\section{Control hazards}
+\label{sec:control-hazards}
+
+Control hazards can cause a greater loss in performance than data hazards. When a branch is executed, it may or may not change the PC. If a branch changes the PC to its target address, it is a \textbf{taken branch}. If it falls through, it is \textbf{not taken}.
+
+\subsection{Conservative solution}
+
+To feed the pipeline, we need to fetch a new instruction at each clock cycle, but the branch decision is not yet ready. This problem to choose the correct instruction to be fetched after a branch is called \textbf{Control Hazard}. Control hazards arise from the pipelining of conditional branches and other \texttt{jump} instructions changing the PC. They reduce the performance from the ideal speedup gained by the pipelining because it is needed to stall the pipeline until branch resolution.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/Pasted image 20250501180431.png}
+\end{figure}
+
+This way, each branch costs a penalty of 3 stalls to decide and fetch the correct instruction flow in the pipeline.
+
+\subsection{Early evaluation of branches in the ID stage}
+
+The idea is to improve the performance by
+
+\begin{enumerate}
+	\item Comparing the registers to derive the branch outcome
+	\item Computing the branch target address
+	\item Updating the PC register
+\end{enumerate}
+
+\textbf{as soon as possible} in the pipeline. The RISC-V pipeline anticipates the steps 1, 2, and 3 \textbf{during the ID stage}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250501181208.png}
+\end{figure}
+
+Her we need to insert only 1 stall before the target address is calculated.
+
+\subsection{Static branch prediction techniques}
+
+In static branch prediction techniques, the prediction is fixed at \textbf{compile time} for each branch, during the entire execution of the program. There are different types of static branch prediction techniques.
+
+\subsubsection{Branch Always Not Taken}
+
+This is the \textbf{easiest prediction}, always assume that the branch will be \textbf{not taken}. It is suitable for \texttt{if-then-else} statements, when the \texttt{then} clause is the most likely and the program will continue sequentially.
+
+The next instruction in the pipeline is simply fetched as normal. If the branch outcome then is actually not taken, the pipeline will be fine.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250501181655.png}
+\end{figure}
+
+What happens if the branch will be taken? In this case it will be necessary to \textbf{flush} the instruction after the branch (as it should have not been executed) and fetch the next instruction at the target address. If a branch is taken, it will cost 1 stall penalty.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.85\textwidth]{images/Pasted image 20250501182226.png}
+\end{figure}
+
+This increases performance depending on how many \textit{taken} branches there are.
+
+\subsubsection{Branch Always Taken}
+
+This is the dual case of the previous technique: we assume every branch as \textit{taken}. It is suitable for backward branches such as \texttt{for} loops and \texttt{do-while} loops, that are most likely taken.
+
+The problem here is that we need to know the \textit{branch target address} to start fetching the instructions at the target. In the IF stage, we need to add a \textbf{branch target buffer} where to store the \textbf{predicted target address} based on the previous branch behavior.
+
+This makes it similar to the predicted-not-taken technique: if the prediction is wrong, we get one cycle penalty, otherwise the pipeline continues as normal.
+
+\subsubsection{Backward Taken Forward Not Taken (BTFNT)}
+
+In this case the prediction is based on the \textbf{branch direction}: backward-going branches are predicted as \textit{taken}, while forward-going branches are predicted as \textit{not-taken}.
+
+\subsubsection{Profile-driven prediction}
+
+We \textbf{profile} the behavior of the application program by several early execution runs by using different datasets. The prediction is based on \textbf{profiling information} about the branch behavior collected during earlier runs.
+
+The profile-driven prediction methos requires a \textbf{compiler hint bit} encoded by the compiler in the branch instruction format:
+
+\begin{itemize}
+	\item Set to \textbf{1} if \textbf{taken} is the most probable branch outcome
+	\item Set to \textbf{0} if \textbf{not taken} is the most probable branch outcome
+\end{itemize}
+
+\subsubsection{Branch delay slot}
+
+Instead of stalling the pipeline for one cycle, the compiler tries to find a valid and useful instruction to be scheduled while the branch is being resolved (called the \textbf{branch delay slot}). There are 4 ways to schedule an instruction in the branch delay slot:
+
+\begin{enumerate}
+	\item \textbf{From before} - The branch delay slot is scheduled with an \textit{independent} instruction from before the branch. The instruction in the branch delay slot is \textit{always executed}, regardless of the branch outcome. The execution will then continue, based on the branch outcome, in the right direction.
+	\item \textbf{From after} - dual to \textit{from before}.
+	\item \textbf{From the taken path} - The branch delay slot is scheduled with one instruction from the target of the branch (\textit{taken} path). This strategy is preferred when the branch is \textit{taken with high probability}, such as \texttt{do-while} loop branches. If the branch is then \textit{mispredicted} (not taken), the instruction in the delay slot must be flushed (unless it's ok to execute it anyway).
+	\item \textbf{From the not taken path} - The branch delay slot is scheduled with one instruction from the fall-through of the branch (\textit{not taken} path). This strategy is preferred when the branch is \textit{not taken with high probability}, such as \texttt{if-then-else} statements where the \texttt{else} path is less probable. If the branch is then \textit{mispredicted} (taken), the instruction in the delay slot must be flushed (unless it's ok to execute it anyway).
+\end{enumerate}
+
+\subsection{Dynamic branch prediction techniques}
+
+In dynamic branch prediction techniques, the prediction for each branch can change at \textbf{runtime} during the program execution.
+
+The idea is to use the past behavior (runtime behavior) to predict at runtime the future branch behavior. To do this, we use hardware to \textbf{dynamically} predict the outcome of a branch. This mean that the prediction can change at runtime if the branch changes its behavior during execution.
+
+Dynamic branch prediction is based on \textit{two interactive hardware blocks}:
+
+\begin{enumerate}
+	\item \textbf{Branch Outcome Predictor} - To predict the direction of a branch (taken or not taken).
+	\item \textbf{Branch Target Buffer} - To predict the branch target address.
+\end{enumerate}
+
+They are placed in the instruction fetch (IF) stage, to predict the next instruction to read in the instruction cache.
+
+If the branch is predicted by the outcome predictor in the IF stage as \textit{not taken}, then the PC is incremented as usual. If the prediction is correct, there will be no penalty, otherwise we need to flush the instruction fetched after the branch with a one-cycle penalty.
+
+If the branch is predicted by the BOP in IF stage as \textit{taken}, the target buffer gives the predicted target address. Similarly to the previous case, if the prediction is correct, there will be no penalty, otherwise we need to flush the instruction fetched after the branch with a one-cycle penalty.
+
+\subsubsection{Branch History Table (1-bit)}
+
+The \textit{branch history table} (BHT) is a table containing 1 bit for each branch that says whether the branch was recently taken or not taken. The behavior is controlled by a \textbf{finite state machine} with only 2 states to remember the last direction taken by the branch.
+
+The table is indexed by the lower portion $k$-bit of the address of the branch instruction, to keep the size of the table limited. For locality reasons, we would expect that the most significant bits of the branch address are \textbf{not} changed. The table has \textbf{no tag check} (every access is a hit). The prediction bit may have been put there by another branch with the same low order address bits, but this doesn't matter, as the \textbf{prediction is just a hint}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/Pasted image 20250502004021.png}
+\end{figure}
+
+A \textbf{misprediction} occurs either when:
+
+\begin{itemize}
+	\item The prediction is incorrect for that branch;
+	\item The same index has been referenced by two different branches, and the previous history refers to the other branch (this can occur because there is no tag check). To reduce this problem, it is enough to reduce the number of rows in the BHT (that is, to increase $k$), or to use a hashing function.
+\end{itemize}
+
+In a \textit{loop}, for example, a branch is almost always T, and then NT once at the exit of the loop. Therefore, the 1-bit BHT causes 2 mispredictions:
+
+\begin{enumerate}
+	\item At the \textbf{last iteration}, since the prediction bit is T, while we need to exit from the loop
+	\item When we re-enter the loop, at the \textbf{first iteration} we need the branch to stay in the loop, while the prediction bit was flipped to NT on previous execution of the last iteration of the loop
+\end{enumerate}
+
+\subsubsection{Branch History Table (2-bit)}
+
+We can use a 2-bit BHT to encode 4 states, in order to change the prediction only after 2 mispredictions. The finite state machine then becomes
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250502010135.png}
+\end{figure}
+
+Coming back to the previous example, in the last loop iteration, we mispredict the branch but we do not need to change the prediction. When re-entering the loop, the branch is correctly predicted as taken.
+
+\subsubsection{Branch target buffer}
+
+The \textit{branch target buffer} is a cache storing the \textbf{predicted target address} for the taken-branch instructions. This predicted target address is expressed as PC-relative.
+
+The branch target buffer is designed as a direct-mapped cache placed in the IF stage by using the address of the fetched branch instruction to index the cache. Then, \textbf{tags} are used for the associative lookup. The branch target buffer is used in combination with the branch history table in the IF stage.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/Pasted image 20250502010808.png}
+\end{figure}
+
+\subsubsection{Correlating branch predictors}
+
+The 2-bit BHT uses only the recent behavior of a single branch to predict the future behavior of that branch. We can consider use the following idea: the behavior of recent branches are \textbf{correlated}, meaning that the recent behavior of \textbf{other branches} (rather than just the current branch) can also influence the prediction of the current branch.
+
+This type of branch predictors that use the behavior of other branches to make a prediction are called \textbf{correlating predictors}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/Pasted image 20250502011406.png}
+\end{figure}
+
+We record if the most recently executed branches have been \textit{taken} or \textit{not taken}. The branch is predicted based on the previous executed branch by selecting the appropriate 1-bit BHT:
+
+\begin{itemize}
+	\item One prediction is used if the last branch executed was \textit{taken};
+	\item Another prediction is used if the last branch executed was \textit{not taken}.
+\end{itemize}
+
+Normally, the last branch executed is \textit{not} the same instruction as the branch being predicted (although this can occur in simple loops with no other branches in the loop).
+
+In general, an $(m, n)$ correlating predictor records the last $m$ branches to choose from $2^{n}$ BHTs, each of which is an $n$-bit predictor.
+
+The branch prediction buffer can be indexed by using a concatenation of low-order bits from the branch address with $m$-bit global history (i.e., global history of the most recent $m$ branches). For example, a 2-bit BHT predictor with no global history is simply a (0, 2) predictor.
+
+\subsubsection{Two-level adaptive branch predictors}
+
+The first level history is recorded in one or more $k$-bit shift register, called \textbf{Branch History Register (BHR)}, which records the outcomes of the $k$ most recent branches (used as \textbf{global} history).
+
+The second level history is recorded in one or more tables, called \textbf{Pattern History Table (PHT)} of 2-bit saturating counters (used as a \textbf{local} history).
+
+The BHR is used to index the PHT to select which 2-bit counter to use. Once the 2-bit counter is selected, the prediction is made using the same methos as in the 2-bit counter scheme.
+
+\subsubsection{Global adaptive predictor}
+
+The Global Adaptive (GA) predictor uses the correlation between the current branch and the other branches in the global history to make the prediction: a PHT (local history) indexed by the content of BHT (global history).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/Pasted image 20250502013501.png}
+\end{figure}
+
+\subsubsection{GShare predictor}
+
+It is a variation of the GA predictor where we want to correlate the BHR recording the outcomes of the most recent branches (global history) with the low-order bits of the branch address. \textbf{GShare}: we make the XOR of 4-bit BHR (global history), with the low-order 4-bit of PC (branch address) to index the PHT(local history)
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\textwidth]{images/Pasted image 20250502013749.png}
+\end{figure}
+
+\subsection{Performance of branch prediction techniques}
+
+The \textit{performance} of a branch prediction technique depends on:
+
+\begin{itemize}
+	\item \textbf{Accuracy} - Measured in terms of percentage of incorrect predictions given by the predictor.
+	\item \textbf{Cost} - Measured in terms of time lost to execute useless instructions (misprediction penalty) given by the processor architecture. The cost increases for deeply pipelined processors.
+	\item \textbf{Branch frequency} - Given by the application. the importance of accurate branch prediction is higher in programs with higher number of branch instructions.
+\end{itemize}

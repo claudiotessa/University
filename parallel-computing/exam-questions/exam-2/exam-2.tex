@@ -1,0 +1,77 @@
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+    parbox=false,
+    breakable
+}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+\usepackage{minted}
+\usepackage{array}
+\usepackage{booktabs}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
+
+\newtheoremstyle{spaced}
+    {\parskip}   % Space above
+    {\parskip}   % Space below
+    {\itshape}   % Body font
+    {}           % Indent
+    {\bfseries}  % Head font
+    {.}          % Punctuation
+    {.5em}       % Space after head
+    {}
+
+\theoremstyle{spaced}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{spaced}
+\newtheorem{definition}{Definition}
+
+\newcounter{N}
+\newcommand{\num}{
+    \vspace{2em}
+    \boxed{\refstepcounter{N}\theN}
+    \ignorespaces
+}
+% Page setup
+\geometry{a4paper, margin=1in}
+
+% Title
+\title{PARALLEL COMPUTING exam questions PT2}
+\author{Claudio Tessa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+\input{sections/exercise1.tex}
+\input{sections/exercise2.tex}
+\input{sections/exercise3.tex}
+\input{sections/exercise4.tex}
+
+\end{document}

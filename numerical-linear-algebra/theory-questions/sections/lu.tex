@@ -1,0 +1,93 @@
+\num Consider the problem: find $\mathbf x \in \mathbb R^n$ such that $A \mathbf x = \mathbf b$, where $A \in \mathbb R^{n \times n}$ and $\mathbf b \in \mathbb R^n$ are given.
+
+\begin{enumerate}
+	\item Describe the LU factorization of $A$. Introduce the employed notation.
+
+	      \begin{tcolorbox}
+		      The LU factorization decomposes the matrix $A$ into
+		      $$
+			      A = LU
+		      $$
+		      where
+		      \begin{itemize}
+			      \item $L \in \mathbb R^{n \times n}$ is a lower triangular matrix;
+			      \item $U \in \mathbb R^{n \times n}$ is an upper triangular matrix.
+		      \end{itemize}
+	      \end{tcolorbox}
+
+	\item State the necessary and sufficient conditions for the existence and uniqueness of the LU factorization.
+
+	      \begin{tcolorbox}
+		      We can use the following theorem.
+
+		      If $A$ is invertible, then the LU factorization of $A$ exists and is unique if and only if all its leading principal minors are nonzero, that is:
+		      $$
+			      \det (A_k) \neq 0 \qquad \forall k = 1, \dots, n - 1
+		      $$
+		      where $A_k$ is the $k \times k$ submatrix of $A$ consisting of the first $k$ rows and $k$ columns of $A$.
+
+		      Note that if $A$ is not invertible we need to use \textbf{pivoting} introducing a permutation matrix $P$. The factorization then becomes $PA = LU$.
+	      \end{tcolorbox}
+
+	\item Describe how the LU factorization is used to compute the approximate solution of $A \mathbf x = \mathbf b$.
+
+	      \begin{tcolorbox}
+		      Assume $A$ is invertible. After we have the factorization $A = LU$, we can:
+		      \begin{enumerate}
+			      \item Solve $L \mathbf y = \mathbf b$ (lower triangular system, use forward substitution);
+			      \item Solve $U \mathbf x = \mathbf y$ to find the final solution $\textbf x$ (upper triangular system, use backwards substitution)
+		      \end{enumerate}
+	      \end{tcolorbox}
+
+	\item State the computational costs and prove the results.
+
+	      \begin{tcolorbox}
+		      Consider the gaussian elimination algorithm:
+
+		      \begin{algorithm}[H]
+			      \caption{Gaussian elimination}
+			      \begin{algorithmic}
+				      \For{$k = 1, \dots, n-1$}
+
+				      \For{$i = k + 1, \dots, n$}
+				      \State $l_{ik} = \dfrac{a_{ik}^{(k)}}{a_{kk}^{(k)}}$
+				      \Comment{Compute the multiplier}
+				      \For{$j = k + 1, \dots, n$}
+				      \State $a_{ij}^{(k+1)} = a_{ij}^{(k)} - l_{ik} a_{kj}^{(k)}$
+				      \Comment{Update the matrix entries}
+				      \EndFor
+				      \State $\mathbf b_i^{(k + 1)} = \mathbf b_i^{(k)} - l_{ik} b_k^{(k)}$
+				      \Comment{Update the right-hand size}
+				      \EndFor
+
+				      \EndFor
+				      \State After $n - 1$ steps, we will have: $				      a_{ij}^{(n)} = U, \quad l_{ij} = L, \quad \mathbf b^{(n)} = \mathbf y$
+			      \end{algorithmic}
+		      \end{algorithm}
+
+		      \begin{proof}[\textbf{Proof}]
+			      As we can see from the code, we iterate $k$ form 1 to $n - 1$. At each step $k$, we are
+			      \begin{itemize}
+				      \item computing the multiplier: requires $(n - k)$ divisions
+				      \item updating the matrix entries: the matrix size is $(n - k) \times (n - k)$, and each element requires 1 multiplication and 1 subtraction (2 flops). Therefore, the total cost to update is $2(n - k)^2$.
+			      \end{itemize}
+			      Therefore, the total computational cost $C_{LU}$ is:
+			      $$
+				      \implies C_{LU} = \sum_{k = 1}^{n - 1} [(n - k) + 2(n - k)^2] = O(n^3)
+			      $$
+		      \end{proof}
+	      \end{tcolorbox}
+
+	\item Describe how the incomplete LU factorization can be used as preconditioner to accelerate the convergence of a linear iterative method. Introduce the employed notation.
+	      \begin{tcolorbox}
+		      When A is sparse, computing the LU factorization is computationally expensive and causes "fill-in". We can instead use the incomplete LU factorization: take $P = \tilde L \tilde U$, where $\tilde L$ and $\tilde U$ are the incomplete LU factors, such that:
+		      $$
+			      A \approx \tilde L \tilde U, \text{ with } \tilde \ell_{ij} = 0, \tilde u_{ij} = 0 \text{ if } \tilde a_{ij} = 0
+		      $$
+		      $\tilde L, \tilde U$ have the same sparsity pattern as $A$ and so memory occupation is the same.
+
+		      The incomplete LU factorization improves the condition number, accelerating convergence.
+	      \end{tcolorbox}
+
+	\item \hl{Describe the main pivoting techniques and comment on the computational costs.}
+\end{enumerate}

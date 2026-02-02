@@ -1,0 +1,42 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{n}{omp\PYGZus{}set\PYGZus{}num\PYGZus{}threads}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{);}
+
+\PYG{c+cp}{\PYGZsh{}pragma omp parallel}
+\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+cp}{\PYGZsh{}pragma omp single }\PYG{c+c1}{// only one thread generates the graph}
+\PYG{+w}{    }\PYG{p}{\PYGZob{}}
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(out: dep[0])}
+\PYG{+w}{        }\PYG{n}{task0}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[0]) depend(out: dep[1])}
+\PYG{+w}{        }\PYG{n}{task1}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[0]) depend(out: dep[2])}
+\PYG{+w}{        }\PYG{n}{task2}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[0]) depend(out: dep[3])}
+\PYG{+w}{        }\PYG{n}{task3}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[1]) depend(out: dep[4])}
+\PYG{+w}{        }\PYG{n}{task4}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[2]) depend(out: dep[5])}
+\PYG{+w}{        }\PYG{n}{task5}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[2]) depend(out: dep[6])}
+\PYG{+w}{        }\PYG{n}{task6}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[3]) depend(out: dep[7])}
+\PYG{+w}{        }\PYG{n}{task7}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[4]) depend(out: dep[8])}
+\PYG{+w}{        }\PYG{n}{task8}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[7]) depend(out: dep[9])}
+\PYG{+w}{        }\PYG{n}{task9}\PYG{p}{();}
+
+\PYG{+w}{        }\PYG{c+cp}{\PYGZsh{}pragma omp task depend(in: dep[5], dep[6], dep[8], dep[9])}
+\PYG{+w}{        }\PYG{n}{task10}\PYG{p}{();}
+\PYG{+w}{    }\PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

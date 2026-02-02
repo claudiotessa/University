@@ -1,0 +1,7 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+    for (j = 0; j \PYGZlt{} 999; j++) \PYGZob{}
+        for (i = 2; i \PYGZlt{} 999; i++) \PYGZob{}
+            a[i][j] = f(a[i\PYGZhy{}2][j]);
+        \PYGZcb{}
+    \PYGZcb{}
+\end{MintedVerbatim}

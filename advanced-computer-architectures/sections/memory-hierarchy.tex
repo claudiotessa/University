@@ -1,0 +1,121 @@
+\section{Memory hierarchy}
+
+Programmers want unlimited amounts of memory with low latency. However, fast memory technology (SRAM) is more expensive per bit than slower memory (SRAM).
+
+The \textit{solution} is to organize memory system into \textbf{hierarchy}:
+
+\begin{itemize}
+	\item The entire addressable memory space is available in larger and slower memory;
+	\item There are incrementally slower and faster memories, each containing a copy of a subset of the memory below it.
+\end{itemize}
+
+\textbf{Temporal and spatial locality} ensures that nearly all references can be found in smaller memories. This gives the illusion of a large, fast memory being presented to the processor.
+
+\subsection{Classifying cache misses}
+
+There are three major categories of cache misses:
+
+\begin{enumerate}
+	\item \textbf{Compulsory misses} (or \textbf{cold start misses}) - The first access to a block is not in the cache, so the block must be loaded in the cache from the MM. There are compulsory misses even in an \textit{infinite cache} (they are independent of the cache size).
+	\item \textbf{Capacity misses} - If the cache cannot contain all the blocks needed during the execution of a program, \textit{capacity misses} will occur due to blocks being replaces and later retrieved. Can be \textit{reduced} with larger cache size.
+	\item \textbf{Conflict misses} - If the block-placement strategy is set associative or direct-mapped, conflict misses will occur because a block can be replaces and later retrieved when other blocks map to the same location in the cache.
+\end{enumerate}
+
+Can be \textit{reduced} with larger cache or increasing associativity (by definition, fully associative caches avoid all conflict misses).
+
+\subsection{Improving cache performance}
+
+Average Memory Access Time:
+$$
+	\text{AMAT} = \text{Hit Time} + \text{Miss Rate} \times \text{Miss Penalty}
+$$
+
+\subsubsection{How to reduce the miss rate}
+
+\begin{itemize}
+	\item \textbf{Larger cache size} - (\textit{Drawbacks}: increases hit time, area, power consumption, and cost).
+	\item \textbf{Larger block size} - Reduces the miss rate up to a point when the block size is too large with respect to the cache size (\textit{Drawbacks}: larger block increase miss penalty, and reduce the number of block, so increase conflict misses if the cache is small),
+	\item \textbf{Higher associativity} - Decreases conflict misses (\textit{Drawbacks}: the complexity increases hit time, are, power consumption, and cost).
+	\item \textbf{Victim Cache} - A small associative cache used as a buffer to place data discarder from cache to better exploit temporal locality. \\
+	      It is placed between cache and its refilling path towards the next lower-level in the hierarchy. \\
+	      Victim cache is checked on a miss to see if it has the required data before going to lower-level memory. If the block is found in victim cache, the victim block and the cache block are swapped.
+	\item \textbf{Pseudo-Associativity} and \textbf{Way Prediction}:
+	      \begin{itemize}
+		      \item \textbf{Way Prediction} - In 2-way associative caches, use extra bits to predict, for each set, which of the two ways to try on the next cache access (predict the way to pre-set the mux):
+		            \begin{itemize}
+			            \item If the way prediction is correct $\implies$ Hit time
+			            \item If way misprediction $\implies$ \textbf{Pseudo} hit time in the other way and change the way predictor
+			            \item Otherwise go to the lower level of hierarchy (Miss penalty)
+		            \end{itemize}
+		      \item \textbf{Pseudo-Associativity} - In direct mapped caches, divide the cache in two banks in a sort of associativity:
+		            \begin{itemize}
+			            \item If the bank prediction is correct $\implies$ Hit time
+			            \item If misprediction on the first bank, check the other bank to see if it's there. If so, we have a \textbf{pseudo-hit} (slow hit) and change the bank predictor
+			            \item Otherwise go to the lower level of hierarchy (Miss penalty)
+		            \end{itemize}
+
+		            \begin{figure}[H]
+			            \centering
+			            \includegraphics[width=0.7\textwidth]{images/Pasted image 20250626130729.png}
+		            \end{figure}
+
+	      \end{itemize}
+	\item \textbf{Hardware pre-fetching of instructions and data} - The basic idea is to exploit locality, pre-fetch next instructions (or data) before they are requested by the processor. Pre-fetching can be done in cache or in an \textit{external stream buffer}.
+	\item \textbf{Instruction pre-fetching}: fetch two blocks on a miss, the requested block ($i$) and the next consecutive block ($i + 1$). The requested block is placed in the cache, while the next block is placed in the \textit{instruction stream buffer}. If miss in cache, but hit in stream buffer, move the stream buffer block into cache and pre-fetch the next block ($i + 2$).
+	      \begin{figure}[H]
+		      \centering
+		      \includegraphics[width=0.6\textwidth]{images/Pasted image 20250626131339.png}
+	      \end{figure}
+	\item \textbf{Data cache block pre-fetching}: relies on \textit{extra memory bandwidth} that can be used without penalty (\textit{Drawback}: if pre-fetching interferes with demand misses, it can lower performance).
+	\item \textbf{Software pre-fetching data} - the compiler can help in reducing useless pre-fetching (\textit{compiler-controlled pre-fetching}): compiler inserts pre-fetch LOAD instructions to load data in registers/cache before they are needed.
+	\item \textbf{Compiler Optimizations} - The basic idea is to apply profiling on software applications, then use profiling info to apply code transformations: reorder instructions in memory so as to reduce conflict misses. \\
+	      \textbf{Managing Data}:
+	      \begin{itemize}
+		      \item \textbf{Merging arrays}: improve \textit{spatial locality} by single array of compound elements vs 2 arrays (to operate on data in the same cache block).
+		      \item \textbf{Loop interchange}: improve \textit{spatial locality} by changing loops nesting to access data in the order stored in memory (re-ordering maximized re-use of data in a cache block).
+		      \item \textbf{Loop fusion}: improve \textit{spatial locality} by combining 2 independent loops that have same looping and some variables overlap.
+		      \item \textbf{Loop blocking}: improve \textit{temporal locality} by accessing sub-blocks of data repeatedly (instead of accessing by entire columns or rows).
+	      \end{itemize}
+
+\end{itemize}
+
+\subsubsection{How to reduce the miss penalty}
+
+\begin{itemize}
+	\item \textbf{Read priority over write on miss} - The idea is to give higher priority to read misses over writes to reduce the miss penalty. The \textbf{write buffer} must be properly sized, larger than usual to keep more writes in hold.
+	      \begin{itemize}
+		      \item \textit{Drawback}: this approach can complicate the memory access because the \textbf{write buffer} might hold the updated value of a memory location needed on a read miss $\implies$ RAW hazards through memory.
+		      \item \textbf{Write through} with write buffers might generate RAW conflicts with main memory reads on cache misses.
+		            \begin{itemize}
+			            \item Check the contents of the write buffer on a read miss: \textit{if there are no conflicts}, let the memory access continue sending the read miss before the write.
+			            \item Otherwise, the read miss has to wait until the write buffer is empty, but this might increase the read miss penalty.
+		            \end{itemize}
+	      \end{itemize}
+	\item \textbf{Sub-block placement} - Don't have to lead the full block on a miss, instead \textbf{move sub-blocks}. We need valid bits per sub-blocks to indicate validity.
+	      \textit{Drawback}: it's not exploiting spatial locality enough.
+	\item \textbf{Early restart and critical word first} - Usually the CPU need just one word of the block on a miss. The idea is that we \textit{don't wait for the full block} to be loaded before restarting the CPU:
+	      \begin{itemize}
+		      \item \textbf{Early restart}: request the words in \textit{normal order} from memory, but as soon as the requested word of the block arrives, send it to the CPU to let the CPU continue execution, while filling in the rest of the words in the cache block.
+		      \item \textbf{Critical word first} (or requested word first): request the missed word first from memory and send it to the CPU as soon as it arrives to let the CPU continue the execution, while filling the rest of the words in the cache block.
+	      \end{itemize}
+	\item \textbf{Non-blocking caches (hit under miss)} - Allows data cache to continue to supply cache hits during a previous miss (hit under miss). \textit{Hit under miss} reduces the effective miss penalty by working during a miss instead of stalling CPUs on misses: requires \textit{out-of-order} execution CPU: the CPU needs to not stall on a cache miss.
+	\item \textbf{Second Level Cache} - A second level cache (L2) is introduced. The L1 cache is small enough to match the fast CPU clock cycle, while the L2 cache is large enough to capture many accesses that would go to main memory, reducing the effective miss penalty.
+	      The L2 cache hit time is not tied to the CPU clock cycle.
+	      \begin{align*}
+		                         & \text{AMAT} = \text{Hit Time}_{\text{L1}} + \text{Miss Rate}_{\text{L1}} \times \text{Miss Penalty}_{\text{L1}}                     \\
+		      \text{where} \quad & \text{Miss Penalty}_{\text{L1}} = \text{Hit Time}_{\text{L2}} + \text{Miss Rate}_{\text{L2}} \times \text{Miss Penalty}_{\text{L2}}
+	      \end{align*}
+	\item \textbf{Merging write buffer} - The goal is to reduce stalls due to full write buffer. Each entry of the write buffer can merge words from different memory addresses.
+
+\end{itemize}
+
+\subsubsection{How to reduce the hit time}
+
+\begin{itemize}
+	\item \textbf{Small and simple L1 caches} - Direct-mapped caches can overlap tag compare and transmission of data. Lower associativity reduces power because fewer cache lines are accesses.
+	\item \textbf{Avoiding address translation} - Every time a process is switched logically, we must flush the cache, otherwise we get false hits (with a time cost to flush). Dealing with \textit{aliases} allows to have two different virtual addresses that map to the same physical address.
+	      To avoid virtual address translation during indexing of cache: if index is physical part of address, can start tag access in parallel with address translation so that can compare to physical tag.
+	\item \textbf{Pipelined writes} - The idea is to Tag Check and Update Cache Data as separate stages: current write tag check and previous write cache updated. The \textit{delayed write buffer} must be checked on reads, either complete write or read from write buffer.
+\end{itemize}
+
+

@@ -1,0 +1,8 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{pthread\PYGZus{}create}\PYG{p}{(}
+\PYG{+w}{    }\PYG{n}{pthread\PYGZus{}t}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{k+kr}{thread}\PYG{p}{,}
+\PYG{+w}{    }\PYG{k}{const}\PYG{+w}{ }\PYG{n}{pthread\PYGZus{}attr\PYGZus{}t}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{attr}\PYG{p}{,}
+\PYG{+w}{    }\PYG{k+kt}{void}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{*}\PYG{+w}{ }\PYG{n}{start\PYGZus{}routine}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{void}\PYG{+w}{ }\PYG{o}{*}\PYG{p}{),}
+\PYG{+w}{    }\PYG{k+kt}{void}\PYG{+w}{ }\PYG{o}{*}\PYG{n}{arg}
+\PYG{p}{)}
+\end{MintedVerbatim}

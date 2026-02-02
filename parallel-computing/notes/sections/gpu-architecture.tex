@@ -1,0 +1,173 @@
+\section{GPU architecture}
+
+While a CPU is designed for \textit{latency} (doing one thing very quickly), a GPU is designed for \textbf{throughput} (doing a lot of things at once). GPUs are very fast processors for performing the same computation (usually shader programs) in parallel on a large collection of data.
+
+A GPU is a multicore chip, composed of \textit{many} simple cores. We have SIMD execution within a single core, as well as multi-threaded execution (multiple threads executed concurrently by a core).
+
+GPUs have so many high-throughput cores because having many SIMD multi-threaded cores provides efficient execution of shader programs.
+
+\subsection{CUDA programming language}
+
+In 2007, NVIDIA introduced the "Tesla" architecture, the first non-graphic-specific ("compute mode") inteface to GPU hardware.
+
+Let's say a user wants to run a non-graphics program on the GPU's programmable cores:
+
+\begin{enumerate}
+	\item \textbf{Memory allocation}: the application can allocate buffers in the GPU memory and simply copies data to/from them;
+	\item \textbf{Kernel}: instead of a full pipeline, the application provides a single program inary called a \textit{kernel};
+	\item \textbf{Launch}: the application tells the GPU to run the kernel in an SPMD fashion (run $N$ instances of this kernel).
+\end{enumerate}
+
+Along with this architecture, NVIDIA instroduced the CUDA programming language, a C-like language to express programs that run on GPUs using this new compute-mode hardware interface.
+This language is intentionally low-level, as its abstractions are designed to closely match the physical capabilities and performance characteristics of the GPU, maintaining a "low abstraction distance" so programmers know exactly what the hardware is doing.
+
+\begin{altbox}[title = Note]
+	OpenCL is an open standards version of CUDA, which runs not only on NVIDIA GPUs, but on CPUs and GPUs from many vendors. Almost everything we will see for CUDA also holds for OpenCL.
+\end{altbox}
+
+Simply launching a massive number of threads in a flat list would be cahotic and difficult to mmap to real-world problems. To solve this, CUDA instroduces a \textbf{hierarchy} of concurrent threads. We have a \textbf{two-level hierarchy}:
+
+\noindent
+\begin{minipage}{0.55\textwidth}
+	\setlength{\parskip}{1em}
+
+	% Left Column (Text)
+	\begin{enumerate}
+		\item The \textbf{grid} (the global scope): the top level structure. When you launch a kernel, you create exactly one grid. This grid represents the entire problem space.
+		\item The \textbf{block} (the local scope): the grid is subdivided into smaller, independent groups called \textit{thread blocks}. each block contains a specific number of threads that can cooperate with each other.
+
+	\end{enumerate}
+\end{minipage}
+\hfill % Adds flexible space between the columns
+\begin{minipage}{0.4\textwidth}
+
+	% Right Column (Image)
+	\centering
+	\includegraphics[width=\textwidth]{images/cuda-hierarchy.png}
+
+\end{minipage}
+
+A CUDA feature is that thread IDs don't have to be just a 1D list of numbers, but they can be up to \textbf{3-dimensional}. This is very convenient for many problems (e.g., an image is 2D, a physics simulation might be 3D).
+
+\subsection{Basic CUDA syntax}
+
+The fundamental concept in the CUDA syntax is the strict separation between the two processors involved:
+
+\begin{itemize}
+	\item \textbf{The host (CPU)}: runs the standsrd seiral C/C++ application. It is responsible for setting up the problem, managing memory and commanding the GPU. The CPU executes a special function call that triggers a \textbf{bulk launch} on the GPU of many CUDA threads (launches a grid of CUDA thread blocks). When this command is executed, the CPU tells the GPU exactly how many blocks to create, and how many threads to put in each block.
+	\item \textbf{The device (GPU)}: executes the parallel compute-intensive tasks. In CUDA syntax, a specific keyword before a function definition flags the function as \textbf{device code}, telling the compiler that such code is meant for the GPU. The kernel runs in SPMD mode, so every single thread executes the exact same line of code.
+\end{itemize}
+
+There is a clear separation between host and device code. This separation is performed statically by the programmer.
+
+\subsubsection{CUDA memory model}
+
+We have distinct host and device address spaces. For the device memory, we have three distinct types of address spaces visible to kernels. CUDA organizes memory into a \textbf{hierarchy}:
+
+\begin{itemize}
+	\item \textbf{Per-thread private memory (local scope)}: readable and writable only by the single thread that owns it;
+	\item \textbf{Per-block shared memory (group scope)}: readable and writable by all threads within the same block;
+	\item \textbf{Device global memory (global scope)}: readable and writable by all threads in the entire grid.
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{images/cuda-memory-hierarchy.png}
+\end{figure}
+
+\subsection{Warps}
+
+We previously saw that you can define a thread block to have any number of threads. However, the GPU hardware does not actually manage threads individually, not does it necessarily manage them as the full block you defined.
+
+Instead, the hardware groups threads into fixed-size groups called \textbf{warps}. On modern NVIDIA GPUs, a warp consists of 32 threads.
+
+Threads in a warp are executed in a SIMD manner, if they share the same instruction. If the 32 CUDA threads do not share the same instruction, performance can suffer due to divergent execution.
+
+Warps are not part of CUDA, but are an important CUDA implementation detail on modern NVIDIA GPUs.
+
+\subsection{Running a CUDA program on a GPU}
+
+Running a kernel involves the following steps.
+
+\begin{enumerate}
+	\item \textbf{Requirement definition}: the kernel is launched with specific resource requirements (e.g., $X$ threads per block). The system calculates how many \textbf{execution contexts} (thread slots) and how much shared memory (bytes) are needed for a \textit{single thread block}.
+	\item \textbf{Command}: the host (CPU) sends a command to the CUDA device (GPU) to execute the kernel, including the function to run, the arguments, and the total number of blocks to process.
+	\item \textbf{Blocks mapping}: the GPU work scheduler initially maps block 0 to core 0, then proceeds to map each block to available execution contexts.
+\end{enumerate}
+
+Why must CUDA allocate execution contexts for all threads in a block (instead of running them in smaller batches to save space)? CUDA must allocate resources simultaneously to prevent \textbf{deadlock} caused by synchronization barriers like \texttt{\_\_syncthreads()}. In a block, threads often reach a point where they must wait for \textit{all} other threads in that block to arrive before proceeding.
+
+\begin{altbox}[title = Definition]
+	\texttt{\_\_syncthreads()} is a \textbf{barrier}: each thread must wait for all other threads in the block to arrive at this point.
+
+	This avoids \textbf{race conditions}.
+\end{altbox}
+
+\subsection{Memory access performance}
+
+Memory bandwidth is a first-order performance factor in a massively parallel processor
+
+DRAM is the hardware technology used to implement the device global memory. Each bit of data is stored in a tiny capacitor made of one transistor. These cells are arranged in a \textbf{core array}. Each DRAM core array has about 16M bits.
+
+You cannot just access a single bit instantly. The access process happens in two stages:
+
+\begin{enumerate}
+	\item \textbf{Row activation}: the \textit{row decoder} selects an entire row of data from the core array. This row is read into the \textbf{sense amps} (which amplify the weak signals from the capacitors) and stored in the \textbf{column latches}. This entire row is now \textit{open} or \textit{active}.
+	\item \textbf{Column selection}: the column address selects the specific chunk of data we asked for from the active row (thanks to a multiplexer).
+\end{enumerate}
+
+We actually have to access the whole row and then select the column we are interested in. Therefore, reading from a cell in the core array is a very slow process, also since the core array runs at only $1/N$ the speed of the interface.
+
+\subsubsection{DRAM Bursting}
+
+If the memory core only fetched one piece of data at a time, the interface (which is fast) would spend most of its time waiting, doing nothing.
+
+To solve this, DRAM uses \textbf{bursting}. Instead of fetching just the single byte you asked for, it fetches a massive chunk of adjacend data all at once.
+
+\subsubsection{DRAM Banks}
+
+Even with bursting, there is a delay we haven't accounted for yet. Before you can read any data, you must use the \textit{row decoder} to activate a row and move data into the \textit{sense amps}. This process is slow.
+
+To speed this up, modern DRAM chips do not contain just one core array, but they contain many independent arrays called \textbf{banks}. Each bank has its own \textit{row decoder} and \textit{sense amps}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/dram-banks.png}
+\end{figure}
+
+Combining bursting banking allows us to achieve maximum efficiency:
+
+\begin{itemize}
+	\item \textbf{Bursting} ensures that when we get data from a bank, we get a large chung at high speed, filling the bus for a short duration;
+	\item \textbf{Banking} ensures that as soon as \textit{bank 0}'s burst finishes, \textbf{bank 1} is ready to burst immediatly.
+\end{itemize}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/bursting.png}
+	\\
+	Single-bank burst timing: dead time on interface
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{images/bursting-banking.png}
+	\\
+	Multi-bank burst timing: reduced dead time
+\end{figure}
+
+\subsubsection{Memory coalescing}
+
+\textbf{Memory coalescing} is the single most important performance optimization in CUDA programming. It describes the scenario where the hardware is able to combine (or \textit{coalesce}) the memory requests of multiple threads into a single physical transaction.
+
+When all threads of a warp execute a load instruction, if all accessed locations fall into the same burst section, only \textit{one DRAM request} will be made:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/coalescing.png}
+\end{figure}
+
+You can tell if an access is coalesced if, when you look at a group of threads (a warp), the memory addresses they access are perfectly sequential. That is, the index in an array access is in the form:
+$$
+	A[\text{threadIdx.x} + (\text{terms independent of threadIdx.x})]
+$$

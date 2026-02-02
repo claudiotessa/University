@@ -1,0 +1,163 @@
+\section{PRAM (Parallel Random Access Machine)}
+
+PRAM is an abstract machine model for designing and analyzing algorithms intended for parallel computers. Is a theoretical framework to understand how multiple processors can work together to solve computational problems.
+
+The PRAM model consists of a set of infinitely many components that function as a single system $M'$:
+
+\begin{itemize}
+	\item \textbf{Processors} $P_i$, all of which are identical. Each processor knows it own index identifier $i$. These processors have an unbounded number of registers and memory cells, and can access all memory cells in unit hime. All communication between processors occurs exclusively via shared memory.
+	\item \textbf{Memory structure} made up of three distinct types of memory cells:
+	      \begin{itemize}
+		      \item \textbf{Input cells} $X(1), X(2), \dots$
+		      \item \textbf{Output cells} $Y(1), Y(2), \dots$
+		      \item \textbf{Shared memory cells} $A(1), A(2), \dots$
+	      \end{itemize}
+\end{itemize}
+
+\subsection{Computation steps}
+
+The computation is \textbf{synchronous}. A single computation consists of five steps carried out in parallel by all active processors. Each processor:
+
+\begin{enumerate}
+	\item \textbf{Read input}: read a value from an input cell $X$;
+	\item \textbf{Read shared memory}: read from a shared memory cell $A$;
+	\item \textbf{Compute}: perform some internal computation;
+	\item \textbf{Write output}: may write to an output cell $Y$;
+	\item \textbf{Write to shared memory}: may write to a shared memory cell $A$
+\end{enumerate}
+
+Note that some subset of the processors can remain idle.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/pram1.jpg}
+\end{figure}
+
+\subsection{Memory access conflicts}
+
+A major consideration in PRAM is how the system handles multiple processors trying to read (\textbf{read conflict}) or write (\textbf{write conflict}) the same memory cell at the exact same time. We classify PRAM models by their rules regarding these conflicts:
+
+\begin{itemize}
+	\item Exclusive Read (\textbf{ER}): processors can simultaneously read only from distinct memory locations;
+	\item Exclusive Write (\textbf{EW}): processors can simultaneously write only to distinct memory locations;
+	\item Concurrent Read (\textbf{CR}): processors can simultaneously read from any memory location (including the same one);
+	\item Concurrent Write (\textbf{CW}): processors can simultaneously write to any memory location (including the same one). What value gets written in the end:
+	      \begin{itemize}
+		      \item \textbf{Priority CW}: processors have priorities. The highest priority is allowed to complete write.
+		      \item \textbf{Common CW}: all processors are allowed to complete write \textit{if and only if} all the values to be written are equal. Any algorithm for this model has to make sure that this condition is satisfied (otherwise the algorithm is \textit{illegal} and the machine state will be undefined).
+		      \item \textbf{Arbitrary/Random CW}: one randomly chosen processor is allowed to complete write.
+	      \end{itemize}
+	\item A combination of both: \textbf{CREW}, \textbf{EREW}, ...
+\end{itemize}
+
+PRAM is important for designers of parallel algorithms because it is \textbf{simple}, it abstracts any communication or synchronization overhead. It can be used as a \textbf{benchmark}, because if a problem as no feasible/efficient solution on PRAM, it won't have one for any parallel machine.
+
+\subsection{Computational power}
+
+Note that not all PRAM variations possess the same theoretical capabilities.
+
+\begin{definition}
+	We say that model $A$ is \textbf{computationally stronger} that model $B$, written $A \geq B$, \textit{if and only if} any algorithm written for $B$ will run unchanged on $A$ in the same parallel time and with the same basic properties.
+	$$
+		\text{PRIORITY} \geq \text{ARBITRARY} \geq \text{COMMON} \geq \text{CREW} \geq \text{EREW}
+	$$
+\end{definition}
+
+\subsection{Performance metrics}
+
+To analyze the performance of parallel algorithms, we must define specific metrics:
+
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.5} % Adds vertical space for the fractions
+	\begin{tabular}{@{} l p{8cm} @{}}
+		\toprule
+		\textbf{Symbol}                          & \textbf{Definition}                                                                                               \\
+		\midrule
+		$T^*(n)$                                 & Time to solve problem of input size $n$ on \underline{one} processor, using best \underline{sequential} algorithm \\
+
+		$T_p(n)$                                 & Time to solve on $p$ processors                                                                                   \\
+
+		$\text{SU}_p(n) = \frac{T^*(n)}{T_p(n)}$ & Speedup on $p$ processors                                                                                         \\
+
+		$E_p(n) = \frac{T_1(n)}{p T_p(n)}$       & Efficiency (work on 1 processor / work that could be done on $p$ processors)                                      \\
+
+		$T_\infty(n)$                            & Shortest run time on any $p$                                                                                      \\
+
+		$C(n) = P(n) \cdot T(n)$                 & Cost (processors and time)                                                                                        \\
+
+		$W(n)$                                   & Work = total number of operations                                                                                 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\subsection{Scaling lemmas}
+
+These lemmas describe how PRAM algorithms scale when hardware resources are limited.
+
+\begin{lemma}[Processor scaling]
+	Assume $P' < P$. Any problem that can be solved by a $P$-processor PRAM in $T$ steps, can be solved in a $P'$-processor PRAM in $O \left( \frac{TP}{P'} \right)$ steps.
+\end{lemma}
+
+\begin{lemma}[Memory scaling]
+	Assume $M' < M$. Any problem that can be solved by a $P$-processor and $M$-cell PRAM in $T$ steps, can be solved on a $\max (P, M')$-processor $M'$-cell PRAM in $O\left(\frac{TM}{M'}\right)$ steps.
+\end{lemma}
+
+\subsection{Amdahl's law}
+
+\textbf{Amdahl's law} is a formula used to predict the theoretical maximum speedup for a program using multiple processors.
+
+Computations consists of \textbf{interleaved segments} of two distinct types:
+
+\begin{itemize}
+	\item \textbf{Serial segments} (in red): cannot be parallelized;
+	\item \textbf{Parallelizable segments} (in blue): can be divided into independent tasks and processed simultaneously by multiple processors.
+\end{itemize}
+
+The following diagram shows the difference between running the workload on one processor ($T_1$) versus $P$ processors ($T_P$).
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/amdahls-law1.png}
+\end{figure}
+
+In the serial version, the parallelizable part is a fixed fraction $f$ of the whole program
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/amdahls-law2.png}
+\end{figure}
+
+We can derive the speedup $SU$ by comparing the time on one processor ($T_1$) to the time on $P$ processors ($T_P$):
+\begin{align*}
+	 & SU(P, f) = \frac {T_1}{T_p} = \frac{1}{(1 - f) + \frac f P} \\
+	 & \lim_{p \to \infty} SU(P, f) = \frac{1}{1 - f}
+\end{align*}
+
+\subsection{Gustafson's law}
+
+Amdahl's law assumes a fixed problem size. Gustafson, instead, argues that when we access more powerful parallel hardware (more processors), we generally do not use it to just solve the same small problem faster, but we use the extra power to solve larger and more complex problems in the same amount of time.
+
+The key points are that the time spent on the serial portion of the problem remains fixed, but the serializable portion $f$ is \textbf{not fixed}, but it is expanded to fill the available processing power.
+$$
+	SU(P)= \frac{T_1}{T_P} = s + P \cdot (1 - s)
+$$
+where $s$ is the serial time and $(1 - s)$ is the parallel time. Note how we have a \textbf{linear speedup}.
+
+\subsection{Scaling}
+
+\subsubsection{Strong scaling}
+
+\textbf{Strong scaling} refers to the ability of a system to improve the performance of a parallelized program when the number of processors is increased while keeping the total problem size constant.
+
+Amdahl's law is often used to analyze this type of scaling, as it highlights the limits imposed by the serial portion of the program.
+
+Ideally, the time to solve the problem is proportional to $1 / P$.
+
+\subsubsection{Weak scaling}
+
+\textbf{Weak scaling} refers to a system's ability to maintain efficiency when the number of processors is increased while the workload is also proportionally increased.
+
+This type of scaling is useful for applications where the problem grows in proportion to the increase in available resources. Gustafson's law is often used to analyze this type of scaling.
+
+Ideally, $T$ is flat vs $P$ (as $P$ grows together with the problem size, $T$ remains constant).

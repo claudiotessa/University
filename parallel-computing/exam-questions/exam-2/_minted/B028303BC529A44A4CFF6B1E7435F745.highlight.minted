@@ -1,0 +1,19 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{deviceCount}\PYG{p}{;}
+\PYG{n}{cudaGetDeviceCount}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{deviceCount}\PYG{p}{);}
+\PYG{n}{std}\PYG{o}{::}\PYG{n}{vector}\PYG{o}{\PYGZlt{}}\PYG{n}{cudaStream\PYGZus{}t}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{streams}\PYG{p}{(}\PYG{n}{deviceCount}\PYG{p}{);}
+
+\PYG{c+cp}{\PYGZsh{}pragma omp parallel for num\PYGZus{}threads(deviceCount)}
+\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{dev}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{dev}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{+w}{ }\PYG{n}{deviceCount}\PYG{p}{;}\PYG{+w}{ }\PYG{o}{++}\PYG{n}{dev}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{c+c1}{// for each GPU in the system:}
+\PYG{+w}{    }\PYG{n}{cudaSetDevice}\PYG{p}{(}\PYG{n}{dev}\PYG{p}{);}
+\PYG{+w}{    }\PYG{n}{cudaStreamCreate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{streams}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]);}\PYG{+w}{ }\PYG{c+c1}{// use a stream for data transfers}
+\PYG{+w}{    }\PYG{c+c1}{// Allocate, initialize and transfer memory}
+\PYG{p}{\PYGZcb{}}
+
+\PYG{c+cp}{\PYGZsh{}pragma omp parallel for num\PYGZus{}threads(deviceCount)}
+\PYG{k}{for}\PYG{p}{(}\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{dev}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{;}\PYG{+w}{ }\PYG{n}{dev}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{+w}{ }\PYG{n}{deviceCount}\PYG{p}{;}\PYG{+w}{ }\PYG{o}{++}\PYG{n}{dev}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{    }\PYG{n}{cudaSetDevice}\PYG{p}{(}\PYG{n}{dev}\PYG{p}{);}
+\PYG{+w}{    }\PYG{n}{kernel}\PYG{o}{\PYGZlt{}\PYGZlt{}\PYGZlt{}}\PYG{n}{gridDim}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{blockDim}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{streams}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{(...);}
+\PYG{p}{\PYGZcb{}}
+\end{MintedVerbatim}

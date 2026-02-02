@@ -1,0 +1,98 @@
+\section{Parallel algorithms and parallel programmming}
+
+\subsection{Automatic parallelization}
+
+\textbf{Automatic parallelization} shields programmers from the complexities of multicore hardware. The programmer writes a standard sequential algorithm (high-level sequential code), and leaves all the parallelization work to automatic tools. These tools transform the code into a parallel assembly implementation.
+
+However, automatic parallelization often \textbf{fails} because compilers must be conservatively safe when handling memory references. the compiler doesn't always know whether some data structures are completely independent. Since the compiler does not know if a conflict exists, it must assume the worst-case scenario (that memory might overlap) and disable parallelization to guarantee the program's correctness.
+
+Therefore, complete automatic parallelization is \textbf{not feasible}.
+
+\subsection{Parallelization by hand}
+
+In this case, the programmer needs to give \textbf{hints} to the tools. The programmer must explicitly write \textbf{parallel algorithms} implemented with high-level parallel code. The tools are only responsible for code compilation.
+
+Here there are 3 critical aspects to keep in mind:
+
+\begin{itemize}
+	\item Which \textbf{type} of parallelism has to be considered;
+	\item How to \textbf{design} the parallel algorithm: trying to parallelize existing algorithms or designing one from scratch;
+	\item How to \textbf{provide informations} about the parallelism to the tools.
+\end{itemize}
+
+\subsection{Type of parallelism}
+
+There are 3 types of paralleism:
+
+\begin{itemize}
+	\item \textbf{Bit Level Parallelism (BLP)}: the individual bits that make up a \textit{word} are treated as representing different, independent data. A single instruction can manipulate \textbf{different data at a time} by operating on those bits simultaneously.
+
+	      This form of parallelism is critical for efficient hardware implementation, but it is also powerful in software (e.g., representing a set of elements as strings of bits, to perform massive logical operations in a single cycle).
+
+	\item \textbf{Instruction Level Parallelism (ILP)}: different instructions executed at the same time on the same core. This capability is supported by multiple execution units, pipeline, vector, SIMD units, etc.
+
+	      This type of parallelism can be easily extracted by compilers.
+
+	\item \textbf{Task Level Parallelism (TLP)}: instead of running single instructions simultaneously, the sysstem executes entire \textbf{tasks} in parallel. A task is a \textbf{logically discrete section} of computational work: typically a program or program-like set of instructions that is executed by a processor (much larger than a single instruction).
+
+	      A parallel program in this context is a collection of these \textit{multiple tasks} running on multiple processors at the same time. While ILP focuses on doing more work on a single core, TLP is about using many cores.
+
+	      This technique is supported by shared memory and cache coherence mechanisms. It is usually difficult to be automatically extracted.
+
+	      \noindent
+	      \begin{minipage}{0.6\textwidth}
+		      A fundamental model to analyze TLP is the \textbf{parallel data graph}: vertices correspond to tasks, while edges represent precedencies or data communication. Each task is executed once.
+	      \end{minipage}
+	      \hfill
+	      \begin{minipage}{0.35\textwidth}
+		      \centering
+		      \centering
+		      \includegraphics[width=0.7\textwidth]{images/tlp1.png} is created by the operating system
+	      \end{minipage}
+
+	      There are two main model for communication in TLP:
+
+	      \begin{itemize}
+		      \item \textbf{Shared memory}: all the processors (so all the tasks) share a global memory with the same address space. Modifications in a memory locatio performed by a processor are seen by all other processors.
+		      \item \textbf{Message passing}: each task has its private memory. Tasks communicate by explicitly sendind and receiving messages.
+	      \end{itemize}
+\end{itemize}
+
+\subsection{Designing parallel algorithms}
+
+Designing a good parallel algorithm by extracting all the available parallelism is \textit{not enough}. Not all the extracted parallelism is exploitable on a real architecture.
+
+We need to consider which parallelism is available on the considered architecture: non-suitable parallelism can introduce \textbf{overhead}. We need to \textit{describe} the parallelism to the compilation tools to make it exploitable.
+
+New programming languages have been introduced since parallel programming is a different paradigm. however, the \textbf{did not have much success} (mainly used for research).
+
+Instead, we generally use extensions to existing programming languages, as can be \textbf{easily adopted} by designers and \textbf{easily integrated} in existing compilers. However, in this way we can \textbf{describe only some types} of parallelism (e.g., pipeline parallelism is difficult to be described).
+
+In general, designing parallel algorithms \textit{is not an easy task}. There are however some \textbf{rules} which can help in the design. Most problems have several possible parallel solutions, a good approach is to start fromm machine-independent issues (concurrency) and delay target-specific aspects as much as possible.
+
+\subsubsection{PCAM design methodology}
+
+The \textbf{PCAM design methodology} is a pipeline for developing parallel algorithms:
+
+\noindent
+\begin{minipage}{0.55\textwidth}
+	\begin{enumerate}
+		\item \textbf{Partitioning}: focus on task and data decomposition, ignoring the limitations of the target hardware and focusing solely on exposing parallelism. There are two approaches:
+		      \begin{itemize}
+			      \item \textit{Domain decomposition}: the data associated with a problem is decomposed, and each parallel task then work on a portion of the data.
+			      \item \textit{Functional decomposition}: the problem is decomposed according to the work that must be done.
+		      \end{itemize}
+		\item \textbf{Communication}: address task execution coordination. Define the communication structure of the algorithm, establishing which tasks must wait for data from others and which can proceed independently.
+		\item \textbf{Agglomeration}: evaluate the structure to optimize performance. Here we group related tasks into larger clusters to reduce the communication overhead and ensure that the task is appropriate for the system.
+		\item \textbf{Mapping}: handle the actual resourse assignment. Assign the agglomerated task clusters to actual physical resources.
+	\end{enumerate}
+\end{minipage}
+\hfill
+\begin{minipage}{0.41\textwidth}
+	\centering
+	\includegraphics[width=1\textwidth]{images/pcam.png}
+\end{minipage}
+
+In practice, these steps are often overlapping.
+
+

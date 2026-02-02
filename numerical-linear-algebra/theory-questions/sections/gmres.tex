@@ -1,0 +1,121 @@
+\num Consider the following problem: find $\mathbf x \in \mathbb R^n, A \mathbf x = \mathbf b$, where $A \in \mathbb R^{n \times n}$ and $\mathbf b \in \mathbb R^n$ are given.
+
+\begin{enumerate}
+	\item State under which conditions the mathematical problem is well posed.
+
+	      \begin{tcolorbox}
+		      The problem is well posed if and only if $A$ is invertible: $\det A \neq 0$. In this case, the solution $\mathbf x$ exists and is unique.
+	      \end{tcolorbox}
+
+	\item Describe the general form of a linear iterative method for the approximate solution of $A \mathbf x = \mathbf b$ and describe the stopping criteria.
+
+	      \begin{tcolorbox}
+		      The general form of a linear iterative method is
+		      $$
+			      \mathbf x^{(k + 1)} = B \mathbf x^{(k)} + \mathbf f \qquad k \geq 0
+		      $$
+		      where $B \in \mathbb R^{n \times n}$ (iteration matrix) and $\mathbf f \in \mathbb R^n$ uniquely identify the method.
+
+		      For an iterative method to make sense it must satisfy the convergence property
+		      $$
+			      \lim_{k \to +\infty} \mathbf x^{(k)} = \mathbf x
+		      $$
+		      therefore we must have that if $\mathbf x^{(k)}$ happens to be the exact solution $\mathbf x$, then $\mathbf x^{(k+1)}$ must be again equal to $\mathbf x$
+		      $$
+			      \implies \mathbf x = B \mathbf x + \mathbf f
+			      \implies \mathbf f = (I - B) \mathbf x
+		      $$
+		      This property is called \textbf{consistency}.
+
+		      The stopping criteria is a test used to determine when to stop the iteration. Given a tolerance $\varepsilon$, we can typically use criteria based on:
+		      \begin{itemize}
+			      \item \textbf{Residual}:
+			            $$
+				            \frac{ \rVert \mathbf b - A \mathbf x^{(k)} \rVert }{\lVert \mathbf b \rVert} < \varepsilon
+			            $$
+			            where $\mathbf b - A \mathbf x^{(k)}$ is the residual at step $k$.
+			      \item \textbf{Distance betweeen consecutive iterations}:
+			            $$
+				            \mathbf x^{(k + 1)} - \mathbf x^{(k)} < \varepsilon
+			            $$
+		      \end{itemize}
+	      \end{tcolorbox}
+
+	\item State the necessary and sufficient condition for convergence.
+
+	      \begin{tcolorbox}
+		      A \textbf{consistent} iterative method with iteration matrix $B$ converges if and only if
+		      $$
+			      \rho(B) < 1
+		      $$
+		      where $\rho(B)$ is the spectral radius of $B$: $\rho(B) = \max \{ |\lambda| : \lambda \in \lambda(A) \}$ is the maximum in modulus of all the eigenvalues of $B$.
+	      \end{tcolorbox}
+
+	\item State and prove the sufficient condition for convergence.
+
+	      \begin{tcolorbox}
+		      An iterative method converges for any initial choice of $\textbf x^{(0)}$ if:
+		      $$
+			      \lVert B \rVert < 1
+		      $$
+		      where $\lVert B \rVert$ is the euclidian norm.
+
+		      \begin{proof}[\textbf{Proof}]
+			      let us consider the the error at step $(k + 1)$: $\mathbf e^{(k + 1)} = \mathbf x - \mathbf x^{(k + 1)}$, and a suitable vector norm $\lvert \cdot \rVert$ (will use the euclidian norm as before). We have that
+			      \begin{align*}
+				      \lVert e^{(k + 1)} \rVert   & =				      \lVert \mathbf x - \mathbf x^{(k + 1)} \rVert                             \\
+				                                  & =				      \lVert \mathbf x - B \mathbf x^{(k)} - \mathbf f \rVert                   \\
+				      \text{consistency} \implies & = \lVert \mathbf x - B \mathbf x^{(k)} - (I - B)\mathbf x \rVert                     \\
+				                                  & = \lVert B \mathbf e^{(k)} \rVert                                                    \\
+				                                  & \leq \lVert B \rVert \lVert \mathbf e^{(k)} \rVert                                   \\
+				      \text{by recursion:}        & \leq \lVert B \rVert \lvert B \rVert \lVert \mathbf e^{(k-1)} \rVert \leq \dots \leq \\
+				                                  & \leq \lVert B \rVert^{k+1} \lVert \mathbf e^{(0)} \rVert
+			      \end{align*}
+			      If $\lvert B \rVert < 1$, then $\displaystyle \lim_{k \to +\infty} \lVert B \rVert^{k+1} = 0$. Therefore,
+			      $$
+				      \lim_{k \to +\infty} \lVert \mathbf e^{(k+1)} \rVert
+				      =
+				      \lim_{k \to \infty} \lvert \mathbf x - \mathbf x^{(k+1)} \rVert
+				      = 0
+			      $$
+			      $$
+				      \implies
+				      \lim_{k \to +\infty} \mathbf x^{(k+1)} = \mathbf x \qquad \text{(convergence condition)}
+			      $$
+		      \end{proof}
+	      \end{tcolorbox}
+
+	\item Describe the Generalized Minimal Residual Method (GMRES). Recall the interpretation of the scheme as a Krylov subspace method and the main theoretical results.
+
+	      \begin{tcolorbox}
+		      Given an initial guess $\mathbf x^{(0)}$ and an initial residual $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$, the GMRES looks for a solution inside the affine space
+		      $$
+			      \mathbf x^{(k)} \in \mathbf x^{(0)} + \mathcal K_k(A, \mathbf r^{(0)})
+		      $$
+              where $\mathcal K_k(A, \mathbf r^{(0)}) = \mathrm{span} \{ \mathbf r^{(0)}, A \mathbf r^{(0)}, A^2 \mathbf r^{(0)}, \dots, A^{k - 1} \mathbf r^{(0)} \}$ is the $k$-th Krylov space.
+
+		      GMRES minimizes the Euclidian norm of the residual:
+		      $$
+              \mathbf x^{(k)} = \arg \min_{\mathbf x^* \in \mathbf x^{(0)} + \mathcal K_k} \lVert \mathbf b - A \mathbf x^* \rVert_2
+		      $$
+                GMRES converges after $n$ iterations (the size of $A$), because the Krylov subspace will span the whole $\mathbb R^n$.
+
+                For convergence, we have two cases:
+                \begin{itemize}
+                    \item If $A_S = (A + A^T) / 2$ is symmetric positive definite (SPD), then
+                    $$
+                        \lvert \mathbf r^{(k)} \rVert_2 \leq \left[ 1 - \frac{ \lambda_{min}^2(A_s) }{ \lambda_{max}(A^TA)  } \right]^{\frac k 2} \lVert \mathbf r^{(0)} \rVert_2
+                    $$
+                \item If $A$ is SPD, then
+                    $$
+                    \lvert r^{(k)} \rVert_2 \leq \left[ \frac{[K_2(A)]^2 - 1}{ [K_2(A)]^2 } \right]^{\frac k 2} \lvert \mathbf r^{(0)} \rVert_2
+                    $$
+                \end{itemize}
+                where:
+                \begin{itemize}
+                    \item $\lambda_{min}(\cdot)$ and $\lambda_{max}(\cdot)$ are respectively the minimum and maximum eigenvalue;
+                    \item $K_2(\cdot)$ is the condition number calculated using the euclidian norm.
+                \end{itemize}
+	      \end{tcolorbox}
+\end{enumerate}
+

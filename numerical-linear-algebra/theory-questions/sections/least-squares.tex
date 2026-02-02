@@ -1,0 +1,118 @@
+\num Consider the rectangular linear system $A \mathbf x = \mathbf b$, where $A \in \mathbb R^{m \times n}, m \geq n$:
+
+\begin{enumerate}
+	\item Provide the definition of the solution in the least-square sense and state under which condition the problem is well posed. \textbf{Introduce the notatation employed}.
+	      \begin{tcolorbox}
+		      We say that $\textbf x^*$ is a solution of $A \mathbf x = \mathbf b$ in the \textbf{least-squares} sense if
+		      $$
+			      \Phi(\mathbf x^*) = \min_{\mathbf y \in \mathbb R^n} \Phi(\mathbf y)
+		      $$
+		      where $\Phi(\mathbf y) = \lVert A \mathbf y - \mathbf b \rVert_2^2$ (we minimize the euclidian norm of the residual).
+
+		      $\mathbf x^*$ is found by imposing the gradient of $\Phi(\cdot)$ equal to zero at $\mathbf x^*$. We have that
+		      \begin{align*}
+			      \Phi(\mathbf y) & = (A \mathbf y - \mathbf b)^T (A \mathbf y - \mathbf b)                           \\
+			                      & = \mathbf y^T A^T A \mathbf y - 2 \mathbf y^T A \mathbf b + \mathbf b^T \mathbf b
+		      \end{align*}
+		      $$
+			      \implies \nabla \Phi(\mathbf y) = 2 A^T A \mathbf y - 2 A^T \mathbf b
+		      $$
+		      So $\mathbf x^*$ must be the solution of the system
+		      $$
+			      A^TA \mathbf x^* = A^T \mathbf b
+		      $$
+	      \end{tcolorbox}
+
+	\item Describe the QR factorization of the matrix $A$ and discuss how it can be employed to solve the above linear system in the least square sense. \textbf{Introduce all the notation employed}.
+
+	      \begin{tcolorbox}
+		      The QR factorization of $A \in \mathbb R^{m \times n}, \ m \geq n$ decomposes $A$ into
+		      $$
+			      A = QR
+		      $$
+		      where
+		      \begin{itemize}
+			      \item $Q \in \mathbb R^{m \times m}$ is a square orthogonal matrix (its column form an orthonormal basis of $\mathbb R^n$;
+			      \item $R \in \mathbb R^{m \times n}$ is an upper triangular matrix.
+		      \end{itemize}
+		      Let us consider instead the \textbf{reduced QR factorization} of $A$:
+		      $$
+			      A = \hat Q \hat R
+		      $$
+		      where
+		      \begin{itemize}
+			      \item $\hat Q \in \mathbb R^{m \times n}$ contains the first $n$ columns of $Q$;
+			      \item $\hat R \in \mathbb R^{n \times n}$ is the top square part of $R$ (still upper triangular);
+		      \end{itemize}
+		      If $A = \left[\mathbf a_1, \dots, \mathbf a_n \right]$, to find such factorization, we need to find orthonormal vectors $\left[\mathbf q_1, \dots, \mathbf q_n\right]$ such that
+		      $$
+			      \mathrm{span}( \mathbf a_1, \dots, \mathbf a_j)
+			      =
+			      \mathrm{span} (\mathbf q_1, \dots, \mathbf q_j)
+			      \qquad \forall j = 1, \dots, n
+		      $$
+		      $$
+			      \implies
+			      \underbrace{[\mathbf a_1, \dots, \mathbf a_n]}_{A}
+			      =
+			      \underbrace{[\mathbf q_1, \dots, \mathbf q_n }_{\hat Q}
+			      \underbrace{ \begin{bmatrix}
+					      r_{11} & r_{12} & \dots  & r_{1n} \\
+					      0      & r_{22} & \dots  & r_{2n} \\
+					      \vdots & 0      & \ddots & \vdots \\
+					      0      & 0      & \dots  & r_{nn}
+				      \end{bmatrix}}_{\hat R}
+		      $$
+
+
+
+		      Then we can use the following \textbf{theorem}:
+
+		      If $A$ has full rank, the unique solution in the least-square sense of $A \mathbf x^* = \mathbf b$ is given by
+		      $$
+			      \mathbf x^* = \hat R^{-1} \hat Q^T \mathbf b
+		      $$
+		      where $\hat R \in \mathbb R^{n \times n}$ and $\hat Q \in \mathbb R^{m \times n}$ are the matrices of the reduced QR factorization of $A$.
+	      \end{tcolorbox}
+
+      \item What can be done if $A$ does not have full rank?
+
+          \begin{tcolorbox}
+              We can use the SVD factorization (see next point).
+          \end{tcolorbox}
+
+
+	\item Define the SVD factorization of $A$. \textbf{Introduce the notation employed}.
+	      \begin{tcolorbox}
+		      For any real matrix $A \in \mathbb R^{m \times n}$, the SVD factorization of $A$ is
+		      $$
+			      A = U \Sigma V^T
+		      $$
+		      where:
+		      \begin{itemize}
+			      \item $U \in \mathbb R^{m \times m}$ is an orthogonal matrix;
+			      \item $\Sigma = \mathrm{diag}(\sigma_1, \dots, \sigma_p) \in \mathbb R^{m \times n}$ is a diagonal matrix, with $p = \min(m, n)$ and $\sigma_1 \geq \dots \geq \sigma_p \geq 0$;
+			      \item $V \in \mathbb R^{n \times n}$ is an orthogonal matrix.
+		      \end{itemize}
+	      \end{tcolorbox}
+
+	\item Discuss under which condition and how the SVD factorization can be employed to solve the above linear system in the least square sense. \textbf{Introduce all the notation employed}.
+	      \begin{tcolorbox}
+		      Suppose
+		      \begin{itemize}
+			      \item $A \in \mathbb R^{m \times n}, m \geq n$ does not have full rank;
+			      \item The SVD of $A$ is $A = U \Sigma V^T$.
+		      \end{itemize}
+		      then the unique solution in the least-squares sense of $A \mathbf x^* = \mathbf b$ is given by:
+		      $$
+			      \mathbf x^* = A^\dagger \mathbf b
+		      $$
+		      where $A^\dagger$ is the pseudo-inverse of $A$:
+		      $$
+			      A^\dagger = V \Sigma^\dagger U^T
+			      \qquad \text{with} \qquad
+			      \Sigma^\dagger = \mathrm{diag} \left( \frac{1}{\sigma_1}, \dots, \frac{1}{\sigma_p}, 0, \dots, 0 \right) \in \mathbb R^{n \times m}
+		      $$
+	      \end{tcolorbox}
+\end{enumerate}
+

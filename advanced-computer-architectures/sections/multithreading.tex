@@ -1,0 +1,58 @@
+\section{Multithreading}
+
+\subsection{What is a thread}
+
+A thread is a lightweight process with its own instructions and data. The threads can be created either \textbf{explicitly} by the programmer, or \textbf{implicitly} by the OS. The amount of computation assigned to each thread is the \textbf{grain size} (can go from a few instructions to hundreds or thousands).
+
+\subsection{Hardware multithreading}
+
+If multithreading is implemented at the hardware level, there is non need for context switch with the intervention of the operating system. Multithreading is manages directly by the processor architecture, using additional resources.
+
+When the processor switches between different threads, the \textbf{state} of each thread must be preserved, while the processor switches. We need \textbf{multiple Register Files and multiple Program Counters}. Other parts, such as the functional units, can be \textbf{shared} among threads.
+
+The processor must \textbf{duplicate} the independent state of each thread: separate copy of the register set and separate PC for each thread. Multithreading allows multiple threads to \textbf{share} the functional units of a single processor. The memory address space can be \textbf{shared} through the virtual memory mechanism. The HW must support the ability to change to a different thread relatively quickly (more efficiently than a process context switch).
+
+There are different types of multithreading for a superscalar processor:
+
+\begin{itemize}
+	\item \textbf{Coarse-grained multithreading}: when a thread is stalled, perhaps for a cache miss, another thread can be executed.
+	\item \textbf{Fine-grained multithreading}: switching from one thread to another thread on each instruction.
+	\item \textbf{Simultaneous multithreading}: multiple thread are using the multiple issue slots in a single clock cycle.
+\end{itemize}
+
+\subsection{Superscalar with no multithreading}
+
+The use of issue slots is limited by a lack of ILP. Multiple-issue processors often have more functional units parallelism available than a single thread can effectively use by ILP.
+
+A long stall, such as an instruction cache miss, can leave the entire processor idle for some clock cycles. The basic idea is that, in the empty slots (due to a long stall of the single black thread), put another thread.
+
+\subsection{Coarse-grained multithreading}
+
+Long stalls (such as L2 cache misses) are hidden by switching to another thread that uses the resources of the processor. This reduces the number of idle cycles, but:
+
+\begin{itemize}
+	\item Within each clock, ILP limitations still lead to empty issue slots
+	\item When there is one stall, it is necessary to empty the pipeline before starting the new thread
+	\item The new thread has a pipeline start-up period with some idle cycles remaining and loss of throughput.
+	\item Because of this start-up overhead, coarse grained MT is better for reducing penalty of high-cost stalls, where pipeline refill time is much less than stall time.
+\end{itemize}
+
+\subsection{Fine-grained multithreading}
+
+The basic idea is that at each clock cycle we must switch to another thread, in a sort of round-robin among active threads. It switches between threads on each instruction, skipping any thread that is stalled at that time, eliminating fully empty slots:
+
+\begin{itemize}
+	\item The processor must be able to switch threads on every cycle.
+	\item It can hide both short and long stalls, since instructions from other threads are executed when one thread stalls.
+	\item It slows down the execution of individual threads, since a thread that is ready to execute without stalls will be delayed by another thread.
+	\item Within each clock, ILP limitations still lead to empty issue slots.
+\end{itemize}
+
+\subsection{Simultaneous multithreading (SMT)}
+
+The threads in an SMT design are all sharing just one processor core, and just one set of caches. This has major performance downsides compared to a true multiprocessor.
+
+On the other hand, applications which are limited primarily by memory latency (but not memory bandwidth), such as database systems, benefit dramatically from SMT, since it offers an effective way of using the otherwise idle time during cache misses.
+
+Thus, SMT presents a very complex and application-specific performance scenario.
+

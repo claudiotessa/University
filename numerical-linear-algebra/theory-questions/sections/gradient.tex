@@ -1,0 +1,158 @@
+\num Consider the linear system $A \mathbf x = \mathbf b$, where $A \in \mathbb R^{n \times n}$ is an invertible matrix:
+
+\begin{enumerate}
+
+	\item Describe the gradient method for the numerical solution of the above linear system. Describe the applicability conditions, the algorithm and the interpretation of the scheme as a minimization problem. \textbf{Define the notation employed}.
+
+	      \begin{tcolorbox}
+		      The gradient method requires $A$ to be SPD. In this case, solving the linear system $A \mathbf{x} = \mathbf{b}$ is equivalent to minimizing the quadratic function $\Phi : \mathbb{R}^{n} \to \mathbb{R}$
+		      $$
+			      \Phi(\mathbf{x}) = \frac{1}{2} \mathbf{x}^{T} A \mathbf{x} - \mathbf{x}^{T}\mathbf{b}
+		      $$
+		      Since $A$ is SPD, $\Phi(\mathbf{x})$ defines a paraboloid with global minimum in $\mathbf{x}$. Since $\nabla \Phi(\mathbf{x}) = A\mathbf{x} - \mathbf{b}$ (assuming $A$ is symmetric), we have that the minimum ($\nabla \Phi(\mathbf{x}) = \mathbf{0}$) coincides with the solution of $A \mathbf{x} = \mathbf{b}$.
+
+		      The update rule is
+		      $$
+			      \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha_{k} \nabla \Phi(\mathbf{x}^{(k)})
+		      $$
+		      where $\alpha_{k}$ is the step size. The optimal parameter $\alpha_{k}$ is chosen by asking that
+		      $$
+			      \frac{\mathrm d \Phi \left( \mathbf x^{(k+1)} \right)}{\mathrm d \alpha_k} = 0
+			      \qquad \implies \qquad
+			      \alpha_{k} = \frac{\left( \mathbf{r}^{(k)} \right)^{T} \mathbf{r}^{(k)}}{\left( \mathbf{r}^{(k)} \right)^{T} A \mathbf{r}^{(k)}}
+		      $$
+
+		      Note that $\nabla \Phi(\mathbf{x}) = A \mathbf{x} - \mathbf{b} = - \mathbf{r}$. Therefore, the residual $\mathbf r^{(k)}$ at step $k$ is
+		      $$
+			      \mathbf{r}^{(k)}  = \mathbf{b} - A \mathbf{x}^{(k)} = -\nabla\Phi(\mathbf{x}^{(k)})
+		      $$
+
+		      \begin{algorithm}[H]
+			      \caption{Gradient method (steepest descent)}
+			      \begin{algorithmic}
+				      \State Given $\mathbf x^{(0)}$, compute $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$
+				      \While{stopping criteria}
+				      \State $\alpha_k = \dfrac{\left( \mathbf r^{(k)} \right)^T \mathbf r^{(k)}}{\left( \mathbf r^{(k)} \right)^T A\mathbf r^{(k)}}$ \Comment{$\approx n$ flops if $A$ is sparse}
+				      \State $\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k \mathbf r^{(k)}$ \Comment{$\approx n$ flops}
+				      \State $\mathbf r^{(k+1)} = (I - \alpha_k A) \mathbf r^{(k)}$ \Comment{$\approx n$ flops}
+				      \EndWhile
+			      \end{algorithmic}
+		      \end{algorithm}
+
+		      \textbf{Notation}:
+		      \begin{itemize}
+			      \item $\mathbf x^{(k)}$ approximate solution at step $k$;
+			      \item $\nabla \Phi(\mathbf x)$ gradient of $\Phi(\mathbf x)$ with respect to the vector $\mathbf x$
+			      \item $\mathbf r^{(k)}$ residual at iteration $k$
+		      \end{itemize}
+
+	      \end{tcolorbox}
+
+	\item State the main theoretical result for the Gradient Method. \textbf{Define the notation employed}.
+	      \begin{tcolorbox}
+		      Let $\mathbf e^{(k)} = \mathbf x^{(k)} - \mathbf x$ the error at iteration $k$. We have that
+		      $$
+			      \lVert \mathbf e^{(k + 1)} \rVert_A \leq \dfrac{K(A) - 1}{K(A) + 1} \lVert \mathbf e^{(k)} \rVert_A
+			      \qquad \implies \qquad
+			      \lVert \mathbf e^{(k)} \rVert_A \leq \left( \frac{K(A) - 1}{K(A) + 1} \right)^k \lVert \mathbf e^{(0)} \rVert_A
+		      $$
+		      Therefore the method converges \textbf{linearly} at a rate determined by the condition number $K(A)$. A large $K(A)$ (poorly conditioned matrix) means slower convergence, and viceversa.
+	      \end{tcolorbox}
+	\item Describe the Conjugate Gradient (CG) method. Recall the interpretation of the scheme as a Krylov subspace method and state the main theoretical result. \textbf{Define the notation employed}.
+
+	      \begin{tcolorbox}
+		      In the CG method, we introduce an updating direction $\mathbf{d}^{(k+1)}$ in such a way that it is $A$-conjugate to all the previous directions $\mathbf{d}^{(j)}$ with $j \leq k$ (i.e., orthogonal with respect to the scalar product induced by $A$):
+		      $$
+			      \left( \mathbf{d}^{(k+1)}, \mathbf{d}^{(j)} \right)_{A} = \left( \mathbf{d}^{(k+1)}, A \mathbf{d}^{(j)} \right) = 0 \qquad \qquad \forall j \leq k \quad \begin{matrix}
+				      \text{conjugate} \\ \text{directions}
+			      \end{matrix}
+		      $$
+
+		      The algorithm then becomes:
+
+		      \begin{algorithm}[H]
+			      \caption{Conjugate Gradient (CG) method}
+			      \begin{algorithmic}
+				      \State Given $\mathbf x^{(0)}$, compute $\mathbf r^{(0)} = \mathbf b - A \mathbf x^{(0)}$
+				      \State Set $\mathbf d^{(0)} = \mathbf r^{(0)}$
+
+				      \While{stopping criteria}
+
+				      \State $a_k = \dfrac{\left( \mathbf d^{(k)} \right)^T \mathbf r^{(k)}}{\left( \mathbf d^{(k)} \right)^T A\mathbf r^{(k)}}$
+
+				      \State $\mathbf x^{(k+1)} = \mathbf x^{(k)} + \alpha_k \mathbf d^{(k)}$ \Comment{Update $\mathbf x^{(k+1)}$ along $\mathbf d^{(k)}$}
+
+				      \State $\mathbf r^{(k+1)} = \mathbf r^{(k)} - \alpha_k A \mathbf d^{(k)}$ \Comment{Update $\mathbf r^{(k+1)}$}
+
+				      \State $\beta_k = \dfrac{ \left( A \mathbf d^{(k)} \right)^T \mathbf r^{(k+1)} }{ \left( A \mathbf d^{(k)} \right)^T \mathbf d^{(k)} }$
+
+				      \State $\mathbf d^{(k+1)} = \mathbf r^{(k+1)} - \beta_k \mathbf d^{(k)}$ \Comment{Update $\mathbf d^{(k+1)}$}
+				      \EndWhile
+			      \end{algorithmic}
+		      \end{algorithm}
+
+		      $\beta_k$ is used as a scalar coefficient to update the search direction.
+
+		      Consider the $k$-th Krylov subspace generated by $A$ from $\mathbf r^{(0)}$:
+		      $$
+			      \mathcal K_k(A, \mathbf r^{(0)}) = \mathrm{span} \{ \mathbf r^{(0)}, A \mathbf r^{(0)}, \dots, A^{k - 1} \mathbf r^{(0)} \}
+		      $$
+		      We have that
+		      $$
+			      \mathbf x^{(k)}
+			      =
+			      \mathbf x^{(k-1)} + \mathbf r^{(k - 1)}
+			      =
+			      \mathbf x^{(0)} + \mathbf r^{(0)} + \dots + \mathbf r^{(k - 1)}
+			      =
+			      \mathbf x^{(0)} + p_{k - 1}(A) \mathbf r^{(0)}
+		      $$
+		      where $p_k(z) := (1-z)^k$ is a polynomial of degree $k$.
+
+		      Since $p_{k - 1}(A) \mathbf r^{(0)} \in \mathcal K_k(A, \mathbf r^{(0)})$, we have that
+		      $$
+			      \mathbf x^{(k)} \in \mathbf x^{(0)} + \mathcal K_k(A, \mathbf r^{(0)})
+		      $$
+		      The CG is a krylov space solver, because by definition it chooses the step length $\alpha_k$ such that $\mathbf x^{k+1}$ is locally optimal on the search line.
+
+		      Moreover, we are sure that the approximate solutions $\mathbf x^{(k)}$ given by the CG method are \textbf{optimal} as they minimize the $A$-norm of the error.
+
+		      The CG method converges to the exact solution in at most $n$ iterations. At each iteration $k$, the error $\mathbf{e}^{(k)} = \mathbf{x} - \mathbf{x}^{(k)}$ can be bounded by
+		      $$
+			      \left\lVert \mathbf{e}^{(k)} \right\rVert _{A} \leq \frac{2c^{k}}{1 + c^{2k}} \left\lVert \mathbf{e}^{(0)} \right\rVert _{A} \qquad \text{with} \qquad c = \frac{\sqrt{ K(A) } - 1}{\sqrt{ K(A) } + 1}
+		      $$
+
+	      \end{tcolorbox}
+
+	\item Comment on the main differences between the Gradient and the Conjugate Gradient methods.
+
+	      \begin{tcolorbox}
+		      The main differences are:
+		      \begin{itemize}
+			      \item \textbf{Geometric interpretation}:
+			            \begin{itemize}
+				            \item The \textit{gradient} method looks for the direction of the steepest descent "right now" (at every iteration $k$), even if moving in that direction "undoes" previous progress. Gives orthogonal residuals ($\mathbf r_{k+1} \perp \mathbf r_k$);
+				            \item The \textit{CG} method chooses a direction that is A-conjugate to all previous directions, ensuring that once we minimize the error in a specific direction, we never have to revisit it. Gives orthogonal residuals compared to all the previous residuals ($\mathbf r_{k+1} \perp \mathcal K_k$).
+			            \end{itemize}
+			      \item \textbf{Convergence rate}:
+			            \begin{itemize}
+				            \item The \textit{gradient} method reduces the error by a factor proportional to $\frac{K(A) - 1}{K(A) + 1}$;
+				            \item The \textit{CG} method reduces the error by a factor proportional to $\frac{\sqrt{K(A)} - 1}{\sqrt{K(A)} + 1}$.
+			            \end{itemize}
+			            So if $A$ is badly conditioned, CG converges faster.
+			      \item \textbf{Number of iterations}:
+			            \begin{itemize}
+				            \item The \textit{gradient} method theoretically iterates forever, asymptotically approaching the solution;
+				            \item The \textit{CG} method converges in at most $n$ iterations in exact arithmetic (as there cannot exist more than $n$ mutually orthogonal vectors in an $n$-dimensional space).
+			            \end{itemize}
+		      \end{itemize}
+	      \end{tcolorbox}
+
+	\item \hl{Describe the main changes you have to introduce if you want to use the preconditioned Gradient (PCG) and Conjugate Gradient methods and state the main conditions the preconditioner $P$ has to satisfy. \textbf{Introduce the notation employed}}
+
+	\item \hl{Describe the algebraic multigrid method as a preconditioning strategy to accelerate the convergence of the PCG method.}
+
+
+\end{enumerate}
+
+

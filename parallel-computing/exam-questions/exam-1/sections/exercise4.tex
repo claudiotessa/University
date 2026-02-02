@@ -1,0 +1,356 @@
+\section{Exercises 4}
+
+\num What is the difference between joining and waiting on a barrier in Pthreads?
+
+\begin{tcolorbox}
+	\textbf{Joining} synchronizes the execution of two threads, the joined thread is destroyed.
+
+	A \textbf{barrier} synchronizes the execution of a group of threads, all of them continue working after the last one reaches the barrier.
+\end{tcolorbox}
+
+\num Give two examples of OpenMP environment variables and how they influence program execution.
+
+\begin{tcolorbox}
+	Examples:
+
+	\begin{itemize}
+		\item \texttt{OMP\_NUM\_THREADS} to set the number of threads if not specified in the program
+		\item \texttt{OMP\_NESTED} to enable/disable nested parallelism
+		\item \texttt{OMP\_CANCELLATION} to enable/disable cancellation
+	\end{itemize}
+
+	Environment variables influence the execution of any OpenMP program launched in that environment.
+\end{tcolorbox}
+
+\num Describe how each thread in the following diagram behaves at runtime as it encounters points marked with 1, representing pragma omp cancel, and with 2, representing pragma omp cancellation point.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/img0.png}
+\end{figure}
+
+\begin{tcolorbox}
+	In order:
+
+	\begin{enumerate}
+		\item Thread 2 reaches a cancellation point but no thread has requested cancellation, so it continues.
+		\item Thread 4 reaches a cancellation point but no thread has requested cancellation, so it continues.
+		\item Thread 1 reaches a cancel directive, sets the cancellation flag, stops executing, waits at the barrier.
+		\item Thread 2 reaches a cancel directive, sees that the cancellation flag has been already set, stops executing, waits at the barrier.
+		\item Thread 4 reaches a cancel directive, sees that the cancellation flag has been already set, stops executing, waits at the barrier.
+		\item Thread 3 reaches a cancellation point, sees that the cancellation has been set, stops executing, waits at the barrier
+	\end{enumerate}
+\end{tcolorbox}
+
+\num What happens when a variable is declared as firstprivate in an OpenMP pragma?
+
+\begin{tcolorbox}
+	Each thread creates its own private copy of that variable, which is initialized with the value that the original variable had immediately before the parallel region began.
+\end{tcolorbox}
+
+\num What is the difference between a static and a dynamic schedule in the OpenMP \texttt{for} construct?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \texttt{static}: loop iterations are divided into blocks of size \texttt{chunk} and then statically assigned to threads. If \texttt{chunk} is not specified, the iterations are evenly divided.
+
+		\item \texttt{dynamic}: loop iterations are divided into blocks of size \texttt{chunk}, and dynamically scheduled among the threads. When a thread finishes one chunk, it is dynamically assigned to another. The default chunk size is 1.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Write a small example of nested parallelism in OpenMP and clearly indicate how many threads execute each region.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        #pragma omp parallel num_threads(2)
+        {
+            // Outer parallel region
+            // executed by 2 threads: master and 1 slave
+
+            // Each outer thread creates a new team of 3 threads
+            #pragma omp parallel num_threads(3)
+            {
+                // Inner parallel region
+                // executed by 2*3 = 6 threads
+                // each of the 2 outer threads becomes the master of 
+                // its new team of 3 threads
+            }
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num What happens if a \texttt{main()} function that launched multiple Pthreads threads returns after launching \texttt{pthread\_exit()}.
+
+\begin{tcolorbox}
+	If the \texttt{main} thread calls \texttt{pthread\_exit()} as its final action (rather than returning or callling \texttt{exit()}), the main thread terminates but the process remains alive, allowing the other created threads to "survive" and continue running.
+\end{tcolorbox}
+
+\num Can a programmer request more OpenMP threads than there are processors in a system? How is the program executed in that case?
+
+\begin{tcolorbox}
+	\textbf{Yes}. In this case, instead of running truly in parallel, the threads take turns executing on the cores with context switching. This degrades performance due to the overhead of switching contexts.
+\end{tcolorbox}
+
+\num Describe the effects of the following pragma:
+
+\begin{minted}{cpp}
+    #pragma omp task depend(in: status[i])
+\end{minted}
+
+\begin{tcolorbox}
+	It specifies a unit of work (task) that will be executed with \texttt{status[i]} as an input (flow dependency). This means that it will wait for \texttt{status[i]} to be written by a previous task before starting execution.
+\end{tcolorbox}
+
+\num Which methods are available in OpenMP to protect access to a shared variable?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \texttt{atomic} directive: useful for single-statement operations (e.g., counters). Means that the operation cannot be interrupted before its completed (e.g., the involved memory address cannot be touched).
+		\item \texttt{critical} directive: protects a block of code so that only one thread at a time can execute it.
+		\item \textbf{Locks}: OpenMP provides functions to lock a specific section of code and then to unlock it. It is done at runtime (in contrast to \texttt{critical}).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Consider the following task graph:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/img1.png}
+\end{figure}
+
+Is it a good idea to implement the program with 4 threads? What is the theoretical improvement in execution time with respect to a sequential version?
+
+\begin{tcolorbox}
+	\textbf{Yes}. The maximum number of tasks that can be executed simultaneously is exactly 4 (int the phase containing 4, 5, 6, 7).
+
+	To calculate the speedup we compare:
+	\begin{itemize}
+		\item $T_1 = 1 + 900 + 1 = 902$
+		\item $T_4 = \underbrace{1}_{task 0} + \underbrace{100}_{\text{tasks 1, 2, 3}} + \underbrace{100}_{\text{tasks 4, 5, 6, 7}} + \underbrace{100}_{\text{tasks 8, 9}} + \underbrace{1}_{\text{task 10}} = 302$
+	\end{itemize}
+	$$
+		\implies SU = \frac{T_1}{T_4} = \frac{902}{302} \approx 3
+	$$
+\end{tcolorbox}
+
+\num Consider the previous task graph. Write a corresponding OpenMP implementation.
+
+\begin{tcolorbox}
+	\begin{minted}[autogobble]{cpp}
+        omp_set_num_threads(4);
+
+        #pragma omp parallel
+        {
+            #pragma omp single // only one thread generates the graph
+            {
+                #pragma omp task depend(out: dep[0])
+                task0();
+
+                #pragma omp task depend(in: dep[0]) depend(out: dep[1])
+                task1();
+
+                #pragma omp task depend(in: dep[0]) depend(out: dep[2])
+                task2();
+
+                #pragma omp task depend(in: dep[0]) depend(out: dep[3])
+                task3();
+
+                #pragma omp task depend(in: dep[1]) depend(out: dep[4])
+                task4();
+
+                #pragma omp task depend(in: dep[2]) depend(out: dep[5])
+                task5();
+
+                #pragma omp task depend(in: dep[2]) depend(out: dep[6])
+                task6();
+
+                #pragma omp task depend(in: dep[3]) depend(out: dep[7])
+                task7();
+
+                #pragma omp task depend(in: dep[4]) depend(out: dep[8])
+                task8();
+
+                #pragma omp task depend(in: dep[7]) depend(out: dep[9])
+                task9();
+
+                #pragma omp task depend(in: dep[5], dep[6], dep[8], dep[9])
+                task10();
+            }
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num What is a mutex in Pthreads, and how does it work?
+
+\begin{tcolorbox}
+	Mutex (mutual exclusion) variables are a method to protect shared data when multiple writes occur.
+
+	Mutexes serialize data accesses. Only one thread can lock a mutex variable at any given time. If multiple threads try to lock a mutex, only one will be successful. Threads that could not acquire the mutex are blocked.
+
+	\textbf{Example}:
+
+	\begin{minted}[autogobble]{cpp}
+        pthread_mutex_lock(&my_lock);
+        /* critical section */
+        pthread_mutex_unlock(&my_lock);
+    \end{minted}
+\end{tcolorbox}
+
+\num In OpenMP, tasks are better than sections for irregular algorithms. Is this statement true or false? Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	\textbf{Tasks} allow for dynamic run-time generation of work units, while \textbf{sections} require the parallel structure to be fixed at compile time.
+
+	Since irregular problems generate unpredictable workloads that cannot be evenly mapped to static sections, tasks can help to keep all threads active even for these kinds of problems.
+\end{tcolorbox}
+
+\num The following code snippet is supposed to always run Task 3 after Tasks 1 and 2. Why does it sometimes not happen?
+
+\begin{minted}[autogobble]{cpp}
+    #pragma omp parallel {
+        #pragma omp single {
+            #pragma omp task { Task1(); }
+            #pragma omp task { Task2(); }
+            Task3();
+        }
+    }   
+\end{minted}
+
+\begin{tcolorbox}
+	When the thread executing the \texttt{single} block encounters the first \texttt{task}, it creates the task and places it in a queue to be executed (potentially later by a different thread). It does not wait for the task to finish. Same with the second \texttt{task}.
+
+	Finally, it moves to \texttt{Task3()}, which is a standard function call that runs immediatly (meanwhile Tasks 1 and 2 \textbf{might} still be in the queue).
+
+	\textit{The fix is to put \texttt{\#pragma omp taskwait} (synchronization barrier) before \texttt{Task3()}. Alternatively, use task dependencies with the \texttt{depend} clause, or put \texttt{Task3()} outside of the \texttt{parallel} block (implicit barrier)}.
+\end{tcolorbox}
+
+\num Please briefly describe when coalesced memory access happened.
+
+\begin{tcolorbox}
+	Coalesced memory access happens when threads within a Warp simultaneously execute a memory instruction that requests memory addresses from the same section. In this case, the GPU memory controller combines those accesses and makes only one DRAM request, maximizing global memory bandwidth.
+\end{tcolorbox}
+
+\num Please explain the conditions under which a memory system is defined as “consistent”. Which of the conditions a \textbf{sequentially consistent memory system} is relaxing?
+
+\begin{tcolorbox}
+	There are 4 types of conditions that a consistent memory system has to respect:
+
+	\begin{itemize}
+		\item $\text{W}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$: write to \texttt X must commit before subsequent read from \texttt Y.
+		\item $\text{R}_{\texttt{X}} \to \text{R}_{\texttt{Y}}$: read from \texttt X must commit before subsequent read from \texttt Y.
+		\item $\text{R}_{\texttt{X}} \to \text{W}_{\texttt{Y}}$: read from \texttt X must commit before subsequent write to \texttt Y.
+		\item $\text{W}_{\texttt{X}} \to \text{W}_{\texttt{Y}}$: write to \texttt X must commit before subsequent write to \texttt Y.
+	\end{itemize}
+
+	A sequentially consistent memory system \textbf{maintains all 4} memory operations ordering (not relaxing any condition).
+\end{tcolorbox}
+
+\num Please briefly describe what DRAM Banking is meant for.
+
+\begin{tcolorbox}
+	In DRAM, each bit of data is not accessed individually. Instead, you have to access an entire row of data from the core array, and then select the column (the specific chunk of data). This process is slow: \textbf{banking} is used to improve DRAM access performance. We have multiple core arrays (banks), each with its own row decoder and sense amps.
+\end{tcolorbox}
+
+\num What do the terms "custom computing" and "heterogeneous systems" mean?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item Custom computing is the practice of designing hardware specifically to match the requirements of a particular application to achieve better performance and energy efficiency compared to general-purpose processors;
+		\item Heterogeneous systems integrate multiple types of processing units into a single system or chip, allowing different workloads to be handled to the execution unit best suited for them.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please briefly describe when uncoalesced memory access happen.
+
+\begin{tcolorbox}
+	Uncoalesced memory access happens when the parallel threads within a single warp attempt to simultaneously access (load or store) misaligned (e.g., non-contiguous) memory addresses that cannot be grouped into a single hardware transaction. Instead of fetching one efficient chunk for the whole warp, the hardware is forced to issue multiple transactions, wasting bandwidth.
+\end{tcolorbox}
+
+\num Please briefly describe how DRAM Bursting Timing is.
+
+\begin{tcolorbox}
+	\textbf{Bursting} is a technique where a single read or write command initiates a rapid sequence of multiple data transfers (burst) from adjacent memory locations (so the data bus remains fully utilized).
+
+	Let's say the SDRAM cores run at just $1/N$ speed of the interface. We load $(N \times \text{InterfaceWidth})$ bits from the same row at once to an internal buffer. This buffered data is then transferred sequentially in $N$ steps at the higher interface speed (e.g., DDR3/GDDR4 use a buffer width $= 8 \times$ interface width).
+
+\end{tcolorbox}
+
+\num Please briefly describe with an example how the “Corner turning” technique works. Why is improving the kernel performance and in which case?
+
+\begin{tcolorbox}
+	An example is \textbf{matrix multiplication} where the algorithm logically requires reading the second matrix column-by-column (vertically), while the matrix in global memory is stored "by rows" (horizontally). The hardware must fetch a huge chuck of row data just to read a single value. \textbf{Corner turning} loads a "tile" of data into the fast Shared Memory, the threads can then read that data vertically much faster and perform matrix multiplication with values from shared memory.
+\end{tcolorbox}
+
+\num DRAM Banking could reduce the dead time. True/False? Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	While one bank is busy performing a slow operations like row activation, the controller can immediately switch to accessing an active row in a different bank. This keeps the high-speed data bus continuously saturated.
+\end{tcolorbox}
+
+\num We say that coalesced access happens if the index in an array is in the form of \dots (fill the dots)
+
+\begin{tcolorbox}
+	\texttt{ThreadIdx.x} (the thread identifier within the warp).
+
+	This means that Thread 0 reads address 0, Thread 1 reads 1, and so on. This pattern allows the hardware to fetch all required data in a single continuous memory transaction.
+\end{tcolorbox}
+
+\num Please define what is meant by “Memory consistency".
+
+\begin{tcolorbox}
+	Memory Consistency refers to the defined rules of the ordering of memory updates between parallel threads. It answers the question: "When does a value written by Thread A become visible to Thread B?".
+\end{tcolorbox}
+
+\num Provide an example of CUDA coalesced accesses.
+
+\begin{tcolorbox}
+	Sequential read: \texttt{float value = input[ThreadIdx.x]}
+
+	Thread 0 reads address 0, thread 1 reads address 1, and so on. Since the accesses are sequential, the hardware is able to merge all contiguous request into one memory transaction.
+\end{tcolorbox}
+
+\num Please explain what a Total Store Ordering consistency model does.
+
+\begin{tcolorbox}
+	Total Store Ordering (TSO) relaxes the rule $\text W_{\text X} \to \text R_{\text Y}$. A processor $P$ can read Y before its write to X is seen by all processors (a processor can move its own reads in front of its own writes).
+
+	Obviously, reads by other processors cannot return the new value of X until the write to X is observed by all processors
+\end{tcolorbox}
+
+\num In Heterogeneous processing moving less data may give better power consumption. True/False? When?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	Moving data across the physical wires of a chip consumes significantly energy than the actual mathematical computation. In heterogeneous systems, data transfers are avoided by chaining multiple kernels together on the device so that intermediate data stays in the local memory, or by using techniques like Near-Memory Processing, where the calculation happens right next to where the data lives.
+\end{tcolorbox}
+
+\num Is the time required to access the memory different from the time taken to access the main memory in a PRAM model?
+
+\begin{tcolorbox}
+	\textbf{No}. PRAM is a theoretical abstraction that assumes Unit Time Access $O(1)$ for accessing any memory location in the shared global memory.
+\end{tcolorbox}
+
+\num Is it tiling related to the GPUs’ shared memory? Please explain why and when.
+
+\begin{tcolorbox}
+	\textbf{Yes}. Since the global memory is slow, we use \textbf{tiling}, a technique where you break a large dataset into small blocks ("tiles") that fit perfectly into the fast shared memory. You use tiling when an algorithm has high data reuse (like Matrix Multiplication).
+
+	Instead of every thread repeatedly fetching the same data from slow Global Memory, the threads collaborate to load a "tile" of data into Shared Memory once, and then everyone reuses that data multiple times from this high-speed cache.
+\end{tcolorbox}
+
+\num Please define what memory coherency means.
+
+\begin{tcolorbox}
+	Memory \textbf{Coherency} ensures that all processors see the same data for a specific memory address, even when that data is cached in multiple local caches. In other words, Coherency guarantees that all caches eventually agree on what the value is.
+\end{tcolorbox}
+
+\num Why custom computing and heterogeneous systems are relevant today?
+
+\begin{tcolorbox}
+	Since we can no longer simply increase CPU clock speeds without overheating, the industry has shifted to specialized hardware. By combining a CPU with e.g. GPUs, heterogeneous systems perform specific heavy tasks more efficiently than a general-purpose processor could. This allows performance to continue growing by optimizing performance per watt rather than raw frequency.
+\end{tcolorbox}

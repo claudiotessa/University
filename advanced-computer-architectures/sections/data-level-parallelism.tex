@@ -1,0 +1,168 @@
+\section{Data-level parallelism in SIMD and Vector architectures}
+
+\subsection{ILP, DLP}
+
+Instead of going in the direction of complex, out-of-order \textbf{ILP} processor, and in-order processor can achieve the same performance, or more, by exploiting \textbf{DLP} (\textbf{Data-level parallelism}): same instruction to manage parallel data, and with more energy efficiency.
+
+\subsection{SIMD architecture}
+
+SIMD (Single Instruction stream, Multiple Data stream) architectures can exploit significant \textbf{data-level parallelism}. SIMD is more efficient than MIMD (Multiple Instruction streams, Multiple Data streams), as they only need to fetch one instruction per data operation.
+
+Also, SIMD allows programmers to \textbf{continue to think sequentially} and achieve \textbf{parallel speedups} (compared to MIMD that requires parallel programming).
+
+There is a central controller that sends the same instruction to multiple processing elements (PEs) for multiple data.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250629133511.png}
+\end{figure}
+
+\begin{itemize}
+	\item Only requires one array controller
+	\item Only requires storage for one copy of the sequential program
+	\item All parallel computations are fully synchronized
+\end{itemize}
+
+The PEs are synchronized with a \textbf{single Program Counter}. Each Processing Element (PE) has its own set of data, use different sets of register addresses.
+
+The cost of control unit is shared by all execution units. Only one copy of the code in execution is necessary.
+
+\subsection{Vector architectures}
+
+They are a variation of SIMD machines. The basic idea is to lead \textbf{sets} of data elements into \textbf{vector registers}, operate on \textbf{vector registers}, and write the results back into memory.
+
+A single instruction operates on \textbf{vectors of data}:
+
+\begin{itemize}
+	\item Synchronized processing units: \textbf{single Program Counter}
+	\item Register-to-register operations
+	\item Used to hide memory latency (memory latency occurs one per vector load/store vs. one per element load/store).
+	\item Leverage memory bandwidth.
+\end{itemize}
+
+Vector processors have operations that work on linear arrays of data: "vectors".
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/Pasted image 20250629134651.png}
+\end{figure}
+
+Each vector has 8-elements with n-bits/element. Each element is independent to any other.
+
+\subsection{Properties of vector processors}
+
+\begin{itemize}
+	\item Each result is \textbf{independent} of previous result, this implies:
+	      \begin{itemize}
+		      \item $\implies$ Long pipeline, the compiler ensures no dependences
+		      \item $\implies$ High clock rate
+	      \end{itemize}
+	\item Vector instructions access memory with known pattern:
+	      \begin{itemize}
+		      \item $\implies$ Highly interleaved memory
+		      \item $\implies$ Amortize memory latency of over 64 elements
+		      \item $\implies$ No data cache required (but there is still instruction cache)
+
+	      \end{itemize}
+	\item Reduces the number of branches and branch problems in pipelines
+	\item Single vector instruction implies lots of work:
+	      \begin{itemize}
+		      \item $\implies$ Fewer instruction fetches
+	      \end{itemize}
+\end{itemize}
+
+\subsection{Components of vector processors}
+
+\begin{itemize}
+	\item \textbf{Vector Register File}: fixed length register bank holding multiple-element vectors
+	      \begin{itemize}
+		      \item Has at least 2 read and 1 write ports
+		      \item Typically 8-32 vector registers, each holding 64-128 bit elements
+	      \end{itemize}
+	\item \textbf{Vector Functional Units (FUs)}: fully pipelined, start new operation every clock
+	      \begin{itemize}
+		      \item Typically 4 to 8 FUs
+	      \end{itemize}
+	\item \textbf{Vector Load-Store Units (LSUs)}: fully pipelined unit to load or store a vector, may have multiple LSUs
+	\item \textbf{Scalar Registers}: single element for FP scalar or address
+	\item \textbf{Cross-bar} to connect FUs, LSUs, registers
+\end{itemize}
+
+\subsection{Operation chaining}
+
+The results from each FU are forwarded to the next FU in the chain. The concept of forwarding is extended to vector registers: a vector operation can start as soon as each element of its vector source operand become available.
+
+Even though a pair of operations depend on one another, \textit{chaining allows the operations to proceed in parallel on separate elements of the vector}. In this way, we don't need to wait anymore for the last element of a load to start the next dependent instruction.
+
+\textit{Without chaining}, we must wait for the last element of one instruction to be written before starting the next dependent instruction.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/Pasted image 20250629140505.png}
+\end{figure}
+
+\textit{With chaining} a dependent operation can start as soon as each element of its vector source operand become available.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.5\textwidth]{images/Pasted image 20250629140534.png}
+\end{figure}
+
+\textbf{Convoys}
+
+\textbf{Convoys} are a set of vector instructions that could potentially execute together partially overlapped (no structural hazards). Sequences with read-after-write dependency hazards can be in the same convoy via \textbf{chaining}.
+
+\textbf{Chimes}
+
+\textbf{Chime} is a timing metric corresponding to the unit of time to execute one convoy. \textbf{$m$ convoys} execute in \textbf{$m$ chimes}. Simply stated, for a vector of length $n$, and $m$ convoys in a program, $n \times m$ clock cycles are required.
+
+Chime approximation ignores some processor-specific overheads.
+
+\subsection{Vector length control}
+
+The \textbf{Maximum Vector Length (MVL)} is the physical length of vector registers in a machine (64 in VMIPS). What to do when the vector length in a program is not exactly 64?
+
+\begin{enumerate}
+	\item \textbf{Vector Length smaller than 64} - There is a special register, called vector-length register (\textbf{VLR}). The VLR controls the length of any vector operation (including vector load/store). It can be set to any value \textbf{smaller} than MVL.
+	\item \textbf{Vector Length unknown at compile time} - Restructure the code using a technique called \textbf{strip mining}:
+	      \begin{itemize}
+		      \item Code generation technique such that each vector operation is done for a size less than or equal to MVL.
+		      \item Sort of loop unrolling where the length of the first segment is $(n \mod MVL)$, and all subsequent segments are of length MVL.
+	      \end{itemize}
+\end{enumerate}
+
+\subsection{Vector mask registers}
+
+When there is an IF statement inside the FOR loop code to be vectorized, the loop cannot normally be vectorized. Use a \textbf{vector mask register} to "disable" some elements:
+
+\begin{itemize}
+	\item The vector mask uses a Boolean vector of length MVL to control the execution of a vector instruction.
+	\item When vector mask registers are enabled, any vector instruction operates ONLY on the vector elements whose corresponding masks bits are set to 1.
+\end{itemize}
+
+The cycles for non-executed operation elements are lost, but the loop can still be vectorized.
+
+\subsection{Memory banks}
+
+Memory system must be designed to support \textbf{high bandwidth} for vector loads and stores.
+
+Spread accesses across \textbf{multiple banks}:
+\begin{itemize}
+	\item Control bank addresses independently
+	\item Load or store non sequential words
+	\item Support multiple vector processors sharing the same memory
+	\item Startup time: time to get first word from  memory to registers
+\end{itemize}
+
+\subsection{Stride}
+
+When a \textbf{matrix} is allocated in memory, it is linearized and laid out in row-major order in C $\implies$ the elements in the columns are not-adjacent in memory. To handle non-adjacent memory elements, we use the \textbf{stride}: the distance separating memory elements that are to be gathered into a single register.
+
+When the elements of a matrix in the inner loop are accessed by column, the are separated in memory by a \textbf{stride} equal to the row size times 8 bytes per entry.
+
+We need an instruction \textbf{LVWS} to lead elements of a vector that are non-adjacent in memory from address R1 with stride R2.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.6\textwidth]{images/Pasted image 20250629142914.png}
+\end{figure}

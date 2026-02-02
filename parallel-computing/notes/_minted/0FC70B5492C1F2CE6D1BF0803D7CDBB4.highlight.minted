@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{+w}{    }\PYG{n+nv}{ld}\PYG{+w}{ }r0\PYG{+w}{ }mem[r2]
+\PYG{+w}{    }\PYG{n+nv}{ld}\PYG{+w}{ }r1\PYG{+w}{ }mem[r3]
+\PYG{+w}{    }\PYG{k}{add}\PYG{+w}{ }r0\PYG{n+nb}{,}\PYG{+w}{ }r0\PYG{n+nb}{,}\PYG{+w}{ }r1\PYG{+w}{ }\PYG{c}{\PYGZsh{} dependency from previous instructions}
+\end{MintedVerbatim}

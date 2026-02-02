@@ -1,0 +1,7 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{pthread\PYGZus{}barrier\PYGZus{}init}\PYG{p}{(}
+\PYG{+w}{    }\PYG{n}{pthread\PYGZus{}barrier\PYGZus{}t}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{barrier}\PYG{p}{,}
+\PYG{+w}{    }\PYG{n}{pthread\PYGZus{}barrierattr\PYGZus{}t}\PYG{+w}{ }\PYG{o}{*}\PYG{+w}{ }\PYG{n}{attr}\PYG{p}{,}
+\PYG{+w}{    }\PYG{k+kt}{unsigned}\PYG{+w}{ }\PYG{k+kt}{int}\PYG{+w}{ }\PYG{n}{count}
+\PYG{p}{)}
+\end{MintedVerbatim}

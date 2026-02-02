@@ -1,0 +1,333 @@
+\section{Exercises 1}
+
+\num What is the difference between EREW, CREW, and CRCW models? Provide an example for each of them.
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item  EREW (Exclusive Read Exclusive Write):
+		      \begin{itemize}
+			      \item No two processors can read from or write to the same memory cell at the same time.
+			      \item Example: Copying an array
+		      \end{itemize}
+		\item CREW (Concurrent Read Exclusive Write):
+		      \begin{itemize}
+			      \item Multiple processors can read the same memory cell simultaneously, but only one can write to a given cell at a time.
+			      \item Example: Matrix-vector multiplication
+		      \end{itemize}
+		\item CRCW (Concurrent Read Concurrent Write):
+		      \begin{itemize}
+			      \item Multiple processors can read from and write to the same memory cell simultaneously. Write conflicts are resolved by a rule (e.g., common, priority, arbitrary).
+			      \item Example: DNF computation where the variables read can be any of the input variables.
+		      \end{itemize}
+	\end{itemize}
+\end{tcolorbox}
+
+\num How can the prefix sum of an array be computed on a CREW PRAM using idle processors from the sum algorithm?
+
+\begin{tcolorbox}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{images/crew-prefix-sum.png}
+	\end{figure}
+\end{tcolorbox}
+
+\num Given an algorithm with $T_1(n)=n^2$ and $T_p(n)=\frac{n^2}{p}$, analyze the speedup and efficiency. What can you conclude?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item SPEEDUP: $SU_p = \dfrac{T_1(n)}{T_p(n)} = p$
+		\item EFFICIENCY: $E_p = \dfrac{T_1(n)}{p T_p(n)} = 1$
+	\end{itemize}
+	\textbf{Conclusion}: the algorithm achieves linear speedup in the best case and perfect efficiency.
+\end{tcolorbox}
+
+\num What is the main conceptual difference between Amdahl’s Law and Gustafson’s Law?
+
+\begin{tcolorbox}
+	\textbf{Amdahl} assumes a fixed problem size and shows the limits to the speedup as we increase the number of processors.
+
+	\textbf{Gustafson} assumes a fixed execution time and scales the problem size, demonstrating that the speedup can grow linearly with the number of processors.
+\end{tcolorbox}
+
+\num On a PRAM model, the time complexity can be equal to the number of instructions executed. True/False? Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	When $P=1$, the PRAM model behaves like a standard sequential RAM model. In this case, since no operations can be performed in parallel, the time complexity is equal to the number of instructions executed.
+\end{tcolorbox}
+
+\num Please describe how the matrix vector multiplication can be parallelized on a PRAM model. Please report also speedup, efficiency, work and cost.
+
+\begin{tcolorbox}
+	We want to calculate $Y = AX$. On a PRAM model, Matrix-Vector Multiplication is parallelized by decomposing the matrix $A$ into blocks $A_i, i = 1, ..., p$, where $p$ is the number of processors:
+
+	\begin{enumerate}
+		\item processors concurrently read $X$
+		\item processors simultaneously read their section of $A$ ($A_i$)
+		\item compute $n^2/p$ operations per processor to get $Y_i$
+		\item each processor writes its $Y_i$ ($n/p$ elements per processor) simultaneously without conflicts
+	\end{enumerate}
+
+	The algorithm achieves:
+	\begin{itemize}
+		\item $T_1 = O(N^2) \qquad \quad T_p(N^2) = O(N^2 / p)$
+		\item SPEEDUP: $SU = \dfrac {T_1}{T_p} = \dfrac{O(N^2)}{O(N^2/p) } = p \implies$ linear speedup
+		\item EFFICIENCY: $E_p = \dfrac{T_1}{p T_p} = \dfrac{O(N^2)}{O\left(p \frac{N^2}{p}\right)} = 1 \implies$ perfect efficiency
+		\item COST: $O\left(p \frac{N^2}{p}\right) = O\left(N^2\right)$
+		\item WORK: $N^2$
+	\end{itemize}
+\end{tcolorbox}
+
+\num Among the laws we have seen during the course, which one is classified to address the weak scaling? Please also describe the assumptions that come with the identified law.
+
+\begin{tcolorbox}
+	Gustafson's Law addresses weak scaling. It assumes that the problem size scales with the number of processors, maintaining a constant execution time. The formula is
+	$$
+		SU = serial + parallel \cdot P
+	$$
+\end{tcolorbox}
+
+\num Please describe the policies adopted in a PRAM model when a CW is present.
+
+\begin{tcolorbox}
+	To solve write conflicts:
+
+	\begin{itemize}
+		\item \textbf{Priority CW}: processors have priorities. The highest priority is allowed to complete write.
+		\item \textbf{Common CW}: all processors are allowed to complete write if and only if all the values to be written are equal.
+		\item \textbf{Arbitrary/Random CW}: one randomly chosen processor is allowed to complete write.
+	\end{itemize}
+\end{tcolorbox}
+
+\num What can be said about the time complexity of a PRAM-based application when the PRAM model has a bounded number of shared memory cells?
+
+\begin{tcolorbox}
+	The time complexity typically increases because the limited memory restricts the communication between processors. Since processors must use shared memory to exchange data, having fewer cells than the problem requires forces the algorithm to serialize communication.
+\end{tcolorbox}
+
+\num In which way does the following assumption impact the PRAM analysis: “Each memory cell can hold an integer of unbounded size”?
+
+\begin{tcolorbox}
+	Since PRAM is a theoretical mode in which communication occurs exclusively via shared memory, an unbounded cell size theoretically allows a processor to \textbf{transmit an infinite amount of data} in a single time step.
+
+	This also abuses \textbf{Bit Level Parallelism}, as it technically allows a processor to pack multiple data elements into one integer and process them all simultaneously with a single arithmetic operation in $O(1)$ time.
+
+	These are obviously not realistic on physical machines.
+\end{tcolorbox}
+
+\num Could you please classify the READ/WRITE abilities of a PRAM system and how realistic and useful they are?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Exclusive Read (ER)}: Processors can simultaneously read only from distinct memory locations;
+		\item \textbf{Exclusive Write (RW)}: Processors can simultaneously write only to distinct memory locations;
+		\item \textbf{Concurrent Read (CR)}: Processors can simultaneously read from any memory location (also the same one);
+		\item \textbf{Concurrent Write (CW)}: processors can simultaneously write to any memory location (also the same one).
+	\end{itemize}
+	And combinations of both (CREW, EREW, ...).
+
+	Especially CRCW is not very realistic, as it is a theoretical model that assumes no overhead and ignores physical limitations of the hardware (latency, circuit complexity, etc.).
+
+	Still they are very useful as they serve as a baseline for algorithm design (if a problem has no solution on PRAM, then it has no solution on any parallel machine).
+\end{tcolorbox}
+
+\num Assuming $T^*(n) = T_1(n)$, what kind of relation do you have between the efficiency and the speedup of a PRAM-based application (direct, inverse,…)?
+
+\begin{tcolorbox}
+	We have
+	\begin{itemize}
+		\item SPEEDUP $SU_p(n) = \dfrac{T_1(n)}{T_p(n)}$
+		\item EFFICIENCY $E_p(n) = \dfrac{T_1(n)}{p T_p(n)}$
+	\end{itemize}
+	$$
+		\implies E_p(n) = \frac{SU_p(n)}{p} \implies \text{efficiency is directly proportional to speedup.}
+	$$
+\end{tcolorbox}
+
+\num Could you please define the speedup in a fixed-time model?
+
+\begin{tcolorbox}
+	The speedup in a fixed-time model is defined by Gustafson's law:
+	$$
+		SU = s + P(1 - s)
+	$$
+	where:
+	\begin{itemize}
+		\item $s$ is the time spent on the serial portion of the problem;
+		\item $(1 - s)$ is the time spent on the parallel portion;
+		\item $P$ is the number of processors.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please discuss the lemma deriving the slow-down factor when we move from an unbounded memory PRAM model to a bounded one.
+
+\begin{tcolorbox}
+	Assume a problem can be solved on an unbounded memory PRAM needing $M$ cells, and we move to a $M'$-cell PRAM, with $M' < M$:
+
+	Any problem that can be solved by a $P$-processor and $M$-cell PRAM in $T$ steps, can be solved on a $\max(P, M')$-processor and $M'$-cell PRAM in $O \left( \frac{TM}{M'} \right)$ steps.
+\end{tcolorbox}
+
+\num Complete the following sentence and explain what it means: “In a PRAM model, a read conflict occurs when…"
+
+\begin{tcolorbox}
+	...when multiple processors attempt to read from the same memory location at the same time.
+
+	Whether or not this is allowed depends on the specific PRAM variant:
+	\begin{itemize}
+		\item Exclusive Read (ER): conflicts are illegal and the algorithm fails.
+		\item Concurrent Read (CR): conflicts are allowed and the value is read by both processors.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Give a definition of the speedup when a PRAM model is considered.
+
+\begin{tcolorbox}
+	For a PRAM model, the speedup on $p$ proceessors, $SU_p$, is defined as:
+	$$
+		SU_p = \frac {T^*}{T_p}
+	$$
+	where:
+	\begin{itemize}
+		\item $T^*$ is the execution time of the best known sequential algorithm;
+		\item $T_p$ is the execution time of the parallel algorithm using $P$ processors.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please outline the key aspects of Amdahl’s Law.
+
+\begin{tcolorbox}
+	Amdahl's law is used to calculate the theoretical maximum speedup of a task when only a portion of it can be parallelized:
+	$$
+		SU = \frac{1}{1 - f + \frac f p}
+	$$
+	where:
+	\begin{itemize}
+		\item $f$ is the parallelizable fraction of the problem;
+		\item $p$ is the number of processors;
+	\end{itemize}
+	Amdahl's law addresses \textbf{strong scaling}. It gives us the speedup obtained by increasing the number of processors, but keeping the prpoblem size constant.
+\end{tcolorbox}
+
+\num In a PRAM model, each processor has an unbounded number of registers. What purposes could such registers be used for? Is the access time different from the one for the global shared memory?
+
+\begin{tcolorbox}
+	The unbounded local registers are a private storage for each processor to hold intermediate computational results, local variables, and instruction data that do not need to be visible to other processors.
+
+	In the PRAM model, the access time for accessing local registers is the same to that of accessing the global shared memory: $O(1)$.
+\end{tcolorbox}
+
+\num Please define the Cost in a PRAM model.
+
+\begin{tcolorbox}
+	The cost of a parallel algorithm for input size $n$ running on $p$ processors is:
+	$$
+		C(n) = p \cdot T_p(n)
+	$$
+\end{tcolorbox}
+
+\num Could you please discuss the following sentence? “Gustafson's law presupposes that the computing requirements will stay the same, given increased processing power. In other words, an analysis of the same data will take less time given more computing power“. Is it true or false? What does it mean?
+
+\begin{tcolorbox}
+	\textbf{FALSE}.
+
+	This sentence describes Amdahl's law. Instead, Gustafson's law presupposes that the problem size (computing requirements) will scale up together with the number of processors (processing power).
+
+	In other words, if we get more powerful hardware (i.e., more processors), we use it to solve a larger and more complex problem in the \textbf{same amount of time}.
+\end{tcolorbox}
+
+\num Please list the concurrent read the prefix sum algorithm has when a PRAM model is used.
+
+\begin{tcolorbox}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{images/crew-prefix-sum.png}
+	\end{figure}
+\end{tcolorbox}
+
+\num Please show an example of the PRAM model solving CW with a common CW approach.
+
+\begin{tcolorbox}
+	A common CW example is the \textbf{boolean DNF}. Here, CW are solved using the \textbf{arbitrary CW} rule: one randomply chosen processor is allowed to write. It works because writes are consistent (both processors would have written the same value).
+\end{tcolorbox}
+
+\num Is the absolute serial time fixed with the Gustafson model? What about the parallel part?
+
+\begin{tcolorbox}
+	Both the absolute serial and parallel time are fixed. The model assumes a \textbf{fixed-time} constraint: as you add more processors, you scale up the amount of work (problem size) proportionally. So the larger parallel workload takes the exact same amount of time, while the amount of work done increases.
+\end{tcolorbox}
+
+\num Please list the characteristics of the PRAM model that simplify the space complexity estimations.
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Unified Shared Memory}: assumes a single global address space accessible by all processors (no caches, registers, etc.), so space complexity is simply calculated as the number of shared memory cells used.
+		\item \textbf{Implicit Communication}: since communication occurs via writing to shared variables, there is no need to allocate space for message-passing buffers, etc.
+		\item \textbf{Unbounded Capacity}: the model assumes infinite available memory. This allows the analysis to focus only on the algorithmic requirements.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Could you please list the properties/features PRAM has in common with CUDA?
+
+\begin{tcolorbox}
+	\begin{itemize}
+		\item \textbf{Global Address Space}: just as PRAM assumes a single shared memory accessible by all processors, CUDA provides Global Memory visible to every thread in the grid, allowing implicit communication.
+		\item \textbf{Unlimited Processors}: both models assume the availability of virtually unlimited threads (processors), abstracting away the physical core count.
+		\item \textbf{SIMD execution}: CUDA uses uses the SIMT architecture, where multiple threads inside a warp execute the same instruction simultaneously (just like SIMD units).
+		\item \textbf{Concurrent Write Support}: CUDA’s Atomic Operations provide a practical implementation of the CRCW (Concurrent Write) PRAM model, allowing multiple threads to update the same memory location safely.
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please discuss the following sentence: “In a PRAM model, processors have private local memories”. True/False?
+
+\begin{tcolorbox}
+	\textbf{FALSE}.
+
+	The PRAM model is defined by a single global shared memory accessible by all processors with uniform O(1) access time. It intentionally abstracts away the concept of private local memories to simplify the analysis of parallel algorithms.
+\end{tcolorbox}
+
+\num Please discuss PRAM prefix sum algorithm according to the Read/Write accesses.
+
+\begin{tcolorbox}
+	The PRAM Prefix Sum algorithm relies on the CREW (Concurrent Read, Exclusive Write) model.
+
+	\begin{itemize}
+		\item \textbf{Concurrent Reads} because multiple processors frequently read the same source value at the same time.
+		      \textit{Example}: at step 1, Processor $i$ needs to read index $i$ and $i-1$, while Processor $i+1$ also needs to read index $i$ (and $i+1$), creating a read collision at index $i$.
+		\item \textbf{Exclusive Writes} because each processor updates a unique index (Processor $i$ only writes to index $i$).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please discuss the following sentence: “Amdahl’s model is classified as a strong scaling model while Gustafson as a weak scaling model”. True/False? Why?
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	\begin{itemize}
+		\item \textbf{Amdahl’s Law} represents Strong Scaling because it assumes a fixed total problem size, measuring the speedup as you add processors.
+		\item \textbf{Gustafson’s Law} represents Weak Scaling because it assumes that the problem size scales up proportionally with the number of processors (while keeping execution time fixed).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Describe the steps followed by a PRAM machine.
+
+\begin{tcolorbox}
+	Each processor synchronously perform:
+	\begin{enumerate}
+		\item Read input from an input cell
+		\item Read shared memory from a shared memory cell
+		\item Perform internal computation
+		\item Write to an output cell if needed
+		\item Write to the shared memory cell if needed
+	\end{enumerate}
+\end{tcolorbox}
+
+\num Assuming $P' < P$, is it possible to derive the slowdown factor when $P'$ processors are used? How?
+
+\begin{tcolorbox}
+	Using the following lemma valid when $P' < P$:
+
+	Any problem that can be solved by a $P$-processor PRAM in $T$ steps, can be solved by a $P'$-processor PRAM in $O \left( T \frac{P}{P'} \right)$ steps.
+
+	Therefore, the slowdown factor of the new time is $P/P'$.
+\end{tcolorbox}

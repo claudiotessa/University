@@ -1,0 +1,6 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{+w}{    }DIV.D\PYG{+w}{ }F0\PYG{n+nb}{,}\PYG{+w}{ }F2\PYG{n+nb}{,}\PYG{+w}{ }F4
+\PYG{+w}{    }ADD.D\PYG{+w}{ }RS1\PYG{n+nb}{,}\PYG{+w}{ }F0\PYG{n+nb}{,}\PYG{+w}{ }F8\PYG{+w}{     }\PYG{c}{\PYGZsh{} RAW F0}
+\PYG{+w}{    }S.D\PYG{+w}{ }RS1\PYG{n+nb}{,}\PYG{+w}{ }\PYG{k+kc}{0}(R1)\PYG{+w}{        }\PYG{c}{\PYGZsh{} RAW RS1}
+\PYG{+w}{    }MUL.D\PYG{+w}{ }F6\PYG{n+nb}{,}\PYG{+w}{ }F10\PYG{n+nb}{,}\PYG{+w}{ }F8
+\end{MintedVerbatim}
