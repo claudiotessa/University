@@ -31,91 +31,62 @@ using namespace dealii;
 /**
  * Class managing the differential problem.
  */
-class Poisson1D
-{
-public:
-  // Physical dimension (1D, 2D, 3D)
-  static constexpr unsigned int dim = 1;
+class Poisson1D {
+  public:
+    // Physical dimension (1D, 2D, 3D)
+    static constexpr unsigned int dim = 1;
 
-  // Constructor.
-  Poisson1D(const unsigned int                              &N_el_,
-            const unsigned int                              &r_,
-            const std::function<double(const Point<dim> &)> &mu_,
-            const std::function<double(const Point<dim> &)> &f_)
-    : N_el(N_el_)
-    , r(r_)
-    , mu(mu_)
-    , f(f_)
-  {}
+    // Constructor.
+    Poisson1D(const unsigned int &N_el_, const unsigned int &r_,
+              const std::function<double(const Point<dim> &)> &mu_,
+              const std::function<double(const Point<dim> &)> &f_)
+        : N_el(N_el_), r(r_), mu(mu_), f(f_) {}
 
-  // Initialization.
-  void
-  setup();
+    // Initialization.
+    void setup();
 
-  // System assembly.
-  void
-  assemble();
+    // System assembly.
+    void assemble();
 
-  // System solution.
-  void
-  solve();
+    // System solution.
+    void solve();
 
-  // Output.
-  void
-  output() const;
+    // Output.
+    void output() const;
 
-  // Compute the error against a given exact solution.
-  double
-  compute_error(const VectorTools::NormType &norm_type,
-                const Function<dim>         &exact_solution) const;
+    // Compute the error against a given exact solution.
+    double compute_error(const VectorTools::NormType &norm_type,
+                         const Function<dim> &exact_solution) const;
 
-protected:
-  // Number of elements.
-  const unsigned int N_el;
+  protected:
+    // Number of elements.
+    const unsigned int N_el;
 
-  // Polynomial degree.
-  const unsigned int r;
+    // Polynomial degree.
+    const unsigned int r;
 
-  // Diffusion coefficient.
-  std::function<double(const Point<dim> &)> mu;
+    // Diffusion coefficient.
+    std::function<double(const Point<dim> &)> mu;
 
-  // Forcing term.
-  std::function<double(const Point<dim> &)> f;
+    // Forcing term.
+    std::function<double(const Point<dim> &)> f;
 
-  // Triangulation.
-  Triangulation<dim> mesh;
+    // Triangulation.
+    Triangulation<dim> mesh;
 
-  // Finite element space.
-  //
-  // We use a unique_ptr here so that we can choose the type and degree of the
-  // finite elements at runtime (the degree is a constructor parameter).
-  //
-  // The class FiniteElement<dim> is an abstract class from which all types of
-  // finite elements implemented by deal.ii inherit. Using the abstract class
-  // makes it very easy to switch between different types of FE space among the
-  // many that deal.ii provides.
-  std::unique_ptr<FiniteElement<dim>> fe;
+    // Finite element space.
+    std::unique_ptr<FiniteElement<dim>> fe;
 
-  // Quadrature formula.
-  //
-  // We use a unique_ptr here so that we can choose the type and order of the
-  // quadrature formula at runtime (the order is a constructor parameter).
-  std::unique_ptr<Quadrature<dim>> quadrature;
+    // Quadrature rule.
+    std::unique_ptr<Quadrature<dim>> quadrature;
 
-  // DoF handler.
-  DoFHandler<dim> dof_handler;
+    DoFHandler<dim> dof_handler;
 
-  // Sparsity pattern.
-  SparsityPattern sparsity_pattern;
+    SparsityPattern sparsity_pattern;
+    SparseMatrix<double> system_matrix;
 
-  // System matrix.
-  SparseMatrix<double> system_matrix;
-
-  // System right-hand side.
-  Vector<double> system_rhs;
-
-  // System solution.
-  Vector<double> solution;
+    Vector<double> system_rhs;
+    Vector<double> solution;
 };
 
 #endif
