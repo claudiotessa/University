@@ -1,0 +1,5 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+for (j=1; j\PYGZlt{}1000; j++)
+    for (i=0; i\PYGZlt{}10; i++)
+        a[i][j] = f(a[i][j]);
+\end{MintedVerbatim}

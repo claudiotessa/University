@@ -1,0 +1,211 @@
+\subsection{Exercises 2-1}
+
+\num Please describe how the Pack parallel pattern works. How is it implemented (pseudo code and PRAM complexity required)?
+
+\begin{tcolorbox}
+	Used to eliminate unused elements from a collection:
+
+	\begin{enumerate}
+		\item Convert input array of Booleans into integer 0s and 1s;
+		\item Perform an exclusive scan of this array with the SUM operation;
+		\item Write values in the output array based on the offset
+	\end{enumerate}
+
+
+
+	\begin{minted}{cpp}
+        if(InitialMask[i])
+            out[ExScanOf1[i]] = input[i];     
+    \end{minted}
+
+	If executed on $N$ execution units, step 1 and 2 have a complexity of $O(1)$, while step 2 has a time complexity of $O(\log N)$, therefore the total time complexity is $O(\log N)$. Work is $O(N)$.
+\end{tcolorbox}
+
+\num Consider the following nested loop:
+
+\begin{minted}{text}
+    for (j = 0; j < 999; j++) {
+        for (i = 2; i < 999; i++) {
+            a[i][j] = f(a[i-2][j]);
+        }
+    }
+\end{minted}
+
+Evaluate the cache-friendliness of this code and consider its relationship to parallelizability. How does the memory layout of the array affect performance, and what changes could improve cache utilization vs parallelizability? Justify your answer. Assume that \texttt{a} stores integers.
+
+\begin{tcolorbox}
+	Original code is fully parallelizable with respect to loop \texttt{j} if function \texttt{f} is \textbf{safe} and it is partially parallelizable with respect to loop \texttt{i}.
+
+	The original code is poor with respect to cache friendliness because the variable \texttt{a} is accessed column-wise. Swapping the two loops fixes cache friendliness. Tiling could be another approach to improve cache friendliness and parallel computation
+\end{tcolorbox}
+
+\num How and under what conditions can the following code be parallelized? Is there a way to write the code for better parallelization? Assume that a and b store integers.
+
+\begin{minted}[autogobble]{text}
+    for (i=4; i<100; i++) {
+        for (j=1; j<100; j++)
+            a[i][0] *= f(a[i][j]);
+        for (j=0; j<100; j++)
+            b[i-4][j] += f(b[i][j]);
+    }
+\end{minted}
+
+\begin{tcolorbox}
+	Assuming that \texttt{f} is a safe function:
+	\begin{itemize}
+		\item The \texttt{a} loop (first inner loop): each row \texttt{i} is independent from each other $\implies$ fully parallelizable.
+		\item The \texttt{b} loop (second inner loop): there is a loop carried dependency $\implies$ we can only parallelize with respect to loop \texttt{j} but not with respect to loop \texttt{i}.
+	\end{itemize}
+	To make parallelization better, we can remove the loop-carried dependency, using a temporary copy of \texttt{b}, example:
+	\texttt{copy\_b = b} before the loop, and then in the \texttt{b} loop:
+	\texttt{b[i - 4][j] += f(copy\_b[i][j]);}
+\end{tcolorbox}
+
+\num Which loop can be parallelized and under which conditions? Does the overhead of the runtime have an impact on the parallelization of the loops? When and on which target architecture?
+
+\begin{minted}[autogobble]{text}
+    for (j=1; j<1000; j++)
+        for (i=0; i<10; i++)
+            a[i][j] = f(a[i][j]);
+\end{minted}
+
+\begin{tcolorbox}
+	\textbf{Both} loops can be parallelized because there are no loop-carried dependencies between iterations (assuming \texttt{f} is a safe function).
+
+	However, for performance, you should parallelize the outer loop (\texttt{j}). The overhead of the runtime is critical here: the inner loop has a count of only 10, which is too small to justify the cost of thread creation and management.
+
+	This is worse on CPUs (where spawning threads causes a greater slowdown) than GPUs, as GPUs have explicit hardware that manages thread creation. But a block size of 10 on a GPU, would be a significant waste of resources (as warp size is typically of 32 threads).
+\end{tcolorbox}
+
+\num Please describe the parallel gather pattern, including assumptions, complexity, and examples.
+
+\begin{tcolorbox}
+	Given a collection of ordered indices, read data from the source collection at each index, and write data to the output collection in index order. It can be seen as the inverse of scatter.
+
+	Typically assumes a CREW PRAM (Concurrent Read, Exclusive Write) model to allow multiple threads to read from the same source location simultaneously.
+
+	Time complexity is $O(1)$ since all reads happen in parallel. Work is $O(N)$, one operation per element.
+
+	An \textbf{example} is rotating an image: the new target pixel need to \textit{gather} the color from the source pixel.
+\end{tcolorbox}
+
+\num Please describe how the Split parallel pattern works. How is it implemented (pseudo code required)?
+
+\begin{tcolorbox}
+	Split rearranges data so that all elements of the input are moved to either the lower or upper part of the output collection, given on a boolean collection that tells in which of the two portions an element will go. Relative ordering withing the lower/upper half is kept.
+
+	\begin{minted}[autogobble]{cpp}
+        LastOf0 = ExScanOf1[last] + 1;
+        if(InitialMask[i])
+            out[ExScanOf1[i] + LastOf0] = DataInput[i];
+        else
+            out[ExScanOf0[i]] = DataInput[i];
+    \end{minted}
+\end{tcolorbox}
+
+\num Please describe how the Unzip parallel pattern works. How is it implemented (pseudo code and PRAM complexity required)?
+
+\begin{tcolorbox}
+	Unzip is the reverse of zip. Given a sequence, separates them into subarrays at certain offset. For each thread, the pseudocode un:
+
+	\begin{minted}[autogobble]{cpp}
+        X[i] = A[2 * i]; // even index
+        Y[i] = A[2 * i + 1]; // odd index
+    \end{minted}
+
+	\textbf{PRAM complexity} assuming CREW:
+	\begin{itemize}
+		\item \textbf{time} complexity: $O(1)$ since all operations happen simultaneously
+		\item \textbf{work} complexity $O(n)$, 2 operations per thread
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please describe how the parallel zip pattern works, its complexity, and how it could be parallelly implemented.
+
+\begin{tcolorbox}
+	The Zip pattern combines two input arrays into a single output array, interleaving the input elements. In the PRAM model (assuming N processors), it achieves O(1) step complexity and O(N) work complexity because every pairing operation is completely independent.
+
+	It is parallelly implemented as a straightforward map operation: the system launches $N$ threads, where each thread $i$ simultaneously reads the $i$-th elements from both source arrays and writes the first input element to the output array at index $2i$ and the second input element at index $2i + 1$, requiring zero synchronization.
+\end{tcolorbox}
+
+\num Can you remove a flow dependency? Yes/No, and in case, how?
+
+\begin{tcolorbox}
+	\textbf{No}, you can generally not remove flow dependencies (Read-After-Write) because they are \textit{true} dependencies.
+
+	Unlike anti- or output dependencies, which can be eliminated by register renaming, flow dependencies are a hard ordering constraint required for correctness. The only way to remove it is to fundamentally \textbf{alter the algorithm} (e.g., restructuring the calculation chain).
+\end{tcolorbox}
+
+\num Please describe what \textbf{relaxing} the sequential consistency memory model means and why it is done.
+
+\begin{tcolorbox}
+	\textbf{Relaxing} the sequential consistency memory model means abandoning the strict guarantee that every thread sees all memory operations in the exact order specified by the program code. Instead, the hardware (CPU) and the compiler are permitted to reorder memory instructions, meaning that different threads may perceive memory updates happening in different sequences.
+
+	This is done for \text{performance}: strict consistency forces the processor to stall and wait for every single memory access to propagate to main memory.
+\end{tcolorbox}
+
+\num Please describe how the “Permutation collision resolution” works. Is it related to the parallel gather pattern?
+
+\begin{tcolorbox}
+	No. The permutation collision resolution is related to the scatter pattern. A collision occur when, in the scatter pattern, two input locations map to the same output location. The permutation collision resolution simply states that collisions are illegal (check for collisions in advance). Therefore, if there are no collisions, the output is simply a permutation of the input.
+\end{tcolorbox}
+
+\num Please describe how DOALL loops could be parallelized using a known parallel pattern.
+
+\begin{tcolorbox}
+	DOALL loops are parallelized using the \textbf{Map} pattern. Because a DOALL loop implies that every iteration is completely independent of the others (no loop-carried dependencies), the problem can be treated as applying a function $f(x)$ to every element of the input collection simultaneously.
+
+	The total index range (0 to N) is partitioned into chunks, and these chunks are distributed across parallel threads (using either static or dynamic scheduling) so that each thread executes the loop body for its assigned indices concurrently.
+\end{tcolorbox}
+
+\num Please describe how the shift parallel pattern could be implemented in a parallel way.
+
+\begin{tcolorbox}
+	The shift pattern is implemented as a Map operation where each thread reads an input element at a fixed offset (e.g., \texttt{input[i + offset]}) and writes it to its current position output[i].
+
+	To implement it, the standard approach is Tiling with Shared Memory. A thread block cooperatively loads a segment of data (plus the boundary elements corresponding to the shift size) into the fast shared memory. After a barrier synchronization, threads read the shifted values from shared memory and write the result to global memory.
+
+	This prevents unaligned memory accesses (non-coalesced reads) that would occur if threads tried to read directly from global memory with an arbitrary offset.
+\end{tcolorbox}
+
+\num Please define parallel pattern reduce: assumptions, complexity, and example.
+
+\begin{tcolorbox}
+	The Reduce pattern combines a collection of elements into a single summary value by repeatedly applying a specific operator. The assumption is that the operator must be \textbf{associative}. For example: sum all the elements of the array.
+
+	A parallel reduction uses a tree-based approach that performs \textbf{total work} $O(N)$ and time complexity $O(\log N)$ (the tree is deep $\log N$).
+\end{tcolorbox}
+
+\num Please describe how the Unpack pattern could be implemented.
+
+\begin{tcolorbox}
+	The Unpack pattern is implemented by combining the Scan and Map:
+	\begin{itemize}
+		\item First, an exclusive Scan (prefix sum) is performed on the boolean mask;
+		\item Then, a Map is executed over the destination array: if the mask at index \texttt i is true, the thread reads the input value using the index calculated by the scan and writes it to output \texttt i; otherwise, it fills the slot with a default identity value (like 0).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Please define what a parallel pattern scan is: assumptions, complexity, and example.
+
+\begin{tcolorbox}
+	The Scan pattern computes all partial reductions of a sequence, transforming an input $[a_0, a_1, \dots, a_n]$ into an output where each element $y_i$ is the combination of all preceding inputs up to that point.
+
+	The main assumption is that the operator must be \textbf{associative} (e.g., addition), which allows the algorithm to reorder calculations into a tree structure.
+
+	In terms of complexity, a work-efficient scan performs $O(N)$ work (matching the sequential baseline) but achieves a critical path of $O(\log N)$.
+
+	An example is prefix sum.
+\end{tcolorbox}
+
+\num Describe how the scope of variables can be specified upon entering an OpenMP parallel region.
+
+\begin{tcolorbox}
+	\texttt{\#pragma omp parallel shared(a) private(b)}
+	\begin{itemize}
+		\item \texttt{shared(...)}: all threads access the single original memory location;
+		\item \texttt{private(...)}: each thread creates its own \textit{uninitialized} local copy of the variable;
+		\item \texttt{firstprivate(...)}: similar to \texttt{private}, but the local copy is \textit{initialized} with the value that the variable had vefore entering the parallel region;
+		\item \texttt{default(mode)}: set the default mode for all variables not listed (e.g., \texttt{default(shared)}.
+	\end{itemize}
+\end{tcolorbox}

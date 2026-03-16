@@ -1,0 +1,67 @@
+\section{Crypthography}
+
+\textit{Cryptography} is the study of techniques to allow secure communication and data storage in presence of attackers. Here are the core services provided by cryptography:
+
+\begin{itemize}
+	\item \textbf{Confidentiality} - data can be accessed only by the chosen entities;
+	\item \textbf{Integrity} - the ability to detect whether a message has been changed;
+	\item \textbf{Authenticity} - the source and integrity of a message are certified;
+	\item \textbf{Non-repudiation} - the data creator cannor repudiate created data;
+\end{itemize}
+
+\subsection{Encryption}
+
+An \textit{encryption} algorithm, also called a \textit{cypher}, enciphers \textit{plaintext} (\textit{cleartext}) into \textit{cyphertext} under the control of a cryptographic key. Below are some useful definitions.
+
+\begin{tcolorbox}[title = Definition: Randomness]
+	We will consider randomness to be a \textbf{generative process}. In a generative process, you start with an initial input (a \textit{seed}) to produce an output.
+
+	For a process to be truly "generative" in a secure way, it must be non-deterministic.
+\end{tcolorbox}
+
+\begin{tcolorbox}[title = Definition: Data]
+	\begin{itemize}
+		\item \textbf{Plaintext} space $\mathbf P$: the set of all possible messages $\texttt{ptx} \in \mathbf P$. This represents words in some human-readable alphabet, now enchoded as bitstrings $\{ 0, 1 \}^I$.
+		\item \textbf{Ciphertext} space $\mathbf C$: the set of all possible ciphertexts $\texttt{ctx} \in \mathbf C$. Usually $\{ 0, 1 \}^{I'} \}$, not necessarily with $I = I'$ (meaning that the ciphertexts may be larger than the plaintexts).
+		\item \textbf{Key} space $\mathbf K$: the set of all possible keys. $\{ 0, 1 \}^\lambda$, keys with special formats are deribed from bitstrings.
+	\end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title = Definition: Functions]
+	\begin{itemize}
+		\item \textbf{Encryption function} $\mathbb E : \mathbf P \times \mathbf K \to \mathbf C$.
+		\item \textbf{Decription function} $\mathbb D : \mathbf C \times \mathbf K \to \mathbf P$.
+	\end{itemize}
+
+	These functions must ensure \textbf{correctness}: for all $\texttt{ptx} \in \mathbf P$, we need $k, k' \in \mathbf K$ s.t. $\mathbb D \left( \mathbb E(\texttt{ptx}, k), k' \right) = \texttt{ptx}$.
+\end{tcolorbox}
+
+\subsubsection{Providing confidentiality}
+
+We can think of encryption as providing a secure logical channel between two users who only have access to an insecure physical channel. Below are a few things that an attacker might do to the insecure physical channel:
+
+\begin{itemize}
+	\item The attacker may passively eavesdrop; i.e., simply observe the channel (cyphertext-only attack).
+	\item The attacker knows a set of possible plaintexts; e.g., they might know that every message starts with "hello" or contain certain common phrases.
+	\item The attacker may tamper with the data and observe the reactions of a decryption-capable entity; e.g., send a slightly altered cyphertext to the server and watch how the server reacts.
+\end{itemize}
+
+The goal is to prevent anyone not authorized from being able to understand data (\textbf{confidentiality}).
+
+\subsubsection{Perfectly secure cypher}
+
+\begin{tcolorbox}[title = Definition: Perfect cypher]
+	In a \textit{perfect cypher}, for all $\texttt{ptx} \in \mathbf P$ and $\texttt{ctx} \in \mathbf C$,
+	$$
+		\mathrm{Pr}(\texttt{ptx} \text{ sent} = \texttt{ptx})
+		=
+		\mathrm{Pr}(\texttt{ptx} \text{ sent} = \texttt{ptx} \ | \ \texttt{ctx} \text{ sent} = \texttt{ctx})
+	$$
+	In other words, the probability of a message being "X" is the same before and after an attacker sees the ciphertext. Seeing the ciphertext $\texttt{ctx} \in \mathbf C$ gives the attacker \textbf{zero new information} about the original message. To them, the message could still be anything.
+\end{tcolorbox}
+
+This definition is not constructive. To understand what a perfect cypher looks like, we can use the following theorem.
+
+\begin{Theorem}
+	ciao
+\end{Theorem}

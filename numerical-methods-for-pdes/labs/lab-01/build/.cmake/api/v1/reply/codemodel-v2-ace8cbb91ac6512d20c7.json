@@ -1,0 +1,78 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Release-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "lab-01",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "Poisson1D::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-Poisson1D-Release-dbd46f6f38d8f0dc5ae5.json",
+					"name" : "Poisson1D",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "exercise-01::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-exercise-01-Release-4b22ed252ac0c520a8ef.json",
+					"name" : "exercise-01",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "exercise-02::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-exercise-02-Release-ccb2bcc82a26bb33aa15.json",
+					"name" : "exercise-02",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/workspace/lab-01/build",
+		"source" : "/workspace/lab-01"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

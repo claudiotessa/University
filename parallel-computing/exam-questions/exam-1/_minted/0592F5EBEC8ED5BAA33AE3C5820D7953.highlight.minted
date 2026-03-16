@@ -1,0 +1,12 @@
+\begin{MintedVerbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8\relax}]
+\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{} void myKernel(int *data, int N) \PYGZob{}
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    if (idx \PYGZlt{} N) \PYGZob{}
+        if (idx \PYG{esc}{\%} 2 == 0) \PYGZob{}
+            data[idx] *= 2;
+        \PYGZcb{} else \PYGZob{}
+            data[idx] += 1;
+        \PYGZcb{}
+    \PYGZcb{}
+\PYGZcb{}
+\end{MintedVerbatim}

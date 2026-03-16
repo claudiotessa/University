@@ -1,0 +1,8 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+for (i=4; i\PYGZlt{}100; i++) \PYGZob{}
+    for (j=1; j\PYGZlt{}100; j++)
+        a[i][0] *= f(a[i][j]);
+    for (j=0; j\PYGZlt{}100; j++)
+        b[i\PYGZhy{}4][j] += f(b[i][j]);
+\PYGZcb{}
+\end{MintedVerbatim}

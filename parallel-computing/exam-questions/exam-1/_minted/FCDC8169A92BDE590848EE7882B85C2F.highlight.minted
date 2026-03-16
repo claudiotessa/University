@@ -1,0 +1,9 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYGZus{}\PYGZus{}global\PYGZus{}\PYGZus{} void myKernel(float* d\PYGZus{}Pin, float* d\PYGZus{}Pout, int n, int m) \PYGZob{}
+    int Row = blockIdx.y*blockDim.y + threadIdx.y;
+    int Col = blockIdx.x*blockDim.x + threadIdx.x;
+    if ((Row \PYGZlt{} m) \PYGZam{}\PYGZam{} (Col \PYGZlt{} n)) \PYGZob{}
+        d\PYGZus{}Pout[Row*n+Col] = 2*d\PYGZus{}Pin[Row*n+Col];
+    \PYGZcb{}
+\PYGZcb{}
+\end{MintedVerbatim}

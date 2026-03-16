@@ -1,0 +1,215 @@
+\subsection{Exercises 2-3}
+
+\num Efficient parallel programming with CUDA requires knowledge about GPU architecture. Discuss this claim by providing concrete examples.
+
+\begin{tcolorbox}
+	Yes because performance gains depend on aligning code with physical hardware constraints rather than just logical correctness.
+
+	For example, a developer must understand the SIMT (Single Instruction, Multiple Threads) execution model to avoid warp divergence, where conditional branches (\texttt{if-else}) force the hardware to serialize execution paths, leaving ALUs idle.
+
+	Additionally, maximizing memory throughput requires knowledge of memory coalescing, structuring data access so that threads read contiguous addresses, allowing the memory controller to merge individual requests into a single transaction.
+\end{tcolorbox}
+
+\num What is Unified Memory in CUDA? When is it used?
+
+\begin{tcolorbox}
+	Unified Memory is an abstraction that lets the programmer treat the host and device memories as a single address space. Data transfers between host and device happen at runtime. It is used to simplify the programming (so that data does not need to be moved explicitly between host and device) and it might be useful for sparse/irregular workloads or in multi-GPU systems.
+\end{tcolorbox}
+
+\num Given the following CUDA kernel, discuss the impact of control divergence for different \texttt{N} values.
+
+\begin{minted}[escapeinside=||, autogobble]{text}
+    __global__ void myKernel(int *data, int N) {
+        int idx = threadIdx.x + blockIdx.x * blockDim.x;
+        if (idx < N) {
+            if (idx |\%| 2 == 0) {
+                data[idx] *= 2;
+            } else {
+                data[idx] += 1;
+            }
+        }
+    }
+\end{minted}
+
+\begin{tcolorbox}
+	The impact of control divergence in this kernel is severe regardless of \texttt{N}. Since CUDA threads are grouped into warps of 32 consecutive indices, the condition \texttt{idx \% 2 == 0} creates an alternating pattern. Consequently, the GPU hardware must serialize the execution, halving the throughput for the entire kernel execution.
+
+	The value of \texttt{N} only affects the boundary check (\texttt{idx < N}). Ideally, \texttt{N} should be greater than the warp size, but the divergence explained above dominates the performance penalty.
+\end{tcolorbox}
+
+\num Is an execution configuration of <<<120, 120>>> suitable for a GPU with 40 streaming processors and 32-thread warps?
+
+\begin{tcolorbox}
+	<<<120, 120>>> means a kernel launch with 120 blocks, each with 120 threads.
+
+	While this will execute correctly, it is \textbf{not optimal} for 32-thread warps, because 120 is not a multiple of 32, so the hardware must allocate 4 warps ($32 \times 4 = 128$) for every block, leaving 8 threads idle in every block.
+\end{tcolorbox}
+
+\num Considering the execution configuration of the previous question, how many copies of a shared variable will exist during the execution of the kernel?
+
+\begin{tcolorbox}
+	here will be exactly \textbf{120 copies} of the shared variable. In CUDA, a variable declared as shared has a scope limited to a single Thread Block. Since the execution configuration <<<120, 120>>> launches 120 distinct blocks, the GPU allocates a separate instance of that shared memory variable for each block.
+\end{tcolorbox}
+
+\num What is on-demand migration and why is it harmful for performance?
+
+\begin{tcolorbox}
+	\textbf{On-demand migration} is the automatic movement of memory pages between the host (CPU) and device (GPU) memory, triggered by a page fault when a processor attempts to access data that resides physically on the other device.
+
+	It is harmful to performance because the fault halts execution, forcing the system to transfer data (slow) between devices before resuming.
+\end{tcolorbox}
+
+\num Control divergence only happens when the kernel contains \texttt{if-else} blocks. Is this statement true or false? Explain.
+
+\begin{tcolorbox}
+	\textbf{FALSE}.
+
+	Control divergence occurs whenever threads within the same warp are required to execute different instructions at the same time. \texttt{if-else} blocks are the most common cause, but divergence also happens in loops where the loop condition depends for example on the thread ID.
+	In this cases, the hardware must serialize the execution.
+\end{tcolorbox}
+
+\num Consider the following CUDA code fragment.
+
+\begin{minted}[autogobble]{text}
+    unsigned int t = threadIdx.x;
+    unsigned int start = 2*blockIdx.x*blockDim.x;
+    partialSum[t] = input[start + t];
+    partialSum[blockDim.x+t] = input[start+ blockDim.x+t];
+
+    for (unsigned int stride = 1; stride <= blockDim.x; stride *= 2)
+    {
+        __syncthreads();
+        if (t % stride == 0) { partialSum[2*t]+= partialSum[2*t+stride]; }
+    }
+\end{minted}
+
+If the block size is 1024 and the warp size is 32, how many warps in a block will have divergence during the iteration where the stride is equal to 64?
+
+\begin{tcolorbox}
+	\textbf{16}.
+
+	With a block size of 1024 and a warp size of 32, there are $1024 / 32 = 32$ total warps in the block (indexed 0 to 31). The condition \texttt{if (t \% 64 == 0)} is true only for threads that are multiples of 64 (i.e., threads 0, 64, 128, ..., 960). These active threads correspond to the first thread of every even-numbered warp (e.g., thread 64 is the first thread of Warp 2).
+
+	\begin{itemize}
+		\item \textbf{Even} Warps (0, 2, ... 30) contain 1 active thread and 31 inactive threads. Since threads in the same warp must take different paths, \textbf{these 16 warps diverge}.
+		\item \textbf{Odd} Warps (1, 3, ... 31): Contain 0 active threads (e.g., Warp 1 covers threads 32–63, none of which are multiples of 64). These warps are uniformly inactive and do not diverge.
+	\end{itemize}
+
+\end{tcolorbox}
+
+\num Assume that each CUDA atomic operation takes 4ns to complete in L2 cache and 100ns to complete in DRAM. If 90\% of atomic operations in a program hit in L2 cache, what is the approximate throughput for atomic operations on the same global memory variable?
+
+\begin{tcolorbox}
+	To estimate the throughput, we first calculate the Average Memory Access Time (AMAT) for a single atomic operation.
+	$$
+		\text{AMAT} = (0.9 \times 4 \text{ ns}) + (0.1 \times 100 \text{ ns}) = 13.6 \text{ ns}
+	$$
+	The throughput is the inverse of this average latency:
+	$$
+		\text{Throughput} = \frac{1}{13.6 \times 10^{-1} \text{ s}} \approx 73.5 \times 10^6 \text{ operations/second}
+	$$
+\end{tcolorbox}
+
+\num Is it possible to launch multiple different CUDA kernels in parallel? How?
+
+\begin{tcolorbox}
+	\textbf{Yes}. This is achieved using \textbf{CUDA Streams}. By default, operations in the main stream (Stream 0) execute sequentially, but if you create separate non-default streams (using \texttt{cudaStreamCreate}) and launch different kernels into them (e.g., \texttt{kernelA<<<..., stream1>>>} and \texttt{kernelB<<<..., stream2>>>)}, the GPU hardware scheduler can execute them in parallel.
+
+	This overlap is possible only if there are sufficient hardware resources (Streaming Multiprocessors) available to accommodate the blocks from both kernels and no synchronization barriers exist between the streams
+\end{tcolorbox}
+
+\num What is “false sharing”? Write an example of an OpenMP program that suffers from it.
+
+\begin{tcolorbox}
+	\textbf{False sharing} occurs when multiple threads on different cores modify independent variables that \textit{happen} to share the same cache line. Even though the threads are not logically sharing data, the cache coherence protocol invalidates the entire cache line. This forces the cores to repeatedly "ping-pong" the cache line between their local caches, causing severe latency.
+
+	\begin{minted}[autogobble]{cpp}
+        int array[4] // tiny array that fits in one cache line
+        #pragma omp parallel for num_threads(4)
+        for (int i = 0; i < 4; i++) {
+            // Threads modify adjacent memory simultaneously = False sharing
+            for (int j = 0; j < 100000; j++) {
+                array[i]++;
+            }
+        }
+    \end{minted}
+\end{tcolorbox}
+
+\num You are tasked with accelerating on GPU an application that contains a) pre-processing of images implemented as a set of for loops; b) a deep neural network; c) control-intensive post-processing of the results. Which programming model would you choose to implement each of the three components? Motivate your answers.
+
+\begin{tcolorbox}
+	\begin{enumerate}[label=\alph*)]
+		\item \textbf{CUDA kernels}. Image processing is \textbf{data-parallel}, which makes it ideal for CUDA as every pixel is independent and can be run on a different thread. Allows to also utilize \textbf{shared memory} to handle region where the value of neighboring pixels is needed. This avoid the overhead of frequently accessing global memory.
+		\item \textbf{Halide}. Decouples the algorithm from the execution schedule, allowing the mathematical logic to be defined once while the performance optimizations are tuned separately for the GPU.
+		\item \textbf{Host (CPU)}. GPUs are SIMT architectures. If the code is control-intensive, it causes Warp Divergence, where threads in a group must wait for each other to execute both sides of a branch. This destroys parallelism. The CPU, with branch prediction and out-of-order execution, handles complex logic far better than a GPU.
+	\end{enumerate}
+\end{tcolorbox}
+
+\num Briefly describe the three different ways in which it is possible to access memory across different CUDA devices.
+
+\begin{tcolorbox}
+	\begin{enumerate}
+		\item \textbf{Fully explicit} specifying source and destination device. Using \texttt{cudaMemcpyPeerAsync()} to asynchronously transfer memory between two devices. Requires the IDs of the two devices, pointer to source and destination regions, size, and stream.
+		\item \textbf{Partially explicit} using \textbf{Unified addressing}: Once the flag \texttt{cudaDevAttrUnifiedAddressing} is set, we can copy regions between devices with \texttt{cudaMemcpy()}, setting the direction to \texttt{cudaMemcpyDefault}.
+		\item \textbf{Implicit}: allows kernels to directly take the data they need from a different device. It can be toggled with \texttt{cudaDeviceEnablePeerAccess()} and \texttt{cudaDeviceDisablePeerAccess()}.
+	\end{enumerate}
+\end{tcolorbox}
+
+\num What are thread hierarchy variables in CUDA and why are they useful?
+
+\begin{tcolorbox}
+	Thread hierarchy variables in CUDA are built-in vector variables (e.g., \texttt{threadIdx}, \texttt{blockIdx}, \texttt{blockDim}, \texttt{gridDim}) that provide a unique coordinate system for every thread within the execution grid.
+
+	They are useful because they enable the SIMT model: since every thread executes the exact same kernel code, it relies on these variables to calculate a unique Global ID (e.g., \texttt{i = blockIdx.x * blockDim.x + threadIdx.x}). This ID allows the thread to map itself to a specific data element (like a unique array index).
+\end{tcolorbox}
+
+\num The expression to map thread index to data index for a kernel that needs to process an element of a 1D vector is \texttt{i = blockIdx.x * blockDim.x + threadIdx.x}. Is this statement true or false? Explain the meaning of the thread hierarchy variables used.
+
+\begin{tcolorbox}
+	\textbf{TRUE}.
+
+	This is the formula to calculate the unique \textbf{global ID} for every thread in a 1D grid, allowing it to map to a specific element in a linear memory.
+
+	\begin{itemize}
+		\item \texttt{blockIdx.x}: The index of the current block within the grid (e.g., Block 0, Block 1...).
+		\item \texttt{blockDim.x}: The number of threads in each block. This allowes the formula to skip over all threads in the preceding blocks.
+		\item \texttt{threadIdx.x}: The local index of the current thread within its specific block (starting from 0).
+	\end{itemize}
+\end{tcolorbox}
+
+\num Describe the impact of CUDA atomic operations on the throughput of a program.
+
+\begin{tcolorbox}
+	CUDA atomic operations can reduce throughput, because when multiple threads attempt to modify the same memory address simultaneously, the hardware must lock that location and process the operations one by one, effectively turning parallel execution into sequential execution for that specific instruction.
+\end{tcolorbox}
+
+\num What are the advantages of using asynchronous memory prefetching when transferring data from the host to a device?
+
+\begin{tcolorbox}
+	Asynchronous memory prefetching improves performance by migrating data to the device physical memory before the kernel accesses it. This ensures that when the kernel finally launches, the necessary data is already resident in local memory, maximizing bandwidth utilization and preventing the execution units from stalling.
+\end{tcolorbox}
+
+\num What is the impact of control divergence for the following kernel, assuming blocks of 15x15 threads and an input size of \texttt{n=1280}, \texttt{m=720}? Propose a block size that results in less divergence.
+
+\begin{minted}[autogobble]{text}
+    __global__ void myKernel(float* d_Pin, float* d_Pout, int n, int m) {
+        int Row = blockIdx.y*blockDim.y + threadIdx.y;
+        int Col = blockIdx.x*blockDim.x + threadIdx.x;
+        if ((Row < m) && (Col < n)) {
+            d_Pout[Row*n+Col] = 2*d_Pin[Row*n+Col];
+        }
+    }
+\end{minted}
+
+\begin{tcolorbox}
+	The current configuration of $15 \times 15 = 225$ causes significant inefficiency due to warp under-utilization and divergence. Since the warp size is 32, the block is split into $225/32=8$ warps. The first 7 warps are full, but the 8th warp contains only 1 active thread and 31 idle threads, wasting execution cycles.
+	Furthermore, since the input width $n=1280$ is not divisible by 15, warps at the edge will suffer from divergence where some threads pass the \texttt{Col < n} check and others don't.
+
+	A better block size would be e.g. $32 \times 8$ (which has a similar total number of threads).
+\end{tcolorbox}
+
+\num How does the partitioning of input data impact the performance of a histogram program in CUDA?
+
+\begin{tcolorbox}
+	If many threads are assigned to update the same global set of bins, they suffer from massive serialization as thousands of threads queue up to perform atomic writes to the same memory addresses. By partitioning the data so that threads first compute local "sub-histograms" in Shared Memory, this contention is moved to much faster on-chip memory. However, the partitioning must be tuned carefully: if the sub-histograms are too large, they won't fit in shared memory; if they are too small, the overhead of merging them back into the final result dominates the execution time.
+\end{tcolorbox}

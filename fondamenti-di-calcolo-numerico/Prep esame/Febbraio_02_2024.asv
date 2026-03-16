@@ -1,0 +1,14 @@
+n = 6;
+A = hilb(n);
+
+[R, flag] = chol(A);
+if(flag == 0)
+    disp("Simmetrica e definita positiva");
+else
+    disp("NON simmetrica e definita positiva");
+end
+
+for(i = 1:n)
+    if(det(A(1:i, 1:i)) == 0)
+        disp
+end

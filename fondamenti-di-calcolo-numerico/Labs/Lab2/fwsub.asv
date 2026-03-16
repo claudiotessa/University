@@ -1,0 +1,20 @@
+function x = fwsub(A, b)
+
+% Metodo di sostituzione in avanti per la risoluzione di un
+% sistema lineare Ax = b
+
+% A: matrice quadrata triangolare inferiore
+% b: termine noto
+% x: soluzione
+
+% Verifico che A sia quadrata e con dimensioni coerenti a quelle di b
+n = length(b);
+if(size(A, 1) ~= n || size(A, 2) ~= n)
+    error("Dimensioni incompatibili")
+end
+
+% Verifico che A sia triangolare inferiore
+if(A ~= tril(A))
+    error("Matrice non triangolare inferiore")
+
+% Verifico che la matrice non sia singolare (det !

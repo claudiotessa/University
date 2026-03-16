@@ -1,0 +1,8 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYGZsh{}pragma omp parallel for shared(num\PYGZus{}steps) reduction(+:sum) default(none)
+for (i=1;i\PYGZlt{}= num\PYGZus{}steps; i++)
+\PYGZob{}
+    x = array[i] * 2;
+    sum = sum + x;
+\PYGZcb{}
+\end{MintedVerbatim}

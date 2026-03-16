@@ -1,0 +1,3 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYGZsh{}pragma omp for simd schedule(simd:static, 3)
+\end{MintedVerbatim}

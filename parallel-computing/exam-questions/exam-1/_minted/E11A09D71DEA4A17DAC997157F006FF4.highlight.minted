@@ -1,0 +1,12 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+unsigned int t = threadIdx.x;
+unsigned int start = 2*blockIdx.x*blockDim.x;
+partialSum[t] = input[start + t];
+partialSum[blockDim.x+t] = input[start+ blockDim.x+t];
+
+for (unsigned int stride = 1; stride \PYGZlt{}= blockDim.x; stride *= 2)
+\PYGZob{}
+    \PYGZus{}\PYGZus{}syncthreads();
+    if (t \PYGZpc{} stride == 0) \PYGZob{} partialSum[2*t]+= partialSum[2*t+stride]; \PYGZcb{}
+\PYGZcb{}
+\end{MintedVerbatim}
