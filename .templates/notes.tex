@@ -1,12 +1,70 @@
-\relax 
-\providecommand\hyper@newdestlabel[2]{}
-\providecommand\HyField@AuxAddToFields[1]{}
-\providecommand\HyField@AuxAddToCoFields[2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Linear regression}{2}{subsection.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Multivariate data}{2}{subsection.1.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.1}Supervised learning}{3}{subsubsection.1.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.2}Unsupervised learning}{4}{subsubsection.1.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}The prediction problem}{4}{subsection.1.3}\protected@file@percent }
-\xdef \mintedoldcachechecksum{\detokenize{\minted@cachechecksum }}
-\gdef \@abspage@last{4}
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{mathrsfs}
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable}
+\tcbset{
+    parbox=false,
+    breakable
+}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{witharrows}
+\usepackage{minted}
+\usepackage{array}
+\usepackage{booktabs}
+
+% Custom commands
+\newtcolorbox{altbox}[1][]{
+   	enhanced,
+		title = Example,
+		attach boxed title to top left = {
+				xshift = 1em,
+				yshift*=-\tcboxedtitleheight/2
+			},
+    #1 % Allows for extra local overrides
+}
+
+\newtheoremstyle{spaced}
+    {\parskip}   % Space above
+    {\parskip}   % Space below
+    {\itshape}   % Body font
+    {}           % Indent
+    {\bfseries}  % Head font
+    {.}          % Punctuation
+    {.5em}       % Space after head
+    {}
+
+\theoremstyle{spaced}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{spaced}
+\newtheorem{definition}{Definition}
+
+% Page setup
+\geometry{a4paper, margin=1in}
+
+% Title
+\title{COMPUTING INFRASTRUCTURES}
+\author{Claudio Tessa}
+\date{Last updated: \today}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/exam-rules.tex}
+
+\tableofcontents
+\newpage
+
+
+\end{document}

@@ -33,103 +33,89 @@ using namespace dealii;
 /**
  * Class managing the differential problem.
  */
-class Poisson2D
-{
-public:
-  // Physical dimension (1D, 2D, 3D)
-  static constexpr unsigned int dim = 2;
-
-  // Dirichlet boundary function.
-  //
-  // This is implemented as a dealii::Function<dim>, instead of e.g. a lambda
-  // function, because this allows to use dealii boundary utilities directly.
-  class FunctionG : public Function<dim>
-  {
+class Poisson2D {
   public:
+    // Physical dimension (1D, 2D, 3D)
+    static constexpr unsigned int dim = 2;
+
+    // Dirichlet boundary function.
+    //
+    // This is implemented as a dealii::Function<dim>, instead of e.g. a lambda
+    // function, because this allows to use dealii boundary utilities directly.
+    class FunctionG : public Function<dim> {
+      public:
+        // Constructor.
+        FunctionG() {}
+
+        // Evaluation.
+        virtual double
+        value(const Point<dim> &p,
+              const unsigned int /*component*/ = 0) const override {
+            return p[0] + p[1];
+        }
+    };
+
     // Constructor.
-    FunctionG()
-    {}
+    Poisson2D(const std::string &mesh_file_name_, const unsigned int &r_,
+              const std::function<double(const Point<dim> &)> &mu_,
+              const std::function<double(const Point<dim> &)> &f_,
+              const std::function<double(const Point<dim> &)> &h_)
+        : mesh_file_name(mesh_file_name_), r(r_), mu(mu_), f(f_), h(h_) {}
 
-    // Evaluation.
-    virtual double
-    value(const Point<dim> &p,
-          const unsigned int /*component*/ = 0) const override
-    {
-      return p[0] + p[1];
-    }
-  };
+    // Initialization.
+    void setup();
 
-  // Constructor.
-  Poisson2D(const std::string                               &mesh_file_name_,
-            const unsigned int                              &r_,
-            const std::function<double(const Point<dim> &)> &mu_,
-            const std::function<double(const Point<dim> &)> &f_,
-            const std::function<double(const Point<dim> &)> &h_)
-    : mesh_file_name(mesh_file_name_)
-    , r(r_)
-    , mu(mu_)
-    , f(f_)
-    , h(h_)
-  {}
+    // System assembly.
+    void assemble();
 
-  // Initialization.
-  void
-  setup();
+    // System solution.
+    void solve();
 
-  // System assembly.
-  void
-  assemble();
+    // Output.
+    void output() const;
 
-  // System solution.
-  void
-  solve();
+  protected:
+    // Name of the mesh.
+    const std::string mesh_file_name;
 
-  // Output.
-  void
-  output() const;
+    // Polynomial degree.
+    const unsigned int r;
 
-protected:
-  // Name of the mesh.
-  const std::string mesh_file_name;
+    // Diffusion coefficient.
+    std::function<double(const Point<dim> &)> mu;
 
-  // Polynomial degree.
-  const unsigned int r;
+    // Forcing term.
+    std::function<double(const Point<dim> &)> f;
 
-  // Diffusion coefficient.
-  std::function<double(const Point<dim> &)> mu;
+    // Neumann boundary condition.
+    std::function<double(const Point<dim> &)> h;
 
-  // Forcing term.
-  std::function<double(const Point<dim> &)> f;
+    // Triangulation.
+    Triangulation<dim> mesh;
 
-  // Neumann boundary condition.
-  std::function<double(const Point<dim> &)> h;
+    // Finite element space.
+    std::unique_ptr<FiniteElement<dim>> fe;
 
-  // Triangulation.
-  Triangulation<dim> mesh;
+    // Quadrature formula.
+    std::unique_ptr<Quadrature<dim>> quadrature;
 
-  // Finite element space.
-  std::unique_ptr<FiniteElement<dim>> fe;
+    // Quadrature formula for boundary integrals.
+    std::unique_ptr<Quadrature<dim - 1>> quadrature_boundary;
 
-  // Quadrature formula.
-  std::unique_ptr<Quadrature<dim>> quadrature;
+    // DoF handler.
+    DoFHandler<dim> dof_handler;
 
-  // Quadrature formula for boundary integrals.
-  std::unique_ptr<Quadrature<dim - 1>> quadrature_boundary;
+    // Sparsity pattern.
+    SparsityPattern sparsity_pattern;
 
-  // DoF handler.
-  DoFHandler<dim> dof_handler;
+    // System matrix.
+    SparseMatrix<double> system_matrix;
 
-  // Sparsity pattern.
-  SparsityPattern sparsity_pattern;
+    // System right-hand side.
+    Vector<double> system_rhs;
 
-  // System matrix.
-  SparseMatrix<double> system_matrix;
-
-  // System right-hand side.
-  Vector<double> system_rhs;
-
-  // System solution.
-  Vector<double> solution;
+    // System solution.
+    Vector<double> solution;
 };
 
 #endif

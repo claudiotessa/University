@@ -1,0 +1,4 @@
+/workspace/lab-02/build/CMakeFiles/exercise-01.dir
+/workspace/lab-02/build/CMakeFiles/exercise-02.dir
+/workspace/lab-02/build/CMakeFiles/edit_cache.dir
+/workspace/lab-02/build/CMakeFiles/rebuild_cache.dir
