@@ -111,6 +111,7 @@ $$
 $$
 where $Bias[\hat f(x_0)] = E[\hat f(x_0)] - f(x_0)$.
 \begin{itemize}
-	\item \textbf{Variance}: captures how much the model changes if you train it on a different training set. High variance indicates the model is \textit{over-specialized} or \textit{overfitting} to its specific dataset.
-	\item \textbf{Bias}
+	\item \textbf{Variance}: captures how much the model changes if you train it on a different training set. High variance indicates the model is \textit{over-specialized} or \textit{over-fitting} to its specific dataset.
+    \item \textbf{Bias}: what is the inherent error that you obtain from your model, even with infinite training data. This is due to the model being \textit{biased} to a particular kind of solution.
+    \item \textbf{Noise}: measures ambiguity due to the data distribution and feature representation. You can never beat this, it is an aspect of the data.
 \end{itemize}

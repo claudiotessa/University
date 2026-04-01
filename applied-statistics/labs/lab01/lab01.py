@@ -2,12 +2,12 @@
 Applied statistics lab1
 """
 
+from scipy.stats import kurtosis, skew
 import pandas as pd
-
-pd.options.display.float_format = "{:.2f}".format
-
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+pd.options.display.float_format = "{:.2f}".format
 
 PATH = ""
 df = pd.read_csv("datasets/heart_failure_clinical_records_dataset_smhd.csv")
@@ -16,7 +16,7 @@ df = pd.read_csv("datasets/heart_failure_clinical_records_dataset_smhd.csv")
 print(type(df))
 print(df)  # prints full table
 print(df.shape)  # prints (rows, columns) of the table
-print(df.info()) # prints column name, non-null count, data type 
+print(df.info()) # prints column name, non-null count, data type
 """
 
 cat_vars = [
@@ -38,7 +38,7 @@ num_vars = [
     "time",
 ]
 
-### Categorical variables
+# Categorical variables
 
 print("Absolute frequency:")  # just counts per category
 print(df["diabetes"].value_counts())
@@ -55,15 +55,16 @@ print(df["anaemia"].nunique())  # counts the unique categories
 
 print("\n\n")
 
-### Barplots
+# Barplots
 
 colors = ["#baddf5", "#cc2b2b"]
 
-ax = sns.countplot(data=df, x="anaemia", palette=colors, hue="anaemia", legend=False)
+ax = sns.countplot(data=df, x="anaemia", palette=colors,
+                   hue="anaemia", legend=False)
 ax.set_title("Barplot anaemia")
 # plt.show()  # program PAUSES until you close the window
 
-## A grid of barplots for all categorical variables
+# A grid of barplots for all categorical variables
 
 fig, ax = plt.subplots(nrows=2, ncols=3, figsize=(13, 10))
 
@@ -83,12 +84,13 @@ plt.tight_layout()  # avoid overlap among subplots
 print(df[num_vars].describe())  # prints count, percentiles, min-max, ...
 
 # IQR interQuantile Range: 75% - 25%
-iqr = df["ejection_fraction"].quantile(0.75) - df["ejection_fraction"].quantile(0.25)
+iqr = df["ejection_fraction"].quantile(
+    0.75) - df["ejection_fraction"].quantile(0.25)
 print("IQR:", iqr)
 
-#### Histograms
+# Histograms
 
-## Note: barplots for categorical, histograms for numerical variables
+# Note: barplots for categorical, histograms for numerical variables
 
 nrows = 4
 ncols = 2
@@ -108,12 +110,11 @@ for i in range(len(num_vars)):
     plt.title(title)
 # plt.show()
 
-### Kurtosis and skeweness
+# Kurtosis and skeweness
 # skeweness is a measure of the asymmetry of a distribution
 # skeweness = 3 * [(mean - median) / (std)]
 # kurtosis is a measure of the tailedness of a districution (how often outliers occur)
 
-from scipy.stats import kurtosis, skew
 
 # Create a list (of dictionaries) to store the results
 results = []
@@ -129,7 +130,7 @@ ks_df = pd.DataFrame(results)
 print(ks_df)
 
 
-### Boxplots
+# Boxplots
 # to visualize the distribution of a numerical variable, highlighting its main statistics (min, max, mean, median)
 
 fig, ax = plt.subplots(nrows=4, ncols=2, figsize=(10, 25))
@@ -140,7 +141,7 @@ for i in range(len(num_vars)):
     plt.title(title)
 plt.show()
 
-### Bivariate and multivariate statistics
+# Bivariate and multivariate statistics
 
 # Histograms grouped by a categorical variable
 sns.histplot(
@@ -155,7 +156,7 @@ sns.histplot(
 # Boxplot grouped by a categorical variable
 sns.boxplot(x="DEATH_EVENT", y="serum_creatinine", data=df, hue="DEATH_EVENT")
 
-### Covariance matrix (see covariance matrix formula)
+# Covariance matrix (see covariance matrix formula)
 # positive covariance = the variables increase together
 # negative covariance = the variables decrease together
 cov_matrix = df[num_vars].cov()
@@ -167,18 +168,19 @@ sns.heatmap(cov_matrix, annot=True, cmap="Blues")
 plt.title("Covariance Matrix Heatmap")
 plt.show()
 
-### Correlation matrix (see formula): bounded in [-1, 1]
+# Correlation matrix (see formula): bounded in [-1, 1]
 corrmat = df[num_vars].corr()
 plt.figure(figsize=(12, 9))
 sns.heatmap(corrmat, cmap="Blues", annot=True)
 plt.title("Correlation Matrix Heatmap")
 plt.show()
 
-### Scatterplot
+# Scatterplot
 sns.scatterplot(data=df, x="bmi", y="ejection_fraction", hue="DEATH_EVENT")
 
 # scatterplot with multiple variables
-vars_to_plot = ["serum_sodium", "bmi", "ejection_fraction", "age", "serum_creatinine"]
+vars_to_plot = ["serum_sodium", "bmi",
+                "ejection_fraction", "age", "serum_creatinine"]
 sns.pairplot(
     df, x_vars=vars_to_plot, y_vars=vars_to_plot, hue="DEATH_EVENT", height=5
 ).add_legend()
